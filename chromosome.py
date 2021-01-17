@@ -7,6 +7,9 @@ class Chromosome:
     def __init__(self, chromosome_size, distances):
         self.chromosome_size = chromosome_size
         self.genes = np.empty(self.chromosome_size, dtype=int)
+        for i in range(self.genes.size):
+            self.genes[i] = -1
+
         self.fitness = math.inf
 
         self.distances = distances
@@ -40,10 +43,13 @@ class Chromosome:
         return costs_sum
 
     def mutate(self):
-        rand_mutate_ind = np.random.randint(self.distances[0].size - self.chromosome_size)
+        rand_mutate_ind = np.random.randint(self.distances[0].size)
 
-        if rand_mutate_ind in self.genes:
-            rand_mutate_ind += 1
+        while rand_mutate_ind in self.genes:
+            if rand_mutate_ind < self.distances[0].size - 1:
+                rand_mutate_ind += 1
+            else:
+                rand_mutate_ind = 0
 
         rand_gen_pos = np.random.randint(self.genes.size)
         self.genes[rand_gen_pos] = rand_mutate_ind

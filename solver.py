@@ -7,26 +7,30 @@ from population import Population
 
 
 class Solver:
-    def __init__(self, Z, distances, P, ng, Pc, Pm):
+    def __init__(self, Z, distances, P, ng, Pc, Pm, Pmb, k=None):
 
         self.distances = distances
 
         # Find k number based on number of customers K and
         # acceptable TSPTW subproblem size Z
-        K = len(distances)
-        self.k = math.ceil(K / Z)
-
+        if k is None:
+            K = len(distances)
+            self.k = math.ceil(K / Z)
+        else:
+            self.k = k
         self.P = P
         self.ng = ng
 
         self.Pc = Pc
         self.Pm = Pm
+        self.Pmb = Pmb
 
-        self.populations = np.array([])
-        for _ in range(self.ng):
-            self.populations = np.append(self.populations, Population(self.P, self.k, self.distances))
-
+        self.current_population = Population(self.P, self.k, self.distances)
         self.best_chromosome = Chromosome(self.k, self.distances)
+
+        self.total_travel_distance = 0.0
+        self.total_waiting_time = 0.0
+        self.total_late_time = 0.0
 
     def make_cluster_from_medoids(self):
         medoids = self.best_chromosome.genes
@@ -53,35 +57,38 @@ class Solver:
         return result
 
     def solve(self):
-        self.populations[0].generate_random_population()
-        self.populations[0].calculate_fitness()
-        self.save_new_best_chromosome(self.populations[0])
+        self.current_population.generate_random_population()
+        self.current_population.calculate_fitness()
+        self.save_new_best_chromosome(self.current_population)
 
         print("---------")
         print("Iteration {}".format(0))
         print("Best chromosome fitness {}".format(self.best_chromosome.fitness))
+        print("All chromosomes genes: {}".format(
+            [chromosome.genes.tolist() for chromosome in self.current_population.chromosomes]))
         print("Best genes {}".format(self.best_chromosome.genes))
         print("---------")
 
         for i in range(1, self.ng):
-            self.populations[i] = self.populations[i - 1].selection()
-            self.populations[i].crossover(self.Pc)
-            self.populations[i].mutate(self.Pm)
+            self.current_population = self.current_population.selection()
+            self.current_population.dmx_crossover(self.Pc, self.Pmb)
+            self.current_population.mutate(self.Pm)
 
-            print([chromosome.genes for chromosome in self.populations[i].chromosomes])
-
-            self.populations[i].calculate_fitness()
-            self.save_new_best_chromosome(self.populations[i])
+            self.current_population.calculate_fitness()
+            self.save_new_best_chromosome(self.current_population)
 
             print("---------")
-            print("Iteration {}".format(i))
-            print("Best chromosome fitness {}".format(self.best_chromosome.fitness))
-            print("Best genes {}".format(self.best_chromosome.genes))
+            print("Iteration: {}".format(i))
+            print("Best chromosome fitness: {}".format(self.best_chromosome.fitness))
+            print("All chromosomes genes: {}".format(
+                [chromosome.genes.tolist() for chromosome in self.current_population.chromosomes]))
+            print("Best genes: {}".format(self.best_chromosome.genes))
             print("---------")
 
         return self.make_cluster_from_medoids()
 
     def save_new_best_chromosome(self, population):
         chrom_fitness = population.find_best_chromosome().fitness
-        if chrom_fitness < self.best_chromosome.fitness:
+        print("cur fitness: {}".format(chrom_fitness))
+        if chrom_fitness <= self.best_chromosome.fitness:
             self.best_chromosome = population.find_best_chromosome()

@@ -12,8 +12,6 @@ class Population:
 
         self.distances = distances
 
-        self.best_chromosome_ind = -1
-
         self.chromosomes = np.array([])
         for _ in range(self.population_size):
             self.chromosomes = np.append(self.chromosomes, Chromosome(chromosome_size, self.distances))
@@ -54,10 +52,11 @@ class Population:
 
         return new_population
 
-    def crossover(self, prob):
+    def one_point_crossover(self, prob):
         for i in range(int(np.ceil(self.population_size / 2))):
             if prob > random.random():
-                rand_parents_ind = np.random.choice(np.arange(0, self.population_size), replace=False, size=self.population_size)
+                rand_parents_ind = np.random.choice(np.arange(0, self.population_size), replace=False,
+                                                    size=self.population_size)
 
                 cut_point_ind = random.randint(1, self.chromosomes[0].chromosome_size - 1)
 
@@ -91,3 +90,38 @@ class Population:
                 min_ind = i
 
         return self.chromosomes[min_ind]
+
+    def dmx_crossover(self, crossover_prob, mut_prob):
+        for i in range(0, self.population_size - 1, 2):
+            if crossover_prob > random.random():
+                mixed_gene = np.concatenate((self.chromosomes[i].genes, self.chromosomes[i + 1].genes))
+                np.random.shuffle(mixed_gene)
+
+                # Apply built-in mutation
+                for k in range(mixed_gene.size):
+                    if mut_prob > random.random():
+                        mixed_gene[k] = random.randint(0, self.distances[0].size - 1)
+
+                np.random.shuffle(mixed_gene)
+
+                child1 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
+                child2 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
+
+                k = 0  # index in child
+                m = 0  # index in mixed_gene
+                while k < child1.genes.size:
+                    if mixed_gene[m] not in child1.genes:
+                        child1.genes[k] = mixed_gene[m]
+                        k += 1
+                    m += 1
+
+                k = 0  # index in child
+                m = 0  # index in mixed_gene
+                while k < child1.genes.size:
+                    if mixed_gene[mixed_gene.size - m - 1] not in child2.genes:
+                        child2.genes[k] = mixed_gene[mixed_gene.size - m - 1]
+                        k += 1
+                    m += 1
+
+                self.chromosomes[i] = child1
+                self.chromosomes[i + 1] = child2
