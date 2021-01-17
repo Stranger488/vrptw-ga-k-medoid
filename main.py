@@ -18,8 +18,8 @@ alpha2 = 0.5
 # Acceptable TSPTW subproblem size Z
 Z = 4
 
-# Population size, i. g. number of chromosomes in population
-P = 15
+# Population size, i. e. number of chromosomes in population
+P = 5
 
 # Number of all generations
 ng = 15
@@ -35,6 +35,7 @@ dpi_standart = 400
 linewidth_standart = 0.5
 
 width = depth = 0.5
+
 
 # fix wrong z-offsets in 3d plot
 def _get_coord_info_new(self, renderer):
@@ -86,10 +87,6 @@ def solve_test():
     test_dataset_points = test_dataset[1:][:]
     tws_reduced = tws_all[1:]
 
-    # print(spatiotemporal_points_dist)
-    # print(test_dataset_points)
-    # plot_with_tws(test_dataset, spatiotemporal.tws_all, spatiotemporal.MAX_TW)
-
     solver = Solver(Z, spatiotemporal_points_dist, P, ng, Pc, Pm)
     result = solver.solve()
 
@@ -97,6 +94,9 @@ def solve_test():
     res_tws = np.array([[tws_reduced[point] for point in cluster] for cluster in result])
 
     plot_clusters(test_dataset_points, res_dataset, res_tws, spatiotemporal.MAX_TW)
+
+    print(res_dataset)
+    print(res_tws)
 
 
 def plot_clusters(init_dataset, dataset, tws, max_tw):

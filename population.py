@@ -1,3 +1,4 @@
+import math
 import random
 
 import numpy as np
@@ -13,14 +14,17 @@ class Population:
 
         self.best_chromosome_ind = -1
 
-        self.chromosomes = np.empty(self.population_size, dtype=Chromosome)
-        self.chromosomes.fill(Chromosome(chromosome_size, self.distances))
+        self.chromosomes = np.array([])
+        for _ in range(self.population_size):
+            self.chromosomes = np.append(self.chromosomes, Chromosome(chromosome_size, self.distances))
 
     def generate_random_population(self):
+        # Generate random genes for every chromosome
         for chromosome in self.chromosomes:
             chromosome.generate_random_chromosome()
 
     def calculate_fitness(self):
+        # Calculate fitness for every chromosome in population
         for chromosome in self.chromosomes:
             chromosome.calculate_fitness()
 
@@ -51,31 +55,39 @@ class Population:
         return new_population
 
     def crossover(self, prob):
-        if prob > random.random():
-            rand_parents_ind = np.random.choice(np.arange(0, self.population_size), replace=False, size=2)
+        for i in range(int(np.ceil(self.population_size / 2))):
+            if prob > random.random():
+                rand_parents_ind = np.random.choice(np.arange(0, self.population_size), replace=False, size=self.population_size)
 
-            cut_point_ind = random.randint(1, self.chromosomes[0].chromosome_size - 1)
+                cut_point_ind = random.randint(1, self.chromosomes[0].chromosome_size - 1)
 
-            parent1 = self.chromosomes[rand_parents_ind[0]]
-            parent2 = self.chromosomes[rand_parents_ind[1]]
+                parent1 = self.chromosomes[rand_parents_ind[i]]
+                parent2 = self.chromosomes[rand_parents_ind[self.population_size - i - 1]]
 
-            child1 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
-            child2 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
+                child1 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
+                child2 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
 
-            for _ in range(self.chromosomes[0].chromosome_size):
-                child1.genes[:cut_point_ind] = parent1.genes[:cut_point_ind]
-                child1.genes[cut_point_ind:] = parent2.genes[cut_point_ind:]
+                for _ in range(self.chromosomes[0].chromosome_size):
+                    child1.genes[:cut_point_ind] = parent1.genes[:cut_point_ind]
+                    child1.genes[cut_point_ind:] = parent2.genes[cut_point_ind:]
 
-                child2.genes[:cut_point_ind] = parent2.genes[:cut_point_ind]
-                child2.genes[cut_point_ind:] = parent1.genes[cut_point_ind:]
+                    child2.genes[:cut_point_ind] = parent2.genes[:cut_point_ind]
+                    child2.genes[cut_point_ind:] = parent1.genes[cut_point_ind:]
 
-            self.chromosomes[rand_parents_ind[0]] = child1
-            self.chromosomes[rand_parents_ind[1]] = child2
+                self.chromosomes[rand_parents_ind[i]] = child1
+                self.chromosomes[rand_parents_ind[self.population_size - i - 1]] = child2
 
     def mutate(self, prob):
         for chromosome in self.chromosomes:
             if prob > random.random():
                 chromosome.mutate()
 
-    def find_best_chrom(self):
-        self.best_chromosome_ind = np.argmax(np.array([el.fitness for el in self.chromosomes]))
+    def find_best_chromosome(self):
+        min_fitness = math.inf
+        min_ind = -1
+        for i, chromosome in enumerate(self.chromosomes):
+            if chromosome.fitness < min_fitness:
+                min_fitness = chromosome.fitness
+                min_ind = i
+
+        return self.chromosomes[min_ind]

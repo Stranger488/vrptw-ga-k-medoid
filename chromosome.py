@@ -7,7 +7,7 @@ class Chromosome:
     def __init__(self, chromosome_size, distances):
         self.chromosome_size = chromosome_size
         self.genes = np.empty(self.chromosome_size, dtype=int)
-        self.fitness = -math.inf
+        self.fitness = math.inf
 
         self.distances = distances
 
@@ -18,23 +18,21 @@ class Chromosome:
         costs_sum = 0.0
 
         points_size = int(np.ceil(self.distances[0].size / self.genes.size))
-
-        tmp = np.array([[-1 for _ in range(points_size)] for _ in range(self.genes.size)])
+        deprecated = np.copy(self.genes)
 
         for i, gene in enumerate(self.genes):
             for j in range(points_size):
                 if j == 0:
-                    tmp[i][0] = gene
                     costs_sum += self.distances[gene][0]
                     continue
 
                 cur_min_ind = -1
                 cur_min = math.inf
                 for k, el in enumerate(self.distances[gene]):
-                    if gene != k and el < cur_min and k not in tmp:
+                    if gene != k and el < cur_min and k not in deprecated:
                         cur_min = el
                         cur_min_ind = k
-                tmp[i][j] = cur_min_ind
+                deprecated = np.append(deprecated, cur_min_ind)
                 costs_sum += self.distances[gene][cur_min_ind]
 
         self.fitness = costs_sum
