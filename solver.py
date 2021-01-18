@@ -28,10 +28,6 @@ class Solver:
         self.current_population = Population(self.P, self.k, self.distances)
         self.best_chromosome = Chromosome(self.k, self.distances)
 
-        self.total_travel_distance = 0.0
-        self.total_waiting_time = 0.0
-        self.total_late_time = 0.0
-
     def make_cluster_from_medoids(self):
         medoids = self.best_chromosome.genes
         points_size = int(np.ceil(self.distances[0].size / medoids.size))

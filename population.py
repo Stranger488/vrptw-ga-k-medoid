@@ -52,30 +52,6 @@ class Population:
 
         return new_population
 
-    def one_point_crossover(self, prob):
-        for i in range(int(np.ceil(self.population_size / 2))):
-            if prob > random.random():
-                rand_parents_ind = np.random.choice(np.arange(0, self.population_size), replace=False,
-                                                    size=self.population_size)
-
-                cut_point_ind = random.randint(1, self.chromosomes[0].chromosome_size - 1)
-
-                parent1 = self.chromosomes[rand_parents_ind[i]]
-                parent2 = self.chromosomes[rand_parents_ind[self.population_size - i - 1]]
-
-                child1 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
-                child2 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
-
-                for _ in range(self.chromosomes[0].chromosome_size):
-                    child1.genes[:cut_point_ind] = parent1.genes[:cut_point_ind]
-                    child1.genes[cut_point_ind:] = parent2.genes[cut_point_ind:]
-
-                    child2.genes[:cut_point_ind] = parent2.genes[:cut_point_ind]
-                    child2.genes[cut_point_ind:] = parent1.genes[cut_point_ind:]
-
-                self.chromosomes[rand_parents_ind[i]] = child1
-                self.chromosomes[rand_parents_ind[self.population_size - i - 1]] = child2
-
     def mutate(self, prob):
         for chromosome in self.chromosomes:
             if prob > random.random():

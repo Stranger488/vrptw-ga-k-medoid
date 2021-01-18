@@ -1,6 +1,6 @@
-CUST_NO.   XCOORD    YCOORD   DEMAND    READY_TIME   DUE_DATE   SERVICE_TIME     VEHICLE_NUMBER    CAPACITY
+CUST_NO   XCOORD    YCOORD   DEMAND    READY_TIME   DUE_DATE   SERVICE_TIME    VEHICLE_NUMBER     CAPACITY
  
-    0      40         50          0          0        240          0        25                       200
+    0      40         50          0          0        240          0                 25              200
     1      25         85         20          0        191         10   
     2      22         75         30          0        199         10   
     3      22         85         10          0        190         10   
