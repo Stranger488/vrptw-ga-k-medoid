@@ -123,7 +123,7 @@ class Spatiotemporal:
                 self.temporal_dist_all[i, j] = self.D_temporal_integr(i, j)
 
     def D_temporal_norm(self, i, j):
-        return min(self.temporal_dist_all[i, j],
+        return max(self.temporal_dist_all[i, j],
                    self.temporal_dist_all[j, i])
 
     def norm_temporal_dist_all(self):
