@@ -1,6 +1,0 @@
-Demand TW_early TW_late TW_service_time TW_wait_cost
-1 0.0 240.0 10.0 1
-1 74.0 104.0 10.0 1
-1 0.0 178.0 10.0 1
-1 0.0 174.0 10.0 1
-1 0.0 179.0 10.0 1

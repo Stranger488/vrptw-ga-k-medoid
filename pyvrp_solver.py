@@ -8,7 +8,7 @@ class PyVRPSolver:
         # Parameters - Model
         self.n_depots = 1  # The first n rows of the distance_matrix or coordinates
         self.time_window = 'with'  # 'with', 'without'
-        self.route = 'open'  # 'open', 'closed'
+        self.route = 'closed'  # 'open', 'closed'
         self.model = 'tsp'  # 'tsp', 'mtsp', 'vrp'
         self.graph = True  # True, False
 
@@ -28,14 +28,14 @@ class PyVRPSolver:
         self.elite = 1  # GA Elite Member(s) - Total Number of Best Individual(s) that (is)are Maintained in Each Generation
         self.generations = 10  # GA Number of Generations
 
-    def solve(self, launch_count):
+    def solve(self, launch_count, data_dir='cluster_result/'):
         ga_reports = []
         plots_data = []
         for i in range(launch_count):
-            coordinates = pd.read_csv('result/coords{}.txt'.format(i), sep=' ')
+            coordinates = pd.read_csv('cluster_result/' + data_dir + 'coords{}.txt'.format(i), sep=' ')
             coordinates = coordinates.values
             distance_matrix = build_distance_matrix(coordinates)
-            parameters = pd.read_csv('result/params{}.txt'.format(i), sep=' ')
+            parameters = pd.read_csv('cluster_result/' + data_dir + 'params{}.txt'.format(i), sep=' ')
             parameters = parameters.values
 
             # Call GA Function
@@ -51,7 +51,7 @@ class PyVRPSolver:
             print(ga_report)
 
             # Save Solution Report
-            ga_report.to_csv('tsptw_result/report{}.csv'.format(i), sep=' ', index=False)
+            ga_report.to_csv('tsptw_result/' + data_dir + 'report{}.csv'.format(i), sep=' ', index=False)
 
             ga_reports.append(ga_report)
 

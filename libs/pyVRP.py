@@ -66,8 +66,8 @@ def evaluate_distance(distance_matrix, depot, subroute):
 
 # Function: Subroute Time
 def evaluate_time(distance_matrix, parameters, depot, subroute, velocity):  
-    tw_early   = parameters[:, 1]
-    tw_st      = parameters[:, 3]
+    tw_early   = parameters[:, 0]
+    tw_st      = parameters[:, 2]
     subroute_i = depot + subroute
     subroute_j = subroute + depot
     wait       = [0]*len(subroute_j)
@@ -86,7 +86,7 @@ def evaluate_time(distance_matrix, parameters, depot, subroute, velocity):
 
 # Function: Subroute Capacity
 def evaluate_capacity(parameters, depot, subroute): 
-    demand    = parameters[:, 0]
+    demand    = np.array([0.0 for _ in range(len(parameters))])
     subroute_ = depot + subroute + depot
     capacity  = list(np.cumsum(demand[subroute_]))
     return capacity 
@@ -104,7 +104,7 @@ def evaluate_depot(n_depots, individual, distance_matrix):
 
 # Function: Subroute Cost
 def evaluate_cost(dist, wait, parameters, depot, subroute, fixed_cost, variable_cost, time_window):
-    tw_wc     = parameters[:, 4]
+    tw_wc     = np.array([0.0 for _ in range(len(parameters))])
     subroute_ = depot + subroute + depot
     cost      = [0]*len(subroute_)
     if (time_window == 'with'):
@@ -115,9 +115,9 @@ def evaluate_cost(dist, wait, parameters, depot, subroute, fixed_cost, variable_
 
 # Function: Subroute Cost
 def evaluate_cost_penalty(dist, time, wait, cap, capacity, parameters, depot, subroute, fixed_cost, variable_cost, penalty_value, time_window, route):
-    tw_late = parameters[:, 2]
-    tw_st   = parameters[:, 3]
-    tw_wc   = parameters[:, 4]
+    tw_late = parameters[:, 1]
+    tw_st   = parameters[:, 2]
+    tw_wc   = np.array([0.0 for _ in range(len(parameters))])
     if (route == 'open'):
         subroute_ = depot + subroute
     else:
@@ -135,12 +135,13 @@ def evaluate_cost_penalty(dist, time, wait, cap, capacity, parameters, depot, su
 
 # Function: Solution Report
 def show_report(solution, distance_matrix, parameters, velocity, fixed_cost, variable_cost, route, time_window):
-    column_names = ['Route', 'Vehicle', 'Activity', 'Job', 'Arrive Load', 'Leave Load', 'Wait Time', 'Arrive Time','Leave Time', 'Distance', 'Costs']
+    column_names = ['Route', 'Vehicle', 'Activity', 'Job', 'Arrive_Load', 'Leave_Load', 'Wait_Time', 'Arrive_Time',
+                    'Leave_Time', 'Distance', 'Costs']
     tt         = 0
     td         = 0 
     tc         = 0
-    demand     = parameters[:, 0]
-    tw_st      = parameters[:, 3]
+    demand     = np.array([0.0 for _ in range(len(parameters))])
+    tw_st      = parameters[:, 2]
     report_lst = []
     for i in range(0, len(solution[1])):
         dist       = evaluate_distance(distance_matrix, solution[0][i], solution[1][i])
@@ -183,9 +184,9 @@ def show_report(solution, distance_matrix, parameters, velocity, fixed_cost, var
 
 # Function: Route Evalution & Correction
 def target_function(population, distance_matrix, parameters, velocity, fixed_cost, variable_cost, capacity, penalty_value, time_window, route, fleet_size = []):
-    cost     = [[0] for i in range(len(population))]
-    tw_late  = parameters[:, 2]
-    tw_st    = parameters[:, 3]
+    cost     = [[0] for _ in range(len(population))]
+    tw_late  = parameters[:, 1]
+    tw_st    = parameters[:, 2]
     flt_cnt  = [0]*len(fleet_size)
     if (route == 'open'):
         end =  2 

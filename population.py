@@ -74,9 +74,19 @@ class Population:
                 np.random.shuffle(mixed_gene)
 
                 # Apply built-in mutation
+                applied = []
                 for k in range(mixed_gene.size):
                     if mut_prob > random.random():
-                        mixed_gene[k] = random.randint(0, self.distances[0].size - 1)
+                        rand = random.randint(0, self.distances[0].size - 1)
+
+                        while rand in applied:
+                            if rand < self.distances[0].size - 1:
+                                rand += 1
+                            else:
+                                rand = 0
+
+                        applied.append(rand)
+                        mixed_gene[k] = rand
 
                 np.random.shuffle(mixed_gene)
 

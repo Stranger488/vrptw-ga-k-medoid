@@ -11,8 +11,8 @@ from pyvrp_solver import PyVRPSolver
 from spatiotemporal import Spatiotemporal
 from solver import Solver
 
-# from config_reduced import *
-from config_standard import *
+from config_reduced import *
+# from config_standard import *
 
 
 # fix wrong z-offsets in 3d plot
@@ -33,7 +33,8 @@ random.seed(seed)
 np.random.seed(seed)
 
 
-def make_solution(init_dataset, tws_all, service_time_all, k=None, distance='spatiotemp', plot=False, text=False):
+def make_solution(init_dataset, tws_all, service_time_all, k=None, distance='spatiotemp', plot=False, text=False,
+                  output_dir='cluster_result/'):
     # Init and calculate all spatiotemporal distances
     spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1, k2, k3, alpha1, alpha2)
     spatiotemporal.calculate_all_distances()
@@ -61,37 +62,43 @@ def make_solution(init_dataset, tws_all, service_time_all, k=None, distance='spa
     res_tws = np.array([[tws_reduced[point] for point in cluster] for cluster in result])
 
     for i, cluster in enumerate(res_dataset):
+        # Create coords file
         coord_df = pd.DataFrame(res_dataset[i], columns=['X', 'Y'])
 
         coord_df.loc[-1] = init_dataset[0]
         coord_df.index = coord_df.index + 1  # shifting index
         coord_df.sort_index(inplace=True)
 
-        coord_df.to_csv('result/coords{}.txt'.format(i), sep=' ', index=False)
+        coord_df.to_csv('cluster_result/' + output_dir + 'coords{}.txt'.format(i), sep=' ', index=False)
 
-        df = pd.DataFrame(res_tws[i], columns=['TW_early', 'TW_late'])
+        # Create time parameters file
+        tw_df = pd.DataFrame(res_tws[i], columns=['TW_early', 'TW_late'])
 
-        df.loc[-1] = tws_all[0]
-        df.index = df.index + 1  # shifting index
-        df.sort_index(inplace=True)
+        tw_df.loc[-1] = tws_all[0]
+        tw_df.index = tw_df.index + 1  # shifting index
+        tw_df.sort_index(inplace=True)
 
-        df.insert(0, 'Demand', [1 for i in range(len(df))])
-        df.insert(3, 'TW_service_time', [service_time_all[1][0] for i in range(len(df))])
-        df.insert(4, 'TW_wait_cost', [1 for i in range(len(df))])
+        tw_df.insert(2, 'TW_service_time', [service_time_all[i][0] for i in range(len(tw_df))])
 
-        df.to_csv('result/params{}.txt'.format(i), index=False, sep=' ')
+        tw_df.to_csv('cluster_result/' + output_dir + 'params{}.txt'.format(i), index=False, sep=' ')
 
-    tsptw_solver = PyVRPSolver()
-    tsptw_results, plots_data = tsptw_solver.solve(res_dataset.shape[0])
+    # Output distance matrix
+    distance_df = pd.DataFrame(spatiotemporal.euclidian_dist_all)
+    distance_df.to_csv('cluster_result/' + output_dir + 'distance_matrix.txt', sep=' ', index=False, header=False)
+
+    # tsptw_solver = PyVRPSolver()
+    # tsptw_results, plots_data = tsptw_solver.solve(res_dataset.shape[0], data_dir=output_dir)
 
     if plot:
+        # plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
+        #               np.array(init_dataset[0]), np.array(tws_all[0]), plots_data, axes_text=distance)
         plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
-                      np.array(init_dataset[0]), np.array(tws_all[0]), plots_data, axes_text=distance)
+                      np.array(init_dataset[0]), np.array(tws_all[0]), None, axes_text=distance)
 
-    # Estimate solution
-    dist, wait_time = estimate_solution(tsptw_results)
+    # Evaluate solution
+    # evaluation = evaluate_solution(tsptw_results)
 
-    return dist + wait_time
+    # return evaluation
 
 
 def read_standard_dataset(dataset, points_dataset, tws_all, service_time_all):
@@ -107,8 +114,8 @@ def read_standard_dataset(dataset, points_dataset, tws_all, service_time_all):
     return points_dataset, tws_all, service_time_all
 
 
-def solve(filename, distance='spatiotemp', plot=False, k=None):
-    dataset = pd.read_fwf(filename)
+def solve(filename, distance='spatiotemp', plot=False, k=None, output_dir='cluster_result/'):
+    dataset = pd.read_fwf('data/' + filename)
 
     points_dataset = np.empty((0, 2))
     tws_all = np.empty((0, 2))
@@ -117,10 +124,12 @@ def solve(filename, distance='spatiotemp', plot=False, k=None):
     points_dataset, tws_all, service_time_all = read_standard_dataset(dataset, points_dataset, tws_all,
                                                                       service_time_all)
 
-    val = make_solution(points_dataset, tws_all, service_time_all, k=int(dataset['VEHICLE_NUMBER'][0]),
-                        distance=distance, plot=plot)
+    # val = make_solution(points_dataset, tws_all, service_time_all, k=int(dataset['VEHICLE_NUMBER'][0]),
+    #                     distance=distance, plot=plot, output_dir=output_dir)
+    make_solution(points_dataset, tws_all, service_time_all, k=int(dataset['VEHICLE_NUMBER'][0]),
+                        distance=distance, plot=plot, output_dir=output_dir)
 
-    return val
+    # return val
 
 
 def plot_clusters(init_dataset, dataset, tws, max_tw, depo_spatio, depo_tws, plots_data, axes_text=None):
@@ -142,8 +151,8 @@ def plot_clusters(init_dataset, dataset, tws, max_tw, depo_spatio, depo_tws, plo
 
     for i in range(dataset.shape[0]):
         plot_with_tws(dataset[i], tws[i], max_tw, colors[i], axes)
-        plot_tour_coordinates(plots_data[i]['coordinates'], plots_data[i]['ga_vrp'], axes, colors[i],
-                              n_depots=plots_data[i]['n_depots'], route=plots_data[i]['route'])
+        # plot_tour_coordinates(plots_data[i]['coordinates'], plots_data[i]['ga_vrp'], axes, colors[i],
+        #                       n_depots=plots_data[i]['n_depots'], route=plots_data[i]['route'])
 
     axes.scatter(depo_spatio[0], depo_spatio[1], 0.0, c='black', s=1)
 
@@ -153,8 +162,8 @@ def plot_clusters(init_dataset, dataset, tws, max_tw, depo_spatio, depo_tws, plo
     axes.bar3d(depo_spatio[0] - depth / 8., depo_spatio[1] - depth / 8., 0.0, width / 4., depth / 4., max_tw,
                color='black')
 
-    # for i, data in enumerate(init_dataset):
-    #     axes.text(data[0], data[1], 0.0, str(i + 1))
+    for i, data in enumerate(init_dataset):
+        axes.text(data[0], data[1], 0.0, str(i + 1))
 
     axes.set_zlim(0, None)
 
@@ -177,27 +186,29 @@ def plot_with_tws(spatial_data, tws, max_tw, colors, axes):
     axes.scatter(x_data, y_data, z_data2, c=colors, s=cluster_size)
 
 
-def estimate_solution(tsptw_results):
+def evaluate_solution(tsptw_results):
     total_dist = 0.0
     wait_time = 0.0
+    late_time = 0.0
 
     for result in tsptw_results:
         total_dist += result['Distance'][len(result) - 1]
-        wait_time += np.sum([time for time in result['Wait Time'][:len(result) - 2]])
+        wait_time += result['Wait_Time'][len(result) - 1]
+        late_time += result['Late_Time'][len(result) - 1]
 
-    return total_dist, wait_time
+    return c_D * total_dist + c_T * wait_time + c_L * late_time
 
 
 def solve_and_plot(datasets):
     st = []
     s = []
     for dataset in datasets:
-        st.append(solve(dataset['data_file'], distance='spatiotemp', plot=dataset['plot']))
-        s.append(solve(dataset['data_file'], distance='spatial', plot=dataset['plot']))
+        st.append(solve(dataset['data_file'], distance='spatiotemp', plot=dataset['plot'], output_dir=dataset['output_dir']))
+        s.append(solve(dataset['data_file'], distance='spatial', plot=dataset['plot'], output_dir=dataset['output_dir']))
 
     for i, dataset in enumerate(datasets):
         print("Spatiotemporal res on {}: {}".format(dataset['name'], st[i]))
-        print("Spatial res on {}: {}".format(dataset['name'], s[i]))
+        print("Spatial res on {}: {}\n".format(dataset['name'], s[i]))
 
     if True in [d['plot'] for d in datasets]:
         plt.show()
@@ -205,28 +216,64 @@ def solve_and_plot(datasets):
 
 if __name__ == '__main__':
     test_dataset = {
-        'data_file': 'data/test.txt',
+        'data_file': 'test.txt',
+        'output_dir': 'test_output/',
         'plot': True,
         'name': 'test'
     }
 
     r101_reduced_dataset = {
-        'data_file': 'data/r101_reduced.txt',
+        'data_file': 'r101_reduced.txt',
+        'output_dir': 'r101_reduced_output/',
         'plot': True,
         'name': 'r101_reduced'
     }
 
     c101_dataset = {
-        'data_file': 'data/c101_mod.txt',
+        'data_file': 'c101_mod.txt',
+        'output_dir': 'c101_output/',
         'plot': False,
         'name': 'c101'
     }
 
+    r101_dataset = {
+        'data_file': 'r101_mod.txt',
+        'output_dir': 'r101_output/',
+        'plot': False,
+        'name': 'r101'
+    }
+
+    rc101_dataset = {
+        'data_file': 'rc101_mod.txt',
+        'output_dir': 'rc101_output/',
+        'plot': False,
+        'name': 'rc101'
+    }
+
+    c109_dataset = {
+        'data_file': 'c109_mod.txt',
+        'output_dir': 'c109_output/',
+        'plot': False,
+        'name': 'c109'
+    }
+
+    r109_dataset = {
+        'data_file': 'r109_mod.txt',
+        'output_dir': 'r109_output/',
+        'plot': False,
+        'name': 'r109'
+    }
+
     rc103_dataset = {
-        'data_file': 'data/rc103_mod.txt',
+        'data_file': 'rc103_mod.txt',
+        'output_dir': 'rc103_output/',
         'plot': False,
         'name': 'rc103'
     }
 
-    # solve_and_plot([test_dataset, ])
-    solve_and_plot([r101_reduced_dataset, c101_dataset, rc103_dataset])
+    solve_and_plot([test_dataset, ])
+
+    # solve_and_plot([r101_reduced_dataset, ])
+
+    # solve_and_plot([c101_dataset, r101_dataset, rc101_dataset, c109_dataset, r109_dataset, rc103_dataset])
+
