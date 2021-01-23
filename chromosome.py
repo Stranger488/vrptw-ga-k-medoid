@@ -14,8 +14,8 @@ class Chromosome:
 
         self.distances = distances
 
-    def generate_random_chromosome(self):
-        self.genes = np.random.choice(np.arange(0, self.distances[0].size), replace=False, size=self.chromosome_size)
+    def generate_random_chromosome(self, numpy_random):
+        self.genes = numpy_random.choice(np.arange(0, self.distances[0].size), replace=False, size=self.chromosome_size)
 
     def calculate_fitness(self):
         costs_sum = 0.0
@@ -42,8 +42,8 @@ class Chromosome:
 
         return costs_sum
 
-    def mutate(self):
-        rand_mutate_ind = np.random.randint(self.distances[0].size)
+    def mutate(self, numpy_random):
+        rand_mutate_ind = numpy_random.randint(self.distances[0].size)
 
         while rand_mutate_ind in self.genes:
             if rand_mutate_ind < self.distances[0].size - 1:
@@ -51,5 +51,5 @@ class Chromosome:
             else:
                 rand_mutate_ind = 0
 
-        rand_gen_pos = np.random.randint(self.genes.size)
+        rand_gen_pos = numpy_random.randint(self.genes.size)
         self.genes[rand_gen_pos] = rand_mutate_ind

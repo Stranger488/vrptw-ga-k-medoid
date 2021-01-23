@@ -1,6 +1,6 @@
 k1 = 1.0
 k2 = 1.5
-k3 = 2.0
+k3 = 4.0
 
 alpha1 = 0.5
 alpha2 = 0.5
@@ -12,7 +12,7 @@ Z = 10
 P = 50
 
 # Number of all generations
-ng = 300
+ng = 100
 
 # Crossover probability
 Pc = 0.9
@@ -30,7 +30,7 @@ c_D = 1.0
 c_T = 1.0
 
 # Cost for late time per unit
-c_L = 2.0
+c_L = 1.5
 
 # Plot parameters
 figsize_standart = (25, 15)

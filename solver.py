@@ -7,7 +7,7 @@ from population import Population
 
 
 class Solver:
-    def __init__(self, Z, distances, P, ng, Pc, Pm, Pmb, k=None):
+    def __init__(self, Z, distances, P, ng, Pc, Pm, Pmb, k=None, numpy_rand=None):
 
         self.distances = distances
 
@@ -27,6 +27,8 @@ class Solver:
 
         self.current_population = Population(self.P, self.k, self.distances)
         self.best_chromosome = Chromosome(self.k, self.distances)
+
+        self.numpy_random = numpy_rand
 
     def make_cluster_from_medoids(self):
         medoids = self.best_chromosome.genes
@@ -53,7 +55,7 @@ class Solver:
         return result
 
     def solve(self):
-        self.current_population.generate_random_population()
+        self.current_population.generate_random_population(self.numpy_random)
         self.current_population.calculate_fitness()
         self.save_new_best_chromosome(self.current_population)
 
@@ -66,9 +68,9 @@ class Solver:
         print("---------")
 
         for i in range(1, self.ng):
-            self.current_population = self.current_population.selection()
-            self.current_population.dmx_crossover(self.Pc, self.Pmb)
-            self.current_population.mutate(self.Pm)
+            self.current_population = self.current_population.selection(self.numpy_random)
+            self.current_population.dmx_crossover(self.Pc, self.Pmb, self.numpy_random)
+            self.current_population.mutate(self.Pm, self.numpy_random)
 
             self.current_population.calculate_fitness()
             self.save_new_best_chromosome(self.current_population)
