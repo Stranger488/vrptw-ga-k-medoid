@@ -30,7 +30,7 @@ numpy_rand = np.random.RandomState(42)
 
 
 def make_solution(init_dataset, tws_all, service_time_all, k=None, distance='spatiotemp', plot=False, text=False,
-                  output_dir='cluster_result/'):
+                  output_dir='cluster_result/', eval_method='default'):
     # Init and calculate all spatiotemporal distances
     spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1, k2, k3, alpha1, alpha2)
     spatiotemporal.calculate_all_distances()
@@ -90,7 +90,7 @@ def make_solution(init_dataset, tws_all, service_time_all, k=None, distance='spa
                       np.array(init_dataset[0]), np.array(tws_all[0]), plots_data, axes_text=distance, text=text)
 
     # Evaluate solution
-    evaluation = evaluate_solution(tsptw_results)
+    evaluation = evaluate_solution(tsptw_results, eval_method=eval_method)
 
     return evaluation
 
@@ -129,7 +129,7 @@ def read_standard_dataset(dataset, points_dataset, tws_all, service_time_all):
 
 
 def solve(filename, distance='spatiotemp', plot=False, k=None, output_dir='cluster_result/', text=False,
-          method='cluster'):
+          method='cluster', eval_method='default'):
     dataset = pd.read_fwf('data/' + filename)
 
     points_dataset = np.empty((0, 2))
@@ -140,7 +140,7 @@ def solve(filename, distance='spatiotemp', plot=False, k=None, output_dir='clust
                                                                       service_time_all)
     if method == 'cluster':
         val = make_solution(points_dataset, tws_all, service_time_all, k=int(dataset['VEHICLE_NUMBER'][0]),
-                            distance=distance, plot=plot, output_dir=output_dir, text=text)
+                            distance=distance, plot=plot, output_dir=output_dir, text=text, eval_method=eval_method)
     elif method == 'pyvrp':
         val = make_solution_pyvrp(points_dataset, tws_all, service_time_all, output_dir=output_dir)
     else:
@@ -204,7 +204,7 @@ def plot_with_tws(spatial_data, tws, max_tw, colors, axes):
     axes.scatter(x_data, y_data, z_data2, c=colors, s=cluster_size)
 
 
-def evaluate_solution(tsptw_results):
+def evaluate_solution(tsptw_results, eval_method='default'):
     total_dist = 0.0
     wait_time = 0.0
     late_time = 0.0
@@ -213,6 +213,9 @@ def evaluate_solution(tsptw_results):
         total_dist += result['Distance'][len(result) - 1]
         wait_time += result['Wait_Time'][len(result) - 1]
         late_time += result['Late_Time'][len(result) - 1]
+
+    if eval_method == 'by_distance':
+        return total_dist
 
     return c_D * total_dist + c_T * wait_time + c_L * late_time
 
@@ -226,12 +229,15 @@ def solve_and_plot(datasets):
         print(dataset['name'])
         if dataset['method'] == 'pyvrp':
             pyvrp.append(solve(dataset['data_file'], distance='spatial', plot=dataset['plot'],
-                               output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method']))
+                               output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
+                               eval_method=dataset['eval_method']))
         else:
             st.append(solve(dataset['data_file'], distance='spatiotemp', plot=dataset['plot'],
-                            output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method']))
+                            output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
+                            eval_method=dataset['eval_method']))
             s.append(solve(dataset['data_file'], distance='spatial', plot=dataset['plot'],
-                           output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method']))
+                           output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
+                           eval_method=dataset['eval_method']))
 
     for i, dataset in enumerate(datasets):
         if dataset['method'] == 'pyvrp':
@@ -251,9 +257,10 @@ if __name__ == '__main__':
         'plot': True,
         'name': 'test',
         'text': True,
-        'method': 'cluster'
+        'method': 'cluster',
+        'eval_method': 'by_distance'
     }
-    solve_and_plot([test_dataset, ])
+    # solve_and_plot([test_dataset, ])
 
     r109_reduced_dataset = {
         'data_file': 'r109_reduced.txt',
@@ -261,7 +268,8 @@ if __name__ == '__main__':
         'plot': True,
         'name': 'r109_reduced',
         'text': False,
-        'method': 'cluster'
+        'method': 'cluster',
+        'eval_method': 'by_distance'
     }
     # solve_and_plot([r109_reduced_dataset, ])
 
@@ -274,7 +282,8 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'c104',
         'text': False,
-        'method': 'cluster'
+        'method': 'cluster',
+        'eval_method': 'by_distance'
     }
     r110_dataset = {
         'data_file': 'r110_mod.txt',
@@ -282,7 +291,8 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'r110',
         'text': False,
-        'method': 'cluster'
+        'method': 'cluster',
+        'eval_method': 'by_distance'
     }
     rc103_dataset = {
         'data_file': 'rc103_mod.txt',
@@ -290,11 +300,12 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'rc103',
         'text': False,
-        'method': 'cluster'
+        'method': 'cluster',
+        'eval_method': 'by_distance'
     }
 
     # solve_and_plot([c104_dataset])
-    # solve_and_plot([r110_dataset])
+    solve_and_plot([r110_dataset])
     # solve_and_plot([rc103_dataset])
 
     c201_dataset = {
@@ -303,7 +314,8 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'c201',
         'text': False,
-        'method': 'cluster'
+        'method': 'cluster',
+        'eval_method': 'by_distance'
     }
     r201_dataset = {
         'data_file': 'r201_mod.txt',
@@ -311,7 +323,8 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'r201',
         'text': False,
-        'method': 'cluster'
+        'method': 'cluster',
+        'eval_method': 'by_distance'
     }
     rc201_dataset = {
         'data_file': 'rc201_mod.txt',
@@ -319,7 +332,8 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'rc201',
         'text': False,
-        'method': 'cluster'
+        'method': 'cluster',
+        'eval_method': 'by_distance'
     }
     # solve_and_plot([c201_dataset])
     # solve_and_plot([r201_dataset])

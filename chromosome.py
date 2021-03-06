@@ -44,6 +44,7 @@ class Chromosome:
 
     def mutate(self, numpy_random):
         rand_mutate_ind = numpy_random.randint(self.distances[0].size)
+        print("---rand_mutate_ind in mutate: {}".format(rand_mutate_ind))
 
         while rand_mutate_ind in self.genes:
             if rand_mutate_ind < self.distances[0].size - 1:
