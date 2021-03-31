@@ -8,3 +8,36 @@ total late time: 5871.7
 total wait time: 1171.8500000000001
 total late time: 9097.84
 total wait time: 1326.19
+total late time: 0.0
+total wait time: 668.71
+total late time: 0.0
+total wait time: 668.71
+total late time: 0.0
+total wait time: 668.71
+total late time: 176.56
+total wait time: 423.44000000000005
+total late time: 0.0
+total wait time: 668.71
+total late time: 176.56
+total wait time: 423.44000000000005
+total late time: 0.0
+total wait time: 668.71
+total late time: 176.56
+total wait time: 423.44000000000005
+total late time: 0.0
+total wait time: 668.71
+total late time: 0.0
+total wait time: 668.71
+total late time: 176.56
+total wait time: 423.44000000000005
+total late time: 0.0
+total wait time: 668.71
+total late time: 308104.35
+total wait time: 0.0
+3252.06
+total late time: 2237.04
+total wait time: 737.33
+
+total late time: 688.84
+total wait time: 494.16999999999996
+

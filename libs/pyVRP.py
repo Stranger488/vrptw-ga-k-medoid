@@ -491,7 +491,7 @@ def genetic_algorithm_vrp(coordinates, distance_matrix, parameters, population_s
     end = tm.time()
 
     output = open("time_tsp", "a")
-    output.write("{}\n".format(round(end - start), 2))
+    output.write("{}\n".format(round(end - start, 4)))
 
     print('Algorithm Time: ', round((end - start),2), ' seconds')
     return solution_report, solution
