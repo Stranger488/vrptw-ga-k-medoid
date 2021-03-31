@@ -1,6 +1,6 @@
 CUST_NO   XCOORD    YCOORD    READY_TIME   DUE_DATE   SERVICE_TIME    VEHICLE_NUMBER
  
-    0      40         50          0        960          0                 25
+    0      40         50          0        960          0                 4
     1      25         85        673        793         10
     2      22         75        152        272         10
     3      22         85        471        591         10

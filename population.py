@@ -42,7 +42,7 @@ class Population:
         new_population.generate_random_population(numpy_random)
 
         for i in range(chrom_size):
-            rand = numpy_random.random()
+            rand = round(numpy_random.random(), 4)
             for j, chromosome in enumerate(self.chromosomes):
                 if probs[j] > rand:
                     new_population.chromosomes[j] = chromosome
@@ -54,7 +54,7 @@ class Population:
 
     def mutate(self, prob, numpy_random):
         for chromosome in self.chromosomes:
-            if prob > numpy_random.random():
+            if prob > round(numpy_random.random(), 4):
                 chromosome.mutate(numpy_random)
 
     def find_best_chromosome(self):
@@ -69,14 +69,14 @@ class Population:
 
     def dmx_crossover(self, crossover_prob, mut_prob, numpy_random):
         for i in range(0, self.population_size - 1, 2):
-            if crossover_prob > numpy_random.random():
+            if crossover_prob > round(numpy_random.random(), 4):
                 mixed_gene = np.concatenate((self.chromosomes[i].genes, self.chromosomes[i + 1].genes))
                 numpy_random.shuffle(mixed_gene)
 
                 # Apply built-in mutation
                 applied = []
                 for k in range(mixed_gene.size):
-                    if mut_prob > numpy_random.random():
+                    if mut_prob > round(numpy_random.random(), 4):
                         rand = numpy_random.randint(0, self.distances[0].size - 1)
 
                         while rand in applied:

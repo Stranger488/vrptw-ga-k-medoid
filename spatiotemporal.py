@@ -78,7 +78,10 @@ class Spatiotemporal:
         length = len(self.points_all)
         for i in range(length):
             for j in range(length):
-                self.euclidian_dist_all[i, j] = self.euclidian_distance(i, j)
+                if j >= i:
+                    self.euclidian_dist_all[i, j] = self.euclidian_distance(i, j)
+                else:
+                    self.euclidian_dist_all[i, j] = self.euclidian_dist_all[j, i]
 
     def Sav1(self, t_cur, i, j):
         return self.k2 * t_cur + self.k1 * self.tws_all[j][1] - (self.k1 + self.k2) * self.tws_all[j][0]
@@ -123,7 +126,7 @@ class Spatiotemporal:
                 self.temporal_dist_all[i, j] = self.D_temporal_integr(i, j)
 
     def D_temporal_norm(self, i, j):
-        return max(self.temporal_dist_all[i, j],
+        return min(self.temporal_dist_all[i, j],
                    self.temporal_dist_all[j, i])
 
     def norm_temporal_dist_all(self):
@@ -147,7 +150,10 @@ class Spatiotemporal:
         length = self.spatiotemporal_dist_all[0].size
         for i in range(length):
             for j in range(length):
-                self.spatiotemporal_dist_all[i, j] = self.D_spatiotemporal(i, j)
+                if j >= i:
+                    self.spatiotemporal_dist_all[i, j] = self.D_spatiotemporal(i, j)
+                else:
+                    self.spatiotemporal_dist_all[i, j] = self.spatiotemporal_dist_all[j, i]
 
     def calculate_all_distances(self):
 

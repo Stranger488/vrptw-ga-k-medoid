@@ -1,6 +1,7 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
 from matplotlib.colors import rgb2hex
 from mpl_toolkits.mplot3d.axis3d import Axis
 
@@ -9,8 +10,8 @@ from pyvrp_solver import PyVRPSolver
 from spatiotemporal import Spatiotemporal
 from solver import Solver
 
-from config_reduced import *
-# from config_standard import *
+# from config_reduced import *
+from config_standard import *
 
 
 # fix wrong z-offsets in 3d plot
@@ -215,6 +216,11 @@ def evaluate_solution(tsptw_results, eval_method='default'):
         late_time += result['Late_Time'][len(result) - 1]
 
     if eval_method == 'by_distance':
+        f = open("file.txt", "a")
+        f.write("total late time: {}\n".format(late_time))
+        f.write("total wait time: {}\n".format(wait_time))
+        f.close()
+        # print("total late time: {}".format(late_time))
         return total_dist
 
     return c_D * total_dist + c_T * wait_time + c_L * late_time
@@ -235,19 +241,22 @@ def solve_and_plot(datasets):
             st.append(solve(dataset['data_file'], distance='spatiotemp', plot=dataset['plot'],
                             output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
                             eval_method=dataset['eval_method']))
-            s.append(solve(dataset['data_file'], distance='spatial', plot=dataset['plot'],
-                           output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
-                           eval_method=dataset['eval_method']))
+            # s.append(solve(dataset['data_file'], distance='spatial', plot=dataset['plot'],
+            #                output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
+            #                eval_method=dataset['eval_method']))
 
     for i, dataset in enumerate(datasets):
         if dataset['method'] == 'pyvrp':
             print("Pyvrp res on {}: {}".format(dataset['name'], pyvrp[i]))
         else:
             print("Spatiotemporal res on {}: {}".format(dataset['name'], st[i]))
-            print("Spatial res on {}: {}\n".format(dataset['name'], s[i]))
+            # print("Spatial res on {}: {}\n".format(dataset['name'], s[i]))
 
     if True in [d['plot'] for d in datasets]:
         plt.show()
+
+
+
 
 
 if __name__ == '__main__':
@@ -305,7 +314,7 @@ if __name__ == '__main__':
     }
 
     # solve_and_plot([c104_dataset])
-    solve_and_plot([r110_dataset])
+    # solve_and_plot([r110_dataset])
     # solve_and_plot([rc103_dataset])
 
     c201_dataset = {
@@ -336,5 +345,27 @@ if __name__ == '__main__':
         'eval_method': 'by_distance'
     }
     # solve_and_plot([c201_dataset])
-    # solve_and_plot([r201_dataset])
+    solve_and_plot([r201_dataset])
     # solve_and_plot([rc201_dataset])
+
+    C1_10_2_dataset = {
+        'data_file': 'C1_10_2_mod.txt',
+        'output_dir': 'C1_10_2_output/',
+        'plot': False,
+        'name': 'C1_10_2',
+        'text': False,
+        'method': 'cluster',
+        'eval_method': 'by_distance'
+    }
+    R1_10_1_dataset = {
+        'data_file': 'R1_10_1_mod.txt',
+        'output_dir': 'R1_10_1_output/',
+        'plot': False,
+        'name': 'R1_10_1',
+        'text': False,
+        'method': 'cluster',
+        'eval_method': 'by_distance'
+    }
+
+    # solve_and_plot([C1_10_2_dataset])
+    # solve_and_plot([R1_10_1_dataset])

@@ -8,7 +8,7 @@ class PyVRPSolver:
     def __init__(self, method='tsp'):
         # Parameters - Model
         self.time_window = 'with'  # 'with', 'without'
-        self.route = 'open'  # 'open', 'closed'
+        self.route = 'closed'  # 'open', 'closed'
         self.model = method  # 'tsp', 'vrp'
         self.graph = True  # True, False
 
@@ -17,7 +17,7 @@ class PyVRPSolver:
         self.population_size = 50  # GA Population Size
         self.mutation_rate = 0.10  # GA Mutation Rate
         self.elite = 1  # GA Elite Member(s) - Total Number of Best Individual(s) that (is)are Maintained in Each Generation
-        self.generations = 5  # GA Number of Generations
+        self.generations = 15  # GA Number of Generations
 
     def solve_tsp(self, launch_count, data_dir='cluster_result/'):
         ga_reports = []

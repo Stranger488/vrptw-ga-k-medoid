@@ -5,6 +5,8 @@ import numpy as np
 from chromosome import Chromosome
 from population import Population
 
+from utils import timing
+
 
 class Solver:
     def __init__(self, Z, distances, P, ng, Pc, Pm, Pmb, k=None, numpy_rand=None):
@@ -18,6 +20,7 @@ class Solver:
             self.k = math.ceil(K / Z)
         else:
             self.k = k
+
         self.P = P
         self.ng = ng
 
@@ -54,6 +57,7 @@ class Solver:
 
         return result
 
+    @timing
     def solve(self):
         self.current_population.generate_random_population(self.numpy_random)
         self.current_population.calculate_fitness()
@@ -88,5 +92,5 @@ class Solver:
     def save_new_best_chromosome(self, population):
         chrom_fitness = population.find_best_chromosome().fitness
         print("cur fitness: {}".format(chrom_fitness))
-        if chrom_fitness <= self.best_chromosome.fitness:
+        if chrom_fitness < self.best_chromosome.fitness:
             self.best_chromosome = population.find_best_chromosome()

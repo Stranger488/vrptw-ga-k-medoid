@@ -1,6 +1,6 @@
 k1 = 1.0
 k2 = 1.5
-k3 = 4.0
+k3 = 2.0
 
 alpha1 = 0.5
 alpha2 = 0.5
@@ -15,10 +15,10 @@ P = 20
 ng = 25
 
 # Crossover probability
-Pc = 0.9
+Pc = 0.65
 
 # Mutation probability
-Pm = 0.1
+Pm = 0.2
 
 # D_MX crossover Built-in mutation probability
 Pmb = 0.05
