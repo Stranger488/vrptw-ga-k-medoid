@@ -1,5 +1,8 @@
 import numpy as np
 import pandas as pd
+import pathlib
+
+from time import time
 
 from libs.pyVRP import build_coordinates, build_distance_matrix, genetic_algorithm_vrp, plot_tour_coordinates
 
@@ -17,7 +20,7 @@ class PyVRPSolver:
         self.population_size = 50  # GA Population Size
         self.mutation_rate = 0.10  # GA Mutation Rate
         self.elite = 1  # GA Elite Member(s) - Total Number of Best Individual(s) that (is)are Maintained in Each Generation
-        self.generations = 15  # GA Number of Generations
+        self.generations = 10  # GA Number of Generations
 
     def solve_tsp(self, launch_count, data_dir='cluster_result/'):
         ga_reports = []
@@ -29,7 +32,10 @@ class PyVRPSolver:
             parameters = pd.read_csv('cluster_result/' + data_dir + 'params{}.txt'.format(i), sep=' ')
             parameters = parameters.values
 
+            pathlib.Path('tsptw_result/' + data_dir).mkdir(parents=True, exist_ok=True)
+
             # Call GA Function
+
             ga_report, ga_vrp = genetic_algorithm_vrp(coordinates, distance_matrix, parameters, self.population_size,
                                                       self.route, self.model, self.time_window, self.mutation_rate, self.elite,
                                                       self.generations, self.penalty_value, self.graph)
@@ -38,7 +44,9 @@ class PyVRPSolver:
             plots_data.append(plot_data)
 
             # Solution Report
-            print(ga_report)
+            # print(ga_report)
+
+
 
             # Save Solution Report
             ga_report.to_csv('tsptw_result/' + data_dir + 'report{}.csv'.format(i), sep=' ', index=False)

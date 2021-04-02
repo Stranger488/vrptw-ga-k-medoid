@@ -1,43 +1,51 @@
-total late time: 11948.919999999998
-total wait time: 821.54
-total late time: 8051.5
-total wait time: 1224.1799999999998
-total late time: 6486.4
-total wait time: 1273.06
-total late time: 5871.7
-total wait time: 1171.8500000000001
-total late time: 9097.84
-total wait time: 1326.19
-total late time: 0.0
-total wait time: 668.71
-total late time: 0.0
-total wait time: 668.71
-total late time: 0.0
-total wait time: 668.71
-total late time: 176.56
-total wait time: 423.44000000000005
-total late time: 0.0
-total wait time: 668.71
-total late time: 176.56
-total wait time: 423.44000000000005
-total late time: 0.0
-total wait time: 668.71
-total late time: 176.56
-total wait time: 423.44000000000005
-total late time: 0.0
-total wait time: 668.71
-total late time: 0.0
-total wait time: 668.71
-total late time: 176.56
-total wait time: 423.44000000000005
-total late time: 0.0
-total wait time: 668.71
-total late time: 308104.35
-total wait time: 0.0
-3252.06
-total late time: 2237.04
-total wait time: 737.33
+total late time_cluster: 2497.0299999999997
+total wait time_cluster: 478.79
 
-total late time: 688.84
-total wait time: 494.16999999999996
+total late time_cluster: 4804.96
+total wait time_cluster: 608.71
+
+total late time_cluster: 0.0
+total wait time_cluster: 643.1500000000001
+
+total late time_cluster: 350.53
+total wait time_cluster: 468.91
+
+total late time_cluster: 452.6
+total wait time_cluster: 502.82
+
+total late time_cluster: 10069.960000000001
+total wait time_cluster: 624.6200000000001
+
+total late time_cluster: 9786.859999999999
+total wait time_cluster: 888.9099999999999
+
+total late time_cluster: 7023.800000000001
+total wait time_cluster: 821.8500000000001
+
+total late time_cluster: 8392.53
+total wait time_cluster: 643.4200000000001
+
+total late time_cluster: 4876.41
+total wait time_cluster: 347.5
+
+total late time_cluster: 21189.89
+total wait time_cluster: 2526.97
+
+total late time_cluster: 12890.180000000004
+total wait time_cluster: 1865.4
+
+total late time_cluster: 7591.67
+total wait time_cluster: 2587.1200000000003
+
+total late time_cluster: 8844.85
+total wait time_cluster: 1980.0
+
+total late time_cluster: 5564.13
+total wait time_cluster: 2357.3799999999997
+
+total late time_cluster: 46760.950000000004
+total wait time_cluster: 5173.750000000002
+
+total late time_cluster: 24609.02
+total wait time_cluster: 4478.23
 

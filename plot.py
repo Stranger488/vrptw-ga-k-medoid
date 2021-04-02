@@ -67,3 +67,22 @@ class Plot:
         axes.scatter(x_data, y_data, 0.0, c=colors, s=cluster_size)
         axes.scatter(x_data, y_data, z_data1, c=colors, s=cluster_size)
         axes.scatter(x_data, y_data, z_data2, c=colors, s=cluster_size)
+
+    def plot(self, x, y, c='blue', label='label', xlabel='xlabel', ylabel='ylabel'):
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self.figsize_standart, dpi=self.dpi_standart)
+
+        axes.plot(x, y, color=c, linewidth=self.linewidth_standart, label=label)
+
+        axes.grid()
+
+        axes.legend(loc='best')
+        axes.set_xlabel(xlabel)
+        axes.set_ylabel(ylabel)
+
+    def plot_on_axes(self, axes, x, y, c='green', label='label', xlabel='xlabel', ylabel='ylabel'):
+        axes.grid()
+        axes.plot(x, y, '.-', color=c, linewidth=self.linewidth_standart, label=label)
+
+        axes.legend(loc='best')
+        axes.set_xlabel(xlabel)
+        axes.set_ylabel(ylabel)

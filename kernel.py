@@ -1,6 +1,9 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import pathlib
+
+from time import time
 
 from spatiotemporal import Spatiotemporal
 from solver import Solver
@@ -14,7 +17,8 @@ from config_standard import *
 
 
 class Kernel:
-    def __init__(self):
+    def __init__(self, k3=None):
+        self.k3 = k3
         self.utils = Utils()
         self.plotter = Plot()
 
@@ -22,9 +26,14 @@ class Kernel:
 
     def make_solution(self, init_dataset, tws_all, service_time_all, k=None, distance='spatiotemp', plot=False,
                       text=False, output_dir='cluster_result/', eval_method='default'):
+        pathlib.Path('cluster_result/' + output_dir).mkdir(parents=True, exist_ok=True)
 
         # Init and calculate all spatiotemporal distances
-        spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1, k2, k3, alpha1, alpha2)
+        if self.k3:
+            spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1, k2, self.k3, alpha1, alpha2)
+        else:
+            spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1, k2, k3, alpha1, alpha2)
+
         spatiotemporal.calculate_all_distances()
 
         # Reduce depot
@@ -43,9 +52,15 @@ class Kernel:
             solver = Solver(Z, spatio_points_dist, P, ng, Pc, Pm, Pmb, k=k, numpy_rand=self.numpy_rand)
 
         # Result will be an array of clusters, where row is a cluster, value in column - point index
+        ts = time()
         result = solver.solve()
+        te = time()
 
-        # Collect result, making datasets of space data and time windows
+        output = open('cluster_result/' + output_dir + 'time_cluster.csv', 'w')
+        output.write('{}\n'.format(round(te - ts, 4)))
+        output.close()
+
+        # Collect result, making datasets of space data and time_cluster windows
         res_dataset = np.array([[dataset_reduced[point] for point in cluster] for cluster in result])
         res_tws = np.array([[tws_reduced[point] for point in cluster] for cluster in result])
 
@@ -59,7 +74,7 @@ class Kernel:
 
             coord_df.to_csv('cluster_result/' + output_dir + 'coords{}.txt'.format(i), sep=' ', index=False)
 
-            # Create time parameters file
+            # Create time_cluster parameters file
             tw_df = pd.DataFrame(res_tws[i], columns=['TW_early', 'TW_late'])
 
             tw_df.loc[-1] = tws_all[0]
@@ -75,7 +90,13 @@ class Kernel:
         distance_df.to_csv('cluster_result/' + output_dir + 'distance_matrix.txt', sep=' ', index=False, header=False)
 
         tsptw_solver = PyVRPSolver(method='tsp')
+
+        ts = time()
         tsptw_results, plots_data = tsptw_solver.solve_tsp(res_dataset.shape[0], data_dir=output_dir)
+        te = time()
+        output = open('tsptw_result/' + output_dir + 'time_tsp.csv', 'w')
+        output.write('{}\n'.format(round(te - ts, 4)))
+        output.close()
 
         if plot:
             self.plotter.plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
@@ -89,6 +110,8 @@ class Kernel:
 
     def make_solution_pyvrp(self, points_dataset, tws_all, service_time_all, k=None, plot=False, text=False,
                             output_dir='pyvrp_result/', eval_method='default'):
+        pathlib.Path('pyvrp_result/' + output_dir).mkdir(parents=True, exist_ok=True)
+
         pyvrp_solver = PyVRPSolver(method='vrp')
         pyvrp_results, plots_data = pyvrp_solver.solve_vrp(points_dataset, tws_all, service_time_all,
                                                            output_dir=output_dir)
@@ -132,7 +155,7 @@ class Kernel:
 
     def solve_and_plot(self, datasets):
         st = []
-        s = []
+        # s = []
 
         pyvrp = []
         for dataset in datasets:
@@ -146,16 +169,16 @@ class Kernel:
                 st.append(self.solve(dataset['data_file'], distance='spatiotemp', plot=dataset['plot'],
                                      output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
                                      eval_method=dataset['eval_method']))
-                s.append(self.solve(dataset['data_file'], distance='spatial', plot=dataset['plot'],
-                                    output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
-                                    eval_method=dataset['eval_method']))
+                # s.append(self.solve(dataset['data_file'], distance='spatial', plot=dataset['plot'],
+                #                     output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
+                #                     eval_method=dataset['eval_method']))
 
         for i, dataset in enumerate(datasets):
             if dataset['method'] == 'pyvrp':
                 print("Pyvrp res on {}: {}".format(dataset['name'], pyvrp[i]))
             else:
                 print("Spatiotemporal res on {}: {}".format(dataset['name'], st[i]))
-                print("Spatial res on {}: {}\n".format(dataset['name'], s[i]))
+                # print("Spatial res on {}: {}\n".format(dataset['name'], s[i]))
 
         if True in [d['plot'] for d in datasets]:
             plt.show()

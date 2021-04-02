@@ -57,19 +57,18 @@ class Solver:
 
         return result
 
-    @timing
     def solve(self):
         self.current_population.generate_random_population(self.numpy_random)
         self.current_population.calculate_fitness()
         self.save_new_best_chromosome(self.current_population)
 
-        print("---------")
-        print("Iteration {}".format(0))
-        print("Best chromosome fitness {}".format(self.best_chromosome.fitness))
-        print("All chromosomes genes: {}".format(
-            [chromosome.genes.tolist() for chromosome in self.current_population.chromosomes]))
-        print("Best genes {}".format(self.best_chromosome.genes))
-        print("---------")
+        # print("---------")
+        # print("Iteration {}".format(0))
+        # print("Best chromosome fitness {}".format(self.best_chromosome.fitness))
+        # print("All chromosomes genes: {}".format(
+        #     [chromosome.genes.tolist() for chromosome in self.current_population.chromosomes]))
+        # print("Best genes {}".format(self.best_chromosome.genes))
+        # print("---------")
 
         for i in range(1, self.ng):
             self.current_population = self.current_population.selection(self.numpy_random)
@@ -79,13 +78,13 @@ class Solver:
             self.current_population.calculate_fitness()
             self.save_new_best_chromosome(self.current_population)
 
-            print("---------")
-            print("Iteration: {}".format(i))
-            print("Best chromosome fitness: {}".format(self.best_chromosome.fitness))
-            print("All chromosomes genes: {}".format(
-                [chromosome.genes.tolist() for chromosome in self.current_population.chromosomes]))
-            print("Best genes: {}".format(self.best_chromosome.genes))
-            print("---------")
+            # print("---------")
+            # print("Iteration: {}".format(i))
+            # print("Best chromosome fitness: {}".format(self.best_chromosome.fitness))
+            # print("All chromosomes genes: {}".format(
+            #     [chromosome.genes.tolist() for chromosome in self.current_population.chromosomes]))
+            # print("Best genes: {}".format(self.best_chromosome.genes))
+            # print("---------")
 
         return self.make_cluster_from_medoids()
 

@@ -1,6 +1,6 @@
 k1 = 1.0
 k2 = 1.5
-k3 = 2.0
+k3 = 1000.0
 
 alpha1 = 0.5
 alpha2 = 0.5
@@ -12,7 +12,7 @@ Z = 10
 P = 100
 
 # Number of all generations
-ng = 300
+ng = 50
 
 # Crossover probability
 Pc = 0.65
