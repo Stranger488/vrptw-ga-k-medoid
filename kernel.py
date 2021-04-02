@@ -17,8 +17,10 @@ from config_standard import *
 
 
 class Kernel:
-    def __init__(self, k3=None):
-        self.k3 = k3
+    def __init__(self, k3_from_outer=None):
+        if k3_from_outer:
+            self.k3 = k3_from_outer
+
         self.utils = Utils()
         self.plotter = Plot()
 
@@ -29,10 +31,7 @@ class Kernel:
         pathlib.Path('cluster_result/' + output_dir).mkdir(parents=True, exist_ok=True)
 
         # Init and calculate all spatiotemporal distances
-        if self.k3:
-            spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1, k2, self.k3, alpha1, alpha2)
-        else:
-            spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1, k2, k3, alpha1, alpha2)
+        spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1, k2, self.k3, alpha1, alpha2)
 
         spatiotemporal.calculate_all_distances()
 
@@ -94,6 +93,7 @@ class Kernel:
         ts = time()
         tsptw_results, plots_data = tsptw_solver.solve_tsp(res_dataset.shape[0], data_dir=output_dir)
         te = time()
+
         output = open('tsptw_result/' + output_dir + 'time_tsp.csv', 'w')
         output.write('{}\n'.format(round(te - ts, 4)))
         output.close()
@@ -104,12 +104,12 @@ class Kernel:
                                        text=text)
 
         # Evaluate solution
-        evaluation = self.utils.evaluate_solution(tsptw_results, eval_method=eval_method)
+        evaluation = self.utils.evaluate_solution(tsptw_results, output_dir)
 
         return evaluation
 
     def make_solution_pyvrp(self, points_dataset, tws_all, service_time_all, k=None, plot=False, text=False,
-                            output_dir='pyvrp_result/', eval_method='default'):
+                            output_dir='pyvrp_result/'):
         pathlib.Path('pyvrp_result/' + output_dir).mkdir(parents=True, exist_ok=True)
 
         pyvrp_solver = PyVRPSolver(method='vrp')
@@ -117,7 +117,7 @@ class Kernel:
                                                            output_dir=output_dir)
 
         # Evaluate solution
-        evaluation = self.utils.evaluate_solution(pyvrp_results, eval_method=eval_method)
+        evaluation = self.utils.evaluate_solution(pyvrp_results)
 
         # Reduce depot
         dataset_reduced = points_dataset[1:][:]
@@ -132,7 +132,7 @@ class Kernel:
         return evaluation
 
     def solve(self, filename, distance='spatiotemp', plot=False, k=None, output_dir='cluster_result/', text=False,
-              method='cluster', eval_method='default'):
+              method='cluster'):
         dataset = pd.read_fwf('data/' + filename)
 
         points_dataset = np.empty((0, 2))
@@ -143,11 +143,9 @@ class Kernel:
                                                                                      service_time_all)
         if method == 'cluster':
             val = self.make_solution(points_dataset, tws_all, service_time_all, k=int(dataset['VEHICLE_NUMBER'][0]),
-                                     distance=distance, plot=plot, output_dir=output_dir, text=text,
-                                     eval_method=eval_method)
+                                     distance=distance, plot=plot, output_dir=output_dir, text=text)
         elif method == 'pyvrp':
-            val = self.make_solution_pyvrp(points_dataset, tws_all, service_time_all, output_dir=output_dir,
-                                           eval_method=eval_method)
+            val = self.make_solution_pyvrp(points_dataset, tws_all, service_time_all, output_dir=output_dir)
         else:
             val = None
 
@@ -163,12 +161,10 @@ class Kernel:
             if dataset['method'] == 'pyvrp':
                 pyvrp.append(self.solve(dataset['data_file'], distance='spatial', plot=dataset['plot'],
                                         output_dir=dataset['output_dir'], text=dataset['text'],
-                                        method=dataset['method'],
-                                        eval_method=dataset['eval_method']))
+                                        method=dataset['method']))
             else:
                 st.append(self.solve(dataset['data_file'], distance='spatiotemp', plot=dataset['plot'],
-                                     output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
-                                     eval_method=dataset['eval_method']))
+                                     output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method']))
                 # s.append(self.solve(dataset['data_file'], distance='spatial', plot=dataset['plot'],
                 #                     output_dir=dataset['output_dir'], text=dataset['text'], method=dataset['method'],
                 #                     eval_method=dataset['eval_method']))

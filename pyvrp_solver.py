@@ -44,9 +44,7 @@ class PyVRPSolver:
             plots_data.append(plot_data)
 
             # Solution Report
-            # print(ga_report)
-
-
+            print(ga_report)
 
             # Save Solution Report
             ga_report.to_csv('tsptw_result/' + data_dir + 'report{}.csv'.format(i), sep=' ', index=False)

@@ -1,19 +1,6 @@
 import numpy as np
-
-from functools import wraps
-from time import time
-
-
-def timing(f):
-
-    @wraps(f)
-    def wrap(*args, **kw):
-        ts = time()
-        result = f(*args, **kw)
-        te = time()
-        return result
-
-    return wrap
+import pandas as pd
+import pathlib
 
 
 class Utils:
@@ -39,7 +26,9 @@ class Utils:
 
         return points_dataset, tws_all, service_time_all
 
-    def evaluate_solution(self, tsptw_results, eval_method='default'):
+    def evaluate_solution(self, tsptw_results, output_dir):
+        pathlib.Path('evaluation/' + output_dir).mkdir(parents=True, exist_ok=True)
+
         total_dist = 0.0
         wait_time = 0.0
         late_time = 0.0
@@ -49,12 +38,10 @@ class Utils:
             wait_time += result['Wait_Time'][len(result) - 1]
             late_time += result['Late_Time'][len(result) - 1]
 
-        if eval_method == 'by_distance':
-            f = open("file.txt", "a")
-            f.write("total late time_cluster: {}\n".format(late_time))
-            f.write("total wait time_cluster: {}\n\n".format(wait_time))
-            f.close()
-            # print("total late time_cluster: {}".format(late_time))
-            return total_dist
+        evaluation = self.c_D * total_dist + self.c_T * wait_time + self.c_L * late_time
 
-        return self.c_D * total_dist + self.c_T * wait_time + self.c_L * late_time
+        result = pd.Dataframe([total_dist, wait_time, late_time, evaluation])
+        result.to_csv('evaluation/' + output_dir + 'evaluation.csv', sep=' ',
+                      index=False, header=['total_dist', 'wait_time', 'late_time', 'evaluation'])
+
+        return evaluation

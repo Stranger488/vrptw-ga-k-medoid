@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from kernel import Kernel
+from statistics import Statistics
 from plot import Plot
 
 from mpl_toolkits.mplot3d.axis3d import Axis
@@ -22,7 +23,21 @@ if not hasattr(Axis, "_get_coord_info_old"):
 Axis._get_coord_info = _get_coord_info_new
 
 if __name__ == '__main__':
+    plotter = Plot()
     kernel = Kernel()
+
+
+    test_dataset = {
+        'data_file': 'test.txt',
+        'output_dir': 'test_output/',
+        'plot': True,
+        'name': 'test',
+        'text': True,
+        'method': 'cluster'
+    }
+
+    # kernel.solve_and_plot([test_dataset, ])
+
 
     test_dataset1 = {
         'data_file': 'test.txt',
@@ -30,8 +45,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test1',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset2 = {
         'data_file': 'test.txt',
@@ -39,8 +53,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test2',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset3 = {
         'data_file': 'test.txt',
@@ -48,8 +61,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test3',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset4 = {
         'data_file': 'test.txt',
@@ -57,8 +69,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test3',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset5 = {
         'data_file': 'test.txt',
@@ -66,8 +77,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test5',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset6 = {
         'data_file': 'test.txt',
@@ -75,8 +85,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test6',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset7 = {
         'data_file': 'test.txt',
@@ -84,8 +93,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test7',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset8 = {
         'data_file': 'test.txt',
@@ -93,8 +101,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test8',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset9 = {
         'data_file': 'test.txt',
@@ -102,8 +109,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test9',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset10 = {
         'data_file': 'test.txt',
@@ -111,8 +117,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test10',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset11 = {
         'data_file': 'test.txt',
@@ -120,8 +125,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test11',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     test_dataset12 = {
         'data_file': 'test.txt',
@@ -129,38 +133,9 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'test12',
         'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
-    }
-    test_dataset13 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test13_output/',
-        'plot': False,
-        'name': 'test13',
-        'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
-    }
-    test_dataset14 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test14_output/',
-        'plot': False,
-        'name': 'test14',
-        'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
-    }
-    test_dataset15 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test15_output/',
-        'plot': False,
-        'name': 'test15',
-        'text': True,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
 
-    # kernel.solve_and_plot([test_dataset, ])
 
     r109_reduced_dataset = {
         'data_file': 'r109_reduced.txt',
@@ -168,10 +143,10 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'r109_reduced',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
-    # solve_and_plot([r109_reduced_dataset, ])
+    # kernel.solve_and_plot([r109_reduced_dataset, ])
+
 
     # --- c201, r201, rc201 --- #
     c201_dataset = {
@@ -180,8 +155,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'c201',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     r201_dataset = {
         'data_file': 'r201_mod.txt',
@@ -189,8 +163,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'r201',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     rc201_dataset = {
         'data_file': 'rc201_mod.txt',
@@ -198,13 +171,13 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'rc201',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
 
-    # solve_and_plot([c201_dataset])
-    # solve_and_plot([r201_dataset])
-    # solve_and_plot([rc201_dataset])
+    # kernel.solve_and_plot([c201_dataset])
+    # kernel.solve_and_plot([r201_dataset])
+    # kernel.solve_and_plot([rc201_dataset])
+
 
     # --- c104, r110, rc103 --- #
     c104_dataset = {
@@ -213,8 +186,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'c104',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     r110_dataset = {
         'data_file': 'r110_mod.txt',
@@ -222,8 +194,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'r110',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     rc103_dataset = {
         'data_file': 'rc103_mod.txt',
@@ -231,8 +202,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'rc103',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
 
     C1_2_4_dataset = {
@@ -241,8 +211,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'C1_2_4',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     R1_2_10_dataset = {
         'data_file': 'R1_2_10_mod.txt',
@@ -250,8 +219,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'R1_2_10',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     RC1_2_3_dataset = {
         'data_file': 'RC1_2_3_mod.txt',
@@ -259,8 +227,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'RC1_2_3',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
 
     C1_4_4_dataset = {
@@ -269,8 +236,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'C1_4_4',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     R1_4_10_dataset = {
         'data_file': 'R1_4_10_mod.txt',
@@ -278,8 +244,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'R1_4_10',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     RC1_4_3_dataset = {
         'data_file': 'RC1_4_3_mod.txt',
@@ -287,8 +252,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'RC1_4_3',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
 
     C1_6_4_dataset = {
@@ -297,8 +261,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'C1_6_4',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     R1_6_10_dataset = {
         'data_file': 'R1_6_10_mod.txt',
@@ -306,8 +269,7 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'R1_6_10',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
     RC1_6_3_dataset = {
         'data_file': 'RC1_6_3_mod.txt',
@@ -315,88 +277,31 @@ if __name__ == '__main__':
         'plot': False,
         'name': 'RC1_6_3',
         'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
+        'method': 'cluster'
     }
 
-    C1_8_4_dataset = {
-        'data_file': 'C1_8_4_mod.txt',
-        'output_dir': 'C1_8_4_output/',
-        'plot': False,
-        'name': 'C1_8_4',
-        'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
-    }
-    R1_8_10_dataset = {
-        'data_file': 'R1_8_10_mod.txt',
-        'output_dir': 'R1_8_10_output/',
-        'plot': False,
-        'name': 'R1_8_10',
-        'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
-    }
-    RC1_8_3_dataset = {
-        'data_file': 'RC1_8_3_mod.txt',
-        'output_dir': 'RC1_8_3_output/',
-        'plot': False,
-        'name': 'RC1_8_3',
-        'text': False,
-        'method': 'cluster',
-        'eval_method': 'by_distance'
-    }
+    dims_array = np.array([100, 200, 400, 600])
+    k3_array = np.array([2.0, 10.0, 100.0, 1000.0])
 
-    # kernel.solve_and_plot([c104_dataset])
-    # kernel.solve_and_plot([r110_dataset])
-    # kernel.solve_and_plot([rc103_dataset])
+    testing_datasets = [[c104_dataset, C1_2_4_dataset, C1_4_4_dataset, C1_6_4_dataset],
+                        [r110_dataset, R1_2_10_dataset, R1_4_10_dataset, R1_6_10_dataset],
+                        [rc103_dataset, RC1_2_3_dataset, RC1_4_3_dataset, RC1_6_3_dataset]]
 
-    dims_array = np.array([100, 200, 400, 600, 800])
-    k3_array = np.array([2.0, 10.0, 50.0, 100.0, 1000.0])
-
-    testing_datasets = [[c104_dataset, C1_2_4_dataset, C1_4_4_dataset, C1_6_4_dataset, C1_8_4_dataset],
-                        [r110_dataset, R1_2_10_dataset, R1_4_10_dataset, R1_6_10_dataset, R1_8_10_dataset],
-                        [rc103_dataset, RC1_2_3_dataset, RC1_4_3_dataset, RC1_6_3_dataset, RC1_8_3_dataset]]
-
-    # testing_datasets = [[test_dataset1, test_dataset2, test_dataset3, test_dataset4, test_dataset5],
-    #                     [test_dataset6, test_dataset7, test_dataset8, test_dataset9, test_dataset10],
-    #                     [test_dataset11, test_dataset12, test_dataset13, test_dataset14, test_dataset15]]
+    # testing_datasets = [[test_dataset1, test_dataset2, test_dataset3, test_dataset4],
+    #                     [test_dataset5, test_dataset6, test_dataset7, test_dataset8],
+    #                     [test_dataset9, test_dataset10, test_dataset11, test_dataset12]]
 
     for dataset_series in testing_datasets:
         for dataset in dataset_series:
             base_name = dataset['output_dir'][:len(dataset['output_dir']) - 1]
-            for j, k3 in enumerate(k3_array):
+            for k3 in k3_array:
                 kernel = Kernel(k3)
                 dataset['output_dir'] = base_name + '_' + str(int(k3)) + '/'
                 kernel.solve_and_plot([dataset, ])
 
-    plotter = Plot()
+    statistics = Statistics(testing_datasets, dims_array, k3_array)
+    different_k3_arr = statistics.collect_time_data()
+    plotter.plot_time_data(testing_datasets, dims_array, k3_array, different_k3_arr)
 
-    different_k3_arr = []
-    for k3 in k3_array:
-        dataset_series_array = []
-        for dataset_series in testing_datasets:
-            dataset_time_data = []
-            for dataset in dataset_series:
-                time_cluster = pd.read_fwf(
-                    'cluster_result/' + dataset['name'] + '_output_{}/time_cluster.csv'.format(int(k3)), header=None)
-                time_tsp = pd.read_fwf('tsptw_result/' + dataset['name'] + '_output_{}/time_tsp.csv'.format(int(k3)), header=None)
-                time_common = time_cluster.values[0][0] + time_tsp.values[0][0]
-
-                dataset_time_data.append(time_common)
-            dataset_series_array.append(dataset_time_data)
-        different_k3_arr.append(dataset_series_array)
-
-    for i in range(len(testing_datasets)):
-        plt.rc('font', size=5)  # controls default text sizes
-        plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
-        plt.rc('ytick', labelsize=4)
-        _, axes = plt.subplots(nrows=1, ncols=1, figsize=(6, 15), dpi=400)
-        cmap = plt.cm.get_cmap('plasma', 5)
-
-        for j, k3 in enumerate(k3_array):
-            plotter.plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel='Customers number',
-                                 ylabel='Time execution',
-                                 label='{}'.format(k3))
-
-    plt.show()
+    different_k3_arr_eval = statistics.collect_evaluation()
+    plotter.plot_evaluation_data()

@@ -86,3 +86,21 @@ class Plot:
         axes.legend(loc='best')
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
+
+    def plot_time_data(self, testing_datasets, dims_array, k3_array, different_k3_arr):
+        for i in range(len(testing_datasets)):
+            plt.rc('font', size=5)  # controls default text sizes
+            plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
+            plt.rc('ytick', labelsize=4)
+            _, axes = plt.subplots(nrows=1, ncols=1, figsize=(6, 15), dpi=400)
+            cmap = plt.cm.get_cmap('plasma', 5)
+
+            for j, k3 in enumerate(k3_array):
+                self.plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel='Customers number',
+                                     ylabel='Time execution',
+                                     label='{}'.format(k3))
+
+        plt.show()
+
+    def plot_evaluation_data(self):
+        pass
