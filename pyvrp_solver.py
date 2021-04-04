@@ -16,10 +16,10 @@ class PyVRPSolver:
         self.graph = True  # True, False
 
         # Parameters - GA
-        self.penalty_value = 10000  # GA Target Function Penalty Value for Violating the Problem Constraints
+        self.penalty_value = 1000  # GA Target Function Penalty Value for Violating the Problem Constraints
         self.population_size = 50  # GA Population Size
         self.mutation_rate = 0.10  # GA Mutation Rate
-        self.elite = 1  # GA Elite Member(s) - Total Number of Best Individual(s) that (is)are Maintained in Each Generation
+        self.elite = 5  # GA Elite Member(s) - Total Number of Best Individual(s) that (is)are Maintained in Each Generation
         self.generations = 10  # GA Number of Generations
 
     def solve_tsp(self, launch_count, data_dir='cluster_result/'):

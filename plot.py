@@ -80,14 +80,15 @@ class Plot:
         axes.set_ylabel(ylabel)
 
     def plot_on_axes(self, axes, x, y, c='green', label='label', xlabel='xlabel', ylabel='ylabel'):
-        axes.grid()
         axes.plot(x, y, '.-', color=c, linewidth=self.linewidth_standart, label=label)
+
+        axes.grid()
 
         axes.legend(loc='best')
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
 
-    def plot_time_data(self, testing_datasets, dims_array, k3_array, different_k3_arr):
+    def plot_data(self, testing_datasets, dims_array, k3_array, different_k3_arr, xlabel='x', ylabel='y'):
         for i in range(len(testing_datasets)):
             plt.rc('font', size=5)  # controls default text sizes
             plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
@@ -96,11 +97,10 @@ class Plot:
             cmap = plt.cm.get_cmap('plasma', 5)
 
             for j, k3 in enumerate(k3_array):
-                self.plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel='Customers number',
-                                     ylabel='Time execution',
+                self.plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel=xlabel,
+                                     ylabel=ylabel,
                                      label='{}'.format(k3))
 
-        plt.show()
+            axes.grid()
 
-    def plot_evaluation_data(self):
-        pass
+        plt.show()

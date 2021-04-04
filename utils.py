@@ -40,8 +40,8 @@ class Utils:
 
         evaluation = self.c_D * total_dist + self.c_T * wait_time + self.c_L * late_time
 
-        result = pd.Dataframe([total_dist, wait_time, late_time, evaluation])
+        result = pd.DataFrame([total_dist, wait_time, late_time, evaluation])
         result.to_csv('evaluation/' + output_dir + 'evaluation.csv', sep=' ',
-                      index=False, header=['total_dist', 'wait_time', 'late_time', 'evaluation'])
+                      index=False, header=False)
 
         return evaluation

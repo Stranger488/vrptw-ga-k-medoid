@@ -27,7 +27,7 @@ class Kernel:
         self.numpy_rand = np.random.RandomState(42)
 
     def make_solution(self, init_dataset, tws_all, service_time_all, k=None, distance='spatiotemp', plot=False,
-                      text=False, output_dir='cluster_result/', eval_method='default'):
+                      text=False, output_dir='cluster_result/'):
         pathlib.Path('cluster_result/' + output_dir).mkdir(parents=True, exist_ok=True)
 
         # Init and calculate all spatiotemporal distances
@@ -98,26 +98,33 @@ class Kernel:
         output.write('{}\n'.format(round(te - ts, 4)))
         output.close()
 
+        # Evaluate solution
+        evaluation = self.utils.evaluate_solution(tsptw_results, output_dir)
+
         if plot:
             self.plotter.plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
                                        np.array(init_dataset[0]), np.array(tws_all[0]), plots_data, axes_text=distance,
                                        text=text)
 
-        # Evaluate solution
-        evaluation = self.utils.evaluate_solution(tsptw_results, output_dir)
-
         return evaluation
 
-    def make_solution_pyvrp(self, points_dataset, tws_all, service_time_all, k=None, plot=False, text=False,
+    def make_solution_pyvrp(self, points_dataset, tws_all, service_time_all, plot=False, text=False,
                             output_dir='pyvrp_result/'):
         pathlib.Path('pyvrp_result/' + output_dir).mkdir(parents=True, exist_ok=True)
 
         pyvrp_solver = PyVRPSolver(method='vrp')
+
+        ts = time()
         pyvrp_results, plots_data = pyvrp_solver.solve_vrp(points_dataset, tws_all, service_time_all,
                                                            output_dir=output_dir)
+        te = time()
+
+        output = open('pyvrp_result/' + output_dir + 'time_pyvrp.csv', 'w')
+        output.write('{}\n'.format(round(te - ts, 4)))
+        output.close()
 
         # Evaluate solution
-        evaluation = self.utils.evaluate_solution(pyvrp_results)
+        evaluation = self.utils.evaluate_solution(pyvrp_results, output_dir)
 
         # Reduce depot
         dataset_reduced = points_dataset[1:][:]
