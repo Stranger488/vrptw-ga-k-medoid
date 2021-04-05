@@ -39,104 +39,6 @@ if __name__ == '__main__':
     # kernel.solve_and_plot([test_dataset, ])
 
 
-    test_dataset1 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test1_output/',
-        'plot': False,
-        'name': 'test1',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset2 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test2_output/',
-        'plot': False,
-        'name': 'test2',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset3 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test3_output/',
-        'plot': False,
-        'name': 'test3',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset4 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test4_output/',
-        'plot': False,
-        'name': 'test3',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset5 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test5_output/',
-        'plot': False,
-        'name': 'test5',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset6 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test6_output/',
-        'plot': False,
-        'name': 'test6',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset7 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test7_output/',
-        'plot': False,
-        'name': 'test7',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset8 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test8_output/',
-        'plot': False,
-        'name': 'test8',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset9 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test9_output/',
-        'plot': False,
-        'name': 'test9',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset10 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test10_output/',
-        'plot': False,
-        'name': 'test10',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset11 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test11_output/',
-        'plot': False,
-        'name': 'test11',
-        'text': True,
-        'method': 'cluster'
-    }
-    test_dataset12 = {
-        'data_file': 'test.txt',
-        'output_dir': 'test12_output/',
-        'plot': False,
-        'name': 'test12',
-        'text': True,
-        'method': 'cluster'
-    }
-
-
     r109_reduced_dataset = {
         'data_file': 'r109_reduced.txt',
         'output_dir': 'r109_reduced_output/',
@@ -284,26 +186,23 @@ if __name__ == '__main__':
     k3_array = np.array([2.0, 10.0, 100.0, 1000.0])
 
     testing_datasets = [[c104_dataset, C1_2_4_dataset, C1_4_4_dataset, C1_6_4_dataset],
-                        ]
+                        [r110_dataset, R1_2_10_dataset, R1_4_10_dataset, R1_6_10_dataset],
+                        [rc103_dataset, RC1_2_3_dataset, RC1_4_3_dataset, RC1_6_3_dataset]]
 
-    # testing_datasets = [[test_dataset1, test_dataset2, test_dataset3, test_dataset4],
-    #                     [test_dataset5, test_dataset6, test_dataset7, test_dataset8],
-    #                     [test_dataset9, test_dataset10, test_dataset11, test_dataset12]]
+    # for dataset_series in testing_datasets:
+    #     for dataset in dataset_series:
+    #         base_name = dataset['output_dir'][:len(dataset['output_dir']) - 1]
+    #         for k3 in k3_array:
+    #             kernel = Kernel(k3)
+    #             dataset['output_dir'] = base_name + '_' + str(int(k3)) + '/'
+    #             kernel.solve_and_plot([dataset, ])
 
-    for dataset_series in testing_datasets:
-        for dataset in dataset_series:
-            base_name = dataset['output_dir'][:len(dataset['output_dir']) - 1]
-            for k3 in k3_array:
-                kernel = Kernel(k3)
-                dataset['output_dir'] = base_name + '_' + str(int(k3)) + '/'
-                kernel.solve_and_plot([dataset, ])
-
-    # statistics = Statistics(testing_datasets, dims_array, k3_array)
+    statistics = Statistics(testing_datasets, dims_array, k3_array)
     # different_k3_arr = statistics.collect_time_data()
     # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr, xlabel='Customers number', ylabel='Time execution')
-    #
-    # different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_eval = statistics.collect_evaluation()
+
+    different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_eval = statistics.collect_evaluation()
     # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_dist, xlabel='Customers number', ylabel='Total distance')
     # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_wait_time, xlabel='Customers number', ylabel='Wait time')
     # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_late_time, xlabel='Customers number', ylabel='Late time')
-    # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_eval, xlabel='Customers number', ylabel='Total evaluation')
+    plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_eval, xlabel='Customers number', ylabel='Total evaluation')

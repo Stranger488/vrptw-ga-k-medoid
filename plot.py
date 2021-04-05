@@ -79,7 +79,7 @@ class Plot:
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
 
-    def plot_on_axes(self, axes, x, y, c='green', label='label', xlabel='xlabel', ylabel='ylabel'):
+    def plot_on_axes(self, axes, x, y, c='green', label='label', xlabel='xlabel', ylabel='ylabel', title='title'):
         axes.plot(x, y, '.-', color=c, linewidth=self.linewidth_standart, label=label)
 
         axes.grid()
@@ -87,8 +87,11 @@ class Plot:
         axes.legend(loc='best')
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
+        axes.set_title(title)
 
     def plot_data(self, testing_datasets, dims_array, k3_array, different_k3_arr, xlabel='x', ylabel='y'):
+        mapping = ['C', 'R', 'RC']
+
         for i in range(len(testing_datasets)):
             plt.rc('font', size=5)  # controls default text sizes
             plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
@@ -99,7 +102,7 @@ class Plot:
             for j, k3 in enumerate(k3_array):
                 self.plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel=xlabel,
                                      ylabel=ylabel,
-                                     label='{}'.format(k3))
+                                     label='{}'.format(k3), title='{} dataset series'.format(mapping[i]))
 
             axes.grid()
 
