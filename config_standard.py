@@ -12,7 +12,7 @@ Z = 10
 P = 100
 
 # Number of all generations
-ng = 1
+ng = 50
 
 # Crossover probability
 Pc = 0.65
