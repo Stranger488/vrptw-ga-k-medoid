@@ -1,6 +1,21 @@
 import numpy as np
-import pandas as pd
-import pathlib
+
+from functools import wraps
+from time import time
+
+
+def timing(f):
+    @wraps(f)
+    def wrap(*args, **kw):
+        ts = time()
+        result = f(*args, **kw)
+        te = time()
+
+        output = open("time", "a")
+        output.write("{}\n".format(round(te - ts, 4)))
+        return result
+
+    return wrap
 
 
 class Utils:
@@ -8,10 +23,10 @@ class Utils:
         # Cost for distance per unit
         self.c_D = 1.0
 
-        # Cost for wait time_cluster per unit
+        # Cost for wait time per unit
         self.c_T = 1.0
 
-        # Cost for late time_cluster per unit
+        # Cost for late time per unit
         self.c_L = 1.5
 
     def read_standard_dataset(self, dataset, points_dataset, tws_all, service_time_all):
@@ -26,9 +41,7 @@ class Utils:
 
         return points_dataset, tws_all, service_time_all
 
-    def evaluate_solution(self, tsptw_results, output_dir):
-        pathlib.Path('evaluation/' + output_dir).mkdir(parents=True, exist_ok=True)
-
+    def evaluate_solution(self, tsptw_results, eval_method='default'):
         total_dist = 0.0
         wait_time = 0.0
         late_time = 0.0
@@ -38,10 +51,12 @@ class Utils:
             wait_time += result['Wait_Time'][len(result) - 1]
             late_time += result['Late_Time'][len(result) - 1]
 
-        evaluation = self.c_D * total_dist + self.c_T * wait_time + self.c_L * late_time
+        if eval_method == 'by_distance':
+            f = open("file.txt", "a")
+            f.write("total late time: {}\n".format(late_time))
+            f.write("total wait time: {}\n\n".format(wait_time))
+            f.close()
+            print("total late time: {}".format(late_time))
+            return total_dist
 
-        result = pd.DataFrame([total_dist, wait_time, late_time, evaluation])
-        result.to_csv('evaluation/' + output_dir + 'evaluation.csv', sep=' ',
-                      index=False, header=False)
-
-        return evaluation
+        return self.c_D * total_dist + self.c_T * wait_time + self.c_L * late_time

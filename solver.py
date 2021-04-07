@@ -5,6 +5,8 @@ import numpy as np
 from chromosome import Chromosome
 from population import Population
 
+from utils import timing
+
 
 class Solver:
     def __init__(self, Z, distances, P, ng, Pc, Pm, Pmb, k=None, numpy_rand=None):
@@ -55,6 +57,7 @@ class Solver:
 
         return result
 
+    @timing
     def solve(self):
         self.current_population.generate_random_population(self.numpy_random)
         self.current_population.calculate_fitness()

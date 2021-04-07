@@ -93,21 +93,22 @@ def evaluate_time(distance_matrix, parameters, depot, subroute):
     return wait, time, late
 
 # Function: Subroute Cost
-def evaluate_cost(dist, wait, parameters, depot, subroute, time_window):
-    tw_wc     = np.array([0.0 for _ in range(len(parameters))])
+def evaluate_cost(dist, wait, late, parameters, depot, subroute, time_window):
+    tw_wc     = np.array([1.0 for _ in range(len(parameters))])
     subroute_ = depot + subroute + depot
     cost      = [0]*len(subroute_)
     if (time_window == 'with'):
-        cost = [1.0 + y*z if x == 0 else 1.0 + x*1.0 + y*z for x, y, z in zip(dist, wait, tw_wc[subroute_])]
+        cost = [1.0 + y*val + z*val if x == 0 else 1.0 + x*1.0 + y*val + z*val for x, y, z, val in zip(dist, wait, late, tw_wc[subroute_])]
     else:
         cost = [1.0  if x == 0 else 1.0 + x*1.0  for x in dist]
     return cost
 
 # Function: Subroute Cost
-def evaluate_cost_penalty(dist, time, wait, parameters, depot, subroute, penalty_value, time_window, route):
+def evaluate_cost_penalty(dist, time, wait, late, parameters, depot, subroute, penalty_value, time_window, route):
     tw_late = parameters[:, 1]
     tw_st   = parameters[:, 2]
     tw_wc   = np.array([1.0 for _ in range(len(parameters))])
+    tw_lc   = np.array([100.0 for _ in range(len(parameters))])
     if (route == 'open'):
         subroute_ = depot + subroute
     else:
@@ -115,8 +116,8 @@ def evaluate_cost_penalty(dist, time, wait, parameters, depot, subroute, penalty
     pnlt = 0
     cost = [0]*len(subroute_)
     if(time_window == 'with'):
-        pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))  
-        cost = [1.0 + y*z if x == 0 else cost[0] + x*1.0 + y*z for x, y, z in zip(dist, wait, tw_wc[subroute_])]
+        pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))
+        cost = [1.0 + y*val + z*val if x == 0 else cost[0] + x*1.0 + y*val + z*val for x, y, z, val in zip(dist, wait, late, tw_wc[subroute_])]
     else:
         cost = [1.0 if x == 0 else cost[0] + x*1.0 for x in dist]
     cost[-1] = cost[-1] + pnlt*penalty_value
@@ -188,8 +189,9 @@ def target_function(population, distance_matrix, parameters, penalty_value, time
             else:
                 wait       = []
                 time       = []
+                late       = []
 
-            cost_s = evaluate_cost(dist, wait, parameters, depot = individual[0][i], subroute = individual[1][i], time_window = time_window)
+            cost_s = evaluate_cost(dist, wait, late, parameters, depot = individual[0][i], subroute = individual[1][i], time_window = time_window)
             if(time_window == 'with'):
                 if (route == 'open'):
                     subroute_ = individual[0][i] + individual[1][i]
@@ -285,7 +287,7 @@ def crossover_tsp_bcr(parent_1, parent_2, distance_matrix, penalty_value, time_w
         else:
             wait_time_list = [[0, 0]]*len(dist_list)
         insertion_list = [insertion[1][:n] + [A] + insertion[1][n:] for n in range(0, len(parent_2[1][0]) + 1)]
-        d_2_list       = [evaluate_cost_penalty(dist_list[n], wait_time_list[n][1], wait_time_list[n][0], parameters, insertion[0], insertion_list[n], penalty_value, time_window, route) for n in range(0, len(dist_list))]
+        d_2_list       = [evaluate_cost_penalty(dist_list[n], wait_time_list[n][1], wait_time_list[n][0], wait_time_list[n][2], parameters, insertion[0], insertion_list[n], penalty_value, time_window, route) for n in range(0, len(dist_list))]
         d_2 = min(d_2_list)
         if (d_2 <= d_1):
             d_1   = d_2
@@ -336,7 +338,7 @@ def crossover_vrp_bcr(parent_1, parent_2, distance_matrix, penalty_value, time_w
                 else:
                     wait_time_list = [[0, 0]]*len(dist_list)
                 insertion_list = [insertion[1][:n] + [A] + insertion[1][n:] for n in range(0, len(parent_2[1][m]) + 1)]
-                d_2_list       = [evaluate_cost_penalty(dist_list[n], wait_time_list[n][1], wait_time_list[n][0], parameters, insertion[0], insertion_list[n], penalty_value, time_window, route) for n in range(0, len(dist_list))]
+                d_2_list       = [evaluate_cost_penalty(dist_list[n], wait_time_list[n][1], wait_time_list[n][0], wait_time_list[n][2], parameters, insertion[0], insertion_list[n], penalty_value, time_window, route) for n in range(0, len(dist_list))]
                 d_2 = min(d_2_list)
                 if (d_2 <= d_1):
                     d_1   = d_2
@@ -490,5 +492,8 @@ def genetic_algorithm_vrp(coordinates, distance_matrix, parameters, population_s
     solution_report = show_report(solution, distance_matrix, parameters, route = route)
     end = tm.time()
 
-    print('Algorithm Time: ', round((end - start),2), ' seconds')
+    output = open("time_tsp", "a")
+    output.write("{}\n".format(round(end - start, 4)))
+
+    # print('Algorithm Time: ', round((end - start),2), ' seconds')
     return solution_report, solution
