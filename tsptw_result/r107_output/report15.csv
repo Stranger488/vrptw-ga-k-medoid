@@ -1,8 +1,0 @@
-Route Activity Job Wait_Time Arrive_Time Leave_Time Distance Late_Time
-#1 start 0 0 0 0 0.0 0
-#1 service 2 27.83 12.17 50.0 12.17 0
-#1 service 1 0 54.47 64.47 16.64 0
-#1 service 3 0 70.8 80.8 22.96 0
-#1 finish 4 0 86.18 96.18 28.35 0
--//- -//- -//- -//- -//- -//- -//- -//--
-TOTAL   27.83  96.18 28.35 0
