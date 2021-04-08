@@ -198,11 +198,11 @@ if __name__ == '__main__':
     #             kernel.solve_and_plot([dataset, ])
 
     statistics = Statistics(testing_datasets, dims_array, k3_array)
-    # different_k3_arr = statistics.collect_time_data()
-    # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr, xlabel='Customers number', ylabel='Time execution')
+    different_k3_arr = statistics.collect_time_data()
+    plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr, xlabel='Customers number', ylabel='Time execution')
 
-    different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_eval = statistics.collect_evaluation()
+    # different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_eval = statistics.collect_evaluation()
     # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_dist, xlabel='Customers number', ylabel='Total distance')
     # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_wait_time, xlabel='Customers number', ylabel='Wait time')
     # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_late_time, xlabel='Customers number', ylabel='Late time')
-    plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_eval, xlabel='Customers number', ylabel='Total evaluation')
+    # plotter.plot_data(testing_datasets, dims_array, k3_array, different_k3_arr_eval, xlabel='Customers number', ylabel='Total evaluation')

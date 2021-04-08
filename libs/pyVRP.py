@@ -3,7 +3,6 @@ import random
 import numpy as np
 import copy
 import os
-import time as tm
 
 from itertools import cycle
 
@@ -462,7 +461,6 @@ def elite_distance(individual, distance_matrix, route):
 
 # GA-VRP Function
 def genetic_algorithm_vrp(coordinates, distance_matrix, parameters, population_size = 5, route = 'closed', model = 'vrp', time_window = 'without', mutation_rate = 0.1, elite = 0, generations = 50, penalty_value = 100000, graph = True):
-    start           = tm.time()
     count           = 0
     solution_report = ['None']
 
@@ -490,10 +488,5 @@ def genetic_algorithm_vrp(coordinates, distance_matrix, parameters, population_s
         print('Generation = ', count, ' Distance = ', elite_ind, ' f(x) = ', round(cost[0][0],2))
 
     solution_report = show_report(solution, distance_matrix, parameters, route = route)
-    end = tm.time()
 
-    output = open("time_tsp", "a")
-    output.write("{}\n".format(round(end - start, 4)))
-
-    # print('Algorithm Time: ', round((end - start),2), ' seconds')
     return solution_report, solution
