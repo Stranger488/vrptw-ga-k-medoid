@@ -90,6 +90,7 @@ RC1_6_3_dataset = {
     'text': False
 }
 
+mapping = ['C', 'R', 'RC']
 dims_array = np.array([100, 200, 400, 600])
 k3_array = np.array([2.0, 10.0, 100.0, 1000.0])
 

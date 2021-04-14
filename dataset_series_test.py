@@ -18,6 +18,7 @@ r109_reduced_dataset = {
     'text': False
 }
 
+mapping = ['test_series']
 dims_array = np.array([6, 30])
 k3_array = np.array([2.0, 10.0, 100.0, 1000.0])
 

@@ -88,8 +88,9 @@ class Plot:
         axes.set_ylabel(ylabel)
         axes.set_title(title)
 
-    def plot_data(self, testing_datasets, dims_array, k3_array, different_k3_arr, xlabel='x', ylabel='y'):
-        mapping = ['C', 'R', 'RC']
+    def plot_data(self, testing_datasets, dims_array, k3_array, different_k3_arr, xlabel='x', ylabel='y', mapping=None):
+        if mapping is None:
+            mapping = ['C', 'R', 'RC']
 
         for i in range(len(testing_datasets)):
             plt.rc('font', size=5)  # controls default text sizes

@@ -6,6 +6,7 @@ from plot import Plot
 class Launcher:
     def __init__(self, in_dataset_series=None, is_solve=False, plot_stats=True):
         self.in_dataset_series = __import__(in_dataset_series)
+        self.mapping = self.in_dataset_series.mapping
         self.testing_datasets = self.in_dataset_series.testing_datasets
         self.k3_array = self.in_dataset_series.k3_array
         self.dims_array = self.in_dataset_series.dims_array
@@ -38,20 +39,20 @@ class Launcher:
 
         if self.plot_stats == 'time':
             plotter.plot_data(self.testing_datasets, self.dims_array, self.k3_array, different_k3_arr, xlabel='Customers number',
-                              ylabel='Time execution, sec')
+                              ylabel='Time execution, sec', mapping=self.mapping)
         elif self.plot_stats == 'distance':
             plotter.plot_data(self.testing_datasets, self.dims_array, self.k3_array, different_k3_arr_dist, xlabel='Customers number',
-                              ylabel='Total distance')
+                              ylabel='Total distance', mapping=self.mapping)
         elif self.plot_stats == 'wait_time':
             plotter.plot_data(self.testing_datasets, self.dims_array, self.k3_array, different_k3_arr_wait_time, xlabel='Customers number',
-                              ylabel='Wait time')
+                              ylabel='Wait time', mapping=self.mapping)
         elif self.plot_stats == 'late_time':
             plotter.plot_data(self.testing_datasets, self.dims_array, self.k3_array, different_k3_arr_late_time, xlabel='Customers number',
-                              ylabel='Late time')
+                              ylabel='Late time', mapping=self.mapping)
         elif self.plot_stats == 'total_evaluation':
             plotter.plot_data(self.testing_datasets, self.dims_array, self.k3_array, different_k3_arr_eval, xlabel='Customers number',
-                              ylabel='Total evaluation')
+                              ylabel='Total evaluation', mapping=self.mapping)
         else:
             print('Unrecognized plot_stats parameter. Setting it to time...')
             plotter.plot_data(self.testing_datasets, self.dims_array, self.k3_array, different_k3_arr, xlabel='Customers number',
-                              ylabel='Time execution, sec')
+                              ylabel='Time execution, sec', mapping=self.mapping)
