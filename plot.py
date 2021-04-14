@@ -14,8 +14,7 @@ class Plot:
         self.linewidth_standart = 0.5
         self.width = self.depth = 0.5
 
-    def plot_clusters(self, init_dataset, dataset, tws, max_tw, depo_spatio, depo_tws, plots_data, axes_text=None,
-                      text=False):
+    def plot_clusters(self, init_dataset, dataset, tws, max_tw, depo_spatio, depo_tws, plots_data, text=False):
         plt.rc('font', size=5)  # controls default text sizes
         plt.rc('xtick', labelsize=8)  # fontsize of the tick labels
         plt.rc('ytick', labelsize=8)
@@ -27,7 +26,7 @@ class Plot:
         axes.set_ylabel('y')
         axes.set_zlabel('z')
 
-        axes.set_title(axes_text)
+        axes.set_title('Clusters')
 
         colors = [rgb2hex([np.random.random_sample(), np.random.random_sample(), np.random.random_sample()])
                   for _ in dataset]

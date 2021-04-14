@@ -93,18 +93,16 @@ def evaluate_time(distance_matrix, parameters, depot, subroute):
     return wait, time, late
 
 # Function: Subroute Cost
-def evaluate_cost(dist, wait, late, parameters, depot, subroute, time_window):
-    tw_wc     = np.array([1.0 for _ in range(len(parameters))])
+def evaluate_cost(dist, wait, late, parameters, depot, subroute):
+    tw_wc     = np.array([10.0 for _ in range(len(parameters))])
+    tw_lc     = np.array([100.0 for _ in range(len(parameters))])
     subroute_ = depot + subroute + depot
     cost      = [0]*len(subroute_)
-    if (time_window == 'with'):
-        cost = [1.0 + y*val + z*val if x == 0 else 1.0 + x*1.0 + y*val + z*val for x, y, z, val in zip(dist, wait, late, tw_wc[subroute_])]
-    else:
-        cost = [1.0  if x == 0 else 1.0 + x*1.0  for x in dist]
+    cost = [1.0 + y*wait_val + z*late_val if x == 0 else 1.0 + x*1.0 + y*wait_val + z*late_val for x, y, z, wait_val, late_val in zip(dist, wait, late, tw_wc[subroute_], tw_lc[subroute_])]
     return cost
 
 # Function: Subroute Cost
-def evaluate_cost_penalty(dist, time, wait, late, parameters, depot, subroute, penalty_value, time_window, route):
+def evaluate_cost_penalty(dist, time, wait, late, parameters, depot, subroute, penalty_value, route):
     tw_late = parameters[:, 1]
     tw_st   = parameters[:, 2]
     tw_wc   = np.array([1.0 for _ in range(len(parameters))])
@@ -115,11 +113,9 @@ def evaluate_cost_penalty(dist, time, wait, late, parameters, depot, subroute, p
         subroute_ = depot + subroute + depot
     pnlt = 0
     cost = [0]*len(subroute_)
-    if(time_window == 'with'):
-        pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))
-        cost = [1.0 + y*val + z*val if x == 0 else cost[0] + x*1.0 + y*val + z*val for x, y, z, val in zip(dist, wait, late, tw_wc[subroute_])]
-    else:
-        cost = [1.0 if x == 0 else cost[0] + x*1.0 for x in dist]
+    pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))
+    cost = [1.0 + y*val + z*val if x == 0 else cost[0] + x*1.0 + y*val + z*val for x, y, z, val in zip(dist, wait, late, tw_wc[subroute_])]
+
     cost[-1] = cost[-1] + pnlt*penalty_value
     return cost[-1]
 
@@ -168,7 +164,7 @@ def show_report(solution, distance_matrix, parameters, route):
     return report_df
 
 # Function: Route Evalution & Correction
-def target_function(population, distance_matrix, parameters, penalty_value, time_window, route):
+def target_function(population, distance_matrix, parameters, penalty_value, route):
     cost     = [[0] for _ in range(len(population))]
     tw_late  = parameters[:, 1]
     tw_st    = parameters[:, 2]
@@ -184,36 +180,31 @@ def target_function(population, distance_matrix, parameters, penalty_value, time
         pnlt       = 0
         while (size > i): # i subroutes 
             dist = evaluate_distance(distance_matrix, individual[0][i], individual[1][i])
-            if(time_window == 'with'):
-                wait, time, late = evaluate_time(distance_matrix, parameters, depot = individual[0][i], subroute = individual[1][i])
+            wait, time, late = evaluate_time(distance_matrix, parameters, depot = individual[0][i], subroute = individual[1][i])
+
+            cost_s = evaluate_cost(dist, wait, late, parameters, depot = individual[0][i], subroute = individual[1][i])
+            if (route == 'open'):
+                subroute_ = individual[0][i] + individual[1][i]
             else:
-                wait       = []
-                time       = []
-                late       = []
+                subroute_ = individual[0][i] + individual[1][i] + individual[0][i]
+            # pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))                      
 
-            cost_s = evaluate_cost(dist, wait, late, parameters, depot = individual[0][i], subroute = individual[1][i], time_window = time_window)
-            if(time_window == 'with'):
-                if (route == 'open'):
-                    subroute_ = individual[0][i] + individual[1][i]
-                else:
-                    subroute_ = individual[0][i] + individual[1][i] + individual[0][i]
-                pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))                      
-
-            cost[k][0] = cost[k][0] + cost_s[-end] + pnlt*penalty_value
+            cost[k][0] = cost[k][0] + cost_s[-end] 
+            # + pnlt*penalty_value
             size = len(individual[1])
             i = i + 1
     cost_total = copy.deepcopy(cost)
     return cost_total, population
 
 # Function: Initial Population
-def initial_population(coordinates = 'none', distance_matrix = 'none', population_size = 5, model = 'vrp'):
+def initial_population(coordinates = 'none', distance_matrix = 'none', population_size = 5):
     try:
         distance_matrix.shape[0]
     except:
         distance_matrix = build_distance_matrix(coordinates)
 
     depots     = [[0]]
-    vehicles   = [[0]]
+    vecicles   = [[0]]
     clients    = list(range(1, distance_matrix.shape[0]))
     population = []
     for i in range(0, population_size):
@@ -222,12 +213,10 @@ def initial_population(coordinates = 'none', distance_matrix = 'none', populatio
         routes_depot    = []
         routes_vehicles = []
         while (len(clients_temp) > 0):
-            e = random.sample(vehicles, 1)[0]
+            e = random.sample(vecicles, 1)[0]
             d = random.sample(depots, 1)[0]
-            if (model == 'tsp'):
-                c = random.sample(clients_temp, len(clients_temp))
-            else:
-                c = random.sample(clients_temp, random.randint(1, len(clients_temp)))
+            c = random.sample(clients_temp, len(clients_temp))
+            
             routes_vehicles.append(e)
             routes_depot.append(d)
             routes.append(c)
@@ -272,7 +261,7 @@ def crossover_tsp_brbax(parent_1, parent_2):
     return offspring
 
 # Function: TSP Crossover - BCR (Best Cost Route Crossover)
-def crossover_tsp_bcr(parent_1, parent_2, distance_matrix, penalty_value, time_window, parameters, route):
+def crossover_tsp_bcr(parent_1, parent_2, distance_matrix, penalty_value, parameters, route):
     offspring = copy.deepcopy(parent_2)
     cut       = random.sample(list(range(0,len(parent_1[1][0]))), 2)
     for i in range(0, 2):
@@ -282,12 +271,9 @@ def crossover_tsp_bcr(parent_1, parent_2, distance_matrix, penalty_value, time_w
         parent_2[1][0] = [item for item in parent_2[1][0] if item not in [A] ]
         insertion      = copy.deepcopy([ parent_2[0][0], parent_2[1][0], parent_2[2][0] ])
         dist_list      = [evaluate_distance(distance_matrix, insertion[0], insertion[1][:n] + [A] + insertion[1][n:]) for n in range(0, len(parent_2[1][0]) + 1)]
-        if(time_window == 'with'):
-            wait_time_list = [evaluate_time(distance_matrix, parameters, insertion[0], insertion[1][:n] + [A] + insertion[1][n:]) for n in range(0, len(parent_2[1][0]) + 1)]
-        else:
-            wait_time_list = [[0, 0]]*len(dist_list)
+        wait_time_list = [evaluate_time(distance_matrix, parameters, insertion[0], insertion[1][:n] + [A] + insertion[1][n:]) for n in range(0, len(parent_2[1][0]) + 1)]
         insertion_list = [insertion[1][:n] + [A] + insertion[1][n:] for n in range(0, len(parent_2[1][0]) + 1)]
-        d_2_list       = [evaluate_cost_penalty(dist_list[n], wait_time_list[n][1], wait_time_list[n][0], wait_time_list[n][2], parameters, insertion[0], insertion_list[n], penalty_value, time_window, route) for n in range(0, len(dist_list))]
+        d_2_list       = [evaluate_cost_penalty(dist_list[n], wait_time_list[n][1], wait_time_list[n][0], wait_time_list[n][2], parameters, insertion[0], insertion_list[n], penalty_value, route) for n in range(0, len(dist_list))]
         d_2 = min(d_2_list)
         if (d_2 <= d_1):
             d_1   = d_2
@@ -297,65 +283,8 @@ def crossover_tsp_bcr(parent_1, parent_2, distance_matrix, penalty_value, time_w
             offspring = copy.deepcopy(parent_2)
     return offspring
 
-# Function: VRP Crossover - BRBAX (Best Route Better Adjustment Recombination)
-def crossover_vrp_brbax(parent_1, parent_2):
-    s         = random.sample(list(range(0,len(parent_1[0]))), 1)[0]
-    subroute  = [ parent_1[0][s], parent_1[1][s], parent_1[2][s] ]
-    offspring = copy.deepcopy(parent_2)
-    for k in range(len(parent_2[1])-1, -1, -1):
-        offspring[1][k] = [item for item in offspring[1][k] if item not in subroute[1] ] 
-        if (len(offspring[1][k]) == 0):
-            del offspring[0][k]
-            del offspring[1][k]
-            del offspring[2][k]
-    offspring[0].append(subroute[0])
-    offspring[1].append(subroute[1])
-    offspring[2].append(subroute[2])
-    return offspring
-
-# Function: VRP Crossover - BCR (Best Cost Route Crossover)
-def crossover_vrp_bcr(parent_1, parent_2, distance_matrix, penalty_value, time_window, parameters, route):
-    s         = random.sample(list(range(0,len(parent_1[0]))), 1)[0]
-    offspring = copy.deepcopy(parent_2)
-    if (len(parent_1[1][s]) > 1):
-        cut  = random.sample(list(range(0,len(parent_1[1][s]))), 2)
-        gene = 2
-    else:
-        cut  = [0, 0]
-        gene = 1
-    for i in range(0, gene):
-        d_1   = float('+inf')
-        ins_m = 0
-        A     = parent_1[1][s][cut[i]]
-        best  = []
-        for m in range(0, len(parent_2[1])):
-            parent_2[1][m] = [item for item in parent_2[1][m] if item not in [A] ]
-            if (len(parent_2[1][m]) > 0):
-                insertion      = copy.deepcopy([ parent_2[0][m], parent_2[1][m], parent_2[2][m] ])
-                dist_list      = [evaluate_distance(distance_matrix, insertion[0], insertion[1][:n] + [A] + insertion[1][n:]) for n in range(0, len(parent_2[1][m]) + 1)]
-                if(time_window == 'with'):
-                    wait_time_list = [evaluate_time(distance_matrix, parameters, insertion[0], insertion[1][:n] + [A] + insertion[1][n:]) for n in range(0, len(parent_2[1][m]) + 1)]
-                else:
-                    wait_time_list = [[0, 0]]*len(dist_list)
-                insertion_list = [insertion[1][:n] + [A] + insertion[1][n:] for n in range(0, len(parent_2[1][m]) + 1)]
-                d_2_list       = [evaluate_cost_penalty(dist_list[n], wait_time_list[n][1], wait_time_list[n][0], wait_time_list[n][2], parameters, insertion[0], insertion_list[n], penalty_value, time_window, route) for n in range(0, len(dist_list))]
-                d_2 = min(d_2_list)
-                if (d_2 <= d_1):
-                    d_1   = d_2
-                    ins_m = m
-                    best  = insertion_list[d_2_list.index(min(d_2_list))]
-        parent_2[1][ins_m] = best            
-        if (d_1 != float('+inf')):
-            offspring = copy.deepcopy(parent_2)
-    for i in range(len(offspring[1])-1, -1, -1):
-        if(len(offspring[1][i]) == 0):
-            del offspring[0][i]
-            del offspring[1][i]
-            del offspring[2][i]
-    return offspring
-
 # Function: Breeding
-def breeding(cost, population, fitness, distance_matrix, elite, penalty_value, time_window, parameters, route):
+def breeding(cost, population, fitness, distance_matrix, elite, penalty_value, parameters, route):
     offspring = copy.deepcopy(population) 
     if (elite > 0):
         cost, population = (list(t) for t in zip(*sorted(zip(cost, population))))
@@ -372,19 +301,10 @@ def breeding(cost, population, fitness, distance_matrix, elite, penalty_value, t
         if (len(parent_1[1]) == 1 and len(parent_2[1]) == 1):
             if (rand > 0.5):
                 offspring[i] = crossover_tsp_brbax(parent_1, parent_2)
-                offspring[i] = crossover_tsp_bcr(offspring[i], parent_2, distance_matrix, penalty_value, time_window = time_window, parameters = parameters, route = route)
+                offspring[i] = crossover_tsp_bcr(offspring[i], parent_2, distance_matrix, penalty_value, parameters = parameters, route = route)
             elif (rand <= 0.5): 
                 offspring[i] = crossover_tsp_brbax(parent_2, parent_1)
-                offspring[i] = crossover_tsp_bcr(offspring[i], parent_1, distance_matrix, penalty_value, time_window = time_window, parameters = parameters, route = route)
-        # VRP - Crossover
-        elif((len(parent_1[1]) > 1 and len(parent_2[1]) > 1)):
-            if (rand > 0.5):
-                offspring[i] = crossover_vrp_brbax(parent_1, parent_2)
-                offspring[i] = crossover_vrp_bcr(offspring[i], parent_2, distance_matrix, penalty_value, time_window = time_window, parameters = parameters, route = route)
-            elif (rand <= 0.5): 
-                offspring[i] = crossover_vrp_brbax(parent_2, parent_1)
-                offspring[i] = crossover_vrp_bcr(offspring[i], parent_1, distance_matrix, penalty_value, time_window = time_window, parameters = parameters, route = route)
-
+                offspring[i] = crossover_tsp_bcr(offspring[i], parent_1, distance_matrix, penalty_value, parameters = parameters, route = route)
     return offspring
 
 # Function: Mutation - Swap
@@ -461,15 +381,14 @@ def elite_distance(individual, distance_matrix, route):
     return round(td,2)
 
 # GA-VRP Function
-def genetic_algorithm_vrp(coordinates, distance_matrix, parameters, population_size = 5, route = 'closed', model = 'vrp', time_window = 'without', mutation_rate = 0.1, elite = 0, generations = 50, penalty_value = 100000, graph = True):
-    start           = tm.time()
+def genetic_algorithm_tsp(coordinates, distance_matrix, parameters, population_size = 5, route = 'closed', mutation_rate = 0.1, elite = 0, generations = 50, penalty_value = 100000, graph = True):
     count           = 0
     solution_report = ['None']
 
     parameters[0, 0] = 0
     
-    population       = initial_population(coordinates, distance_matrix, population_size = population_size, model = model)
-    cost, population = target_function(population, distance_matrix, parameters, penalty_value, time_window = time_window, route = route)
+    population       = initial_population(coordinates, distance_matrix, population_size = population_size)
+    cost, population = target_function(population, distance_matrix, parameters, penalty_value, route = route)
     fitness          = fitness_function(cost, population_size) 
     cost, population = (list(t) for t in zip(*sorted(zip(cost, population))))
     elite_ind        = elite_distance(population[0], distance_matrix, route = route)
@@ -477,9 +396,9 @@ def genetic_algorithm_vrp(coordinates, distance_matrix, parameters, population_s
     solution         = copy.deepcopy(population[0])
     print('Generation = ', count, ' Distance = ', elite_ind, ' f(x) = ', round(cost[0][0],2)) 
     while (count <= generations-1): 
-        offspring        = breeding(cost, population, fitness, distance_matrix, elite, penalty_value, time_window, parameters, route)
+        offspring        = breeding(cost, population, fitness, distance_matrix, elite, penalty_value, parameters, route)
         offspring        = mutation(offspring, mutation_rate = mutation_rate, elite = elite)
-        cost, population = target_function(offspring, distance_matrix, parameters, penalty_value, time_window = time_window, route = route)
+        cost, population = target_function(offspring, distance_matrix, parameters, penalty_value, route = route)
         fitness          = fitness_function(cost, population_size)  
         cost, population = (list(t) for t in zip(*sorted(zip(cost, population)))) 
         elite_child      = elite_distance(population[0], distance_matrix, route = route)
@@ -490,10 +409,5 @@ def genetic_algorithm_vrp(coordinates, distance_matrix, parameters, population_s
         print('Generation = ', count, ' Distance = ', elite_ind, ' f(x) = ', round(cost[0][0],2))
 
     solution_report = show_report(solution, distance_matrix, parameters, route = route)
-    end = tm.time()
 
-    output = open("time_tsp", "a")
-    output.write("{}\n".format(round(end - start, 4)))
-
-    # print('Algorithm Time: ', round((end - start),2), ' seconds')
     return solution_report, solution
