@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pathlib
+import sys
 
 
 class Utils:
@@ -13,6 +14,8 @@ class Utils:
 
         # Cost for late time_cluster per unit
         self.c_L = 1.5
+
+        self.BASE_DIR = sys.path[0]
 
     def read_standard_dataset(self, dataset, points_dataset, tws_all, service_time_all):
         for i in range(dataset.shape[0]):
@@ -27,7 +30,7 @@ class Utils:
         return points_dataset, tws_all, service_time_all
 
     def evaluate_solution(self, tsptw_results, output_dir):
-        pathlib.Path('evaluation/' + output_dir).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(self.BASE_DIR + '/result/evaluation/' + output_dir).mkdir(parents=True, exist_ok=True)
 
         total_dist = 0.0
         wait_time = 0.0
@@ -41,7 +44,7 @@ class Utils:
         evaluation = self.c_D * total_dist + self.c_T * wait_time + self.c_L * late_time
 
         result = pd.DataFrame([total_dist, wait_time, late_time, evaluation])
-        result.to_csv('evaluation/' + output_dir + 'evaluation.csv', sep=' ',
+        result.to_csv(self.BASE_DIR + '/result/evaluation/' + output_dir + 'evaluation.csv', sep=' ',
                       index=False, header=False)
 
         return evaluation

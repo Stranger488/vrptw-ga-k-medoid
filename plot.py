@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.colors import rgb2hex
-from libs.pyVRP import plot_tour_coordinates
+
+from itertools import cycle
 
 
 class Plot:
@@ -13,6 +14,41 @@ class Plot:
         self.dpi_standart = 400
         self.linewidth_standart = 0.5
         self.width = self.depth = 0.5
+
+    # Function: Tour Plot
+    def plot_tour_coordinates(self, coordinates, solution, axes, color, route):
+        depot = solution[0]
+        city_tour = solution[1]
+        cycol = cycle(
+            ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22',
+             '#17becf', '#bf77f6', '#ff9408', '#d1ffbd', '#c85a53', '#3a18b1', '#ff796c', '#04d8b2', '#ffb07c',
+             '#aaa662', '#0485d1', '#fffe7a', '#b0dd16', '#85679', '#12e193', '#82cafc', '#ac9362', '#f8481c',
+             '#c292a1', '#c0fa8b', '#ca7b80', '#f4d054', '#fbdd7e', '#ffff7e', '#cd7584', '#f9bc08', '#c7c10c'])
+        # plt.style.use('ggplot')
+        for j in range(0, len(city_tour)):
+            if (route == 'closed'):
+                xy = np.zeros((len(city_tour[j]) + 2, 2))
+            else:
+                xy = np.zeros((len(city_tour[j]) + 1, 2))
+            for i in range(0, xy.shape[0]):
+                if (i == 0):
+                    xy[i, 0] = coordinates[depot[j][i], 0]
+                    xy[i, 1] = coordinates[depot[j][i], 1]
+                    if (route == 'closed'):
+                        xy[-1, 0] = coordinates[depot[j][i], 0]
+                        xy[-1, 1] = coordinates[depot[j][i], 1]
+                if (i > 0 and i < len(city_tour[j]) + 1):
+                    xy[i, 0] = coordinates[city_tour[j][i - 1], 0]
+                    xy[i, 1] = coordinates[city_tour[j][i - 1], 1]
+            axes.plot(xy[:, 0], xy[:, 1], 0.0, marker='s', alpha=0.5, markersize=1, color=color, linewidth=0.5)
+        for i in range(0, coordinates.shape[0]):
+            if i == 0:
+                axes.plot(coordinates[i, 0], coordinates[i, 1], 0.0, marker='s', alpha=1.0, markersize=3, color='k')
+                # axes.text(coordinates[i,0], coordinates[i,1] + 0.04, z=0.0, s=i,  ha = 'center', va = 'bottom', color = 'k', fontsize = 5)
+            else:
+                # axes.text(coordinates[i,0],  coordinates[i,1] + 0.04, z=0.0, s=i, ha = 'center', va = 'bottom', color = 'k', fontsize = 5)
+                pass
+        return
 
     def plot_clusters(self, init_dataset, dataset, tws, max_tw, depo_spatio, depo_tws, plots_data, text=False):
         plt.rc('font', size=5)  # controls default text sizes
@@ -33,15 +69,16 @@ class Plot:
 
         for i in range(dataset.shape[0]):
             self.plot_with_tws(dataset[i], tws[i], max_tw, colors[i], axes)
-            plot_tour_coordinates(plots_data[i]['coordinates'], plots_data[i]['ga_vrp'], axes, colors[i],
-                                  route=plots_data[i]['route'])
+            self.plot_tour_coordinates(plots_data[i]['coordinates'], plots_data[i]['ga_vrp'], axes, colors[i],
+                                       route=plots_data[i]['route'])
 
         axes.scatter(depo_spatio[0], depo_spatio[1], 0.0, c='black', s=1)
 
         axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[0], c='black', s=1)
         axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[1], c='black', s=1)
 
-        axes.bar3d(depo_spatio[0] - self.depth / 8., depo_spatio[1] - self.depth / 8., 0.0, self.width / 4., self.depth / 4.,
+        axes.bar3d(depo_spatio[0] - self.depth / 8., depo_spatio[1] - self.depth / 8., 0.0, self.width / 4.,
+                   self.depth / 4.,
                    max_tw, color='black')
 
         if text:
@@ -101,8 +138,8 @@ class Plot:
 
             for j, k3 in enumerate(k3_array):
                 self.plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel=xlabel,
-                                     ylabel=ylabel,
-                                     label='{}'.format(k3), title='{} dataset series'.format(mapping[i]))
+                                  ylabel=ylabel,
+                                  label='{}'.format(k3), title='{} dataset series'.format(mapping[i]))
 
             axes.grid()
 

@@ -6,7 +6,7 @@ import numpy as np
 test_dataset = {
     'data_file': 'test.txt',
     'output_dir': 'test_output/',
-    'plot': True,
+    'plot': False,
     'name': 'test',
     'text': True
 }
