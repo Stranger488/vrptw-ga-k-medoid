@@ -6,7 +6,7 @@ from scipy.integrate import quad
 
 class Spatiotemporal:
     def __init__(self, dataset, tws, service_time,
-                 k1, k2, k3, alpha1, alpha2):
+                 k1=1.0, k2=1.5, k3=2.0, alpha1=0.5, alpha2=0.5):
         self.k1 = k1
         self.k2 = k2
         self.k3 = k3

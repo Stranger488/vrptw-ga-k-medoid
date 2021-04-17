@@ -1,10 +1,10 @@
-from kernel import Kernel
+from vrptw_solver import VRPTWSolver
 from statistics import Statistics
 from plot import Plot
 
 
 class Launcher:
-    def __init__(self, in_dataset_series=None, is_solve=False, plot_stats=True):
+    def __init__(self, in_dataset_series=None, is_solve=False, plot_stats=True, mode=None):
         self.in_dataset_series = __import__(in_dataset_series)
         self.mapping = self.in_dataset_series.mapping
         self.testing_datasets = self.in_dataset_series.testing_datasets
@@ -13,6 +13,7 @@ class Launcher:
 
         self.is_solve = is_solve
         self.plot_stats = plot_stats
+        self.mode = mode
 
     def launch(self):
         if self.is_solve:
@@ -26,9 +27,9 @@ class Launcher:
             for dataset in dataset_series:
                 base_name = dataset['output_dir'][:len(dataset['output_dir']) - 1]
                 for k3 in self.k3_array:
-                    kernel = Kernel(k3)
+                    vrptw_solver = VRPTWSolver(k3, self.mode)
                     dataset['output_dir'] = base_name + '_' + str(int(k3)) + '/'
-                    kernel.solve_and_plot([dataset, ])
+                    vrptw_solver.solve_and_plot([dataset, ])
 
     def make_plot_stats(self):
         statistics = Statistics(self.testing_datasets, self.dims_array, self.k3_array)

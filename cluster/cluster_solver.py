@@ -1,13 +1,16 @@
 import math
+import sys
 
 import numpy as np
+
+from time import time
 
 from cluster.chromosome import Chromosome
 from cluster.population import Population
 
 
 class ClusterSolver:
-    def __init__(self, Z, distances, P, ng, Pc, Pm, Pmb, k=None, numpy_rand=None):
+    def __init__(self, distances, Z=10, P=20, ng=25, Pc=0.65, Pm=0.2, Pmb=0.05, k=None, numpy_rand=None):
 
         self.distances = distances
 
@@ -30,6 +33,8 @@ class ClusterSolver:
         self.best_chromosome = Chromosome(self.k, self.distances)
 
         self.numpy_random = numpy_rand
+
+        self.BASE_DIR = sys.path[0]
 
     def make_cluster_from_medoids(self):
         medoids = self.best_chromosome.genes
@@ -91,3 +96,15 @@ class ClusterSolver:
         print("cur fitness: {}".format(chrom_fitness))
         if chrom_fitness < self.best_chromosome.fitness:
             self.best_chromosome = population.find_best_chromosome()
+
+    def solve_cluster(self, output_dir):
+        ts = time()
+        result = self.solve()
+        te = time()
+
+        output = open(self.BASE_DIR + '/result/cluster_result/' + output_dir + 'time_cluster.csv', 'w')
+        output.write('{}\n'.format(round(te - ts, 4)))
+        output.close()
+
+        return result
+

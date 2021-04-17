@@ -23,4 +23,11 @@ Pm = 0.2
 # D_MX crossover Built-in mutation probability
 Pmb = 0.05
 
+# Cost for distance per unit
+c_D = 1.0
 
+# Cost for wait time_cluster per unit
+c_T = 1.0
+
+# Cost for late time_cluster per unit
+c_L = 1.5
