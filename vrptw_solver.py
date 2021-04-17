@@ -125,6 +125,9 @@ class VRPTWSolver:
         tsptw_solver = TSPTWSolver()
         tsptw_results, plots_data = tsptw_solver.solve(k, data_dir=output_dir)
 
+        # Evaluate final solution
+        evaluation = self.evaluate_solution(tsptw_results, output_dir)
+
         return None
 
     def solve(self, filename, plot=False, k=None, output_dir='cluster_result/', text=False):
