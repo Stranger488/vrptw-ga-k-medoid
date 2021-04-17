@@ -130,6 +130,10 @@ class TSPTWGenetic:
                 report_lst.append(['#' + str(i+1), activity, subroute[0][j], round(wait[j], 2), arrive_time, round(time[j], 2), round(dist[j], 2), round(late[j], 2)])
         report_lst.append(['-//-', '-//-', '-//-', '-//-', '-//-', '-//-', '-//-', '-//--'])
         report_lst.append(['TOTAL', '', '', round(wt, 2), '', round(tt, 2), round(td, 2), round(lt, 2)])
+        td = td - dist[1]
+        wt = wt - wait[1]
+        tt = tt - time[1]
+        report_lst.append(['DIST W\O FIRST', '', '', round(wt, 2), '', round(tt, 2), round(td, 2), round(lt, 2)])
         report_df = pd.DataFrame(report_lst, columns=column_names)
         return report_df
 
