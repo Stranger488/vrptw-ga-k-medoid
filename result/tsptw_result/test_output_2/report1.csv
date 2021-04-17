@@ -5,3 +5,4 @@ Route Activity Job Wait_Time Arrive_Time Leave_Time Distance Late_Time
 #1 finish 2 0 180.4 190.4 145.12 60.4
 -//- -//- -//- -//- -//- -//- -//- -//--
 TOTAL   15.28  190.4 145.12 82.51
+"DIST W\O FIRST"   0.0  120.4 100.4 82.51

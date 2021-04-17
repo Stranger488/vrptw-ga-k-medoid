@@ -11,6 +11,7 @@ from tsptw.tsptw_solver import TSPTWSolver
 from plot import Plot
 
 from cluster_config_standard import *
+from tsptw_config_standard import *
 
 
 class VRPTWSolver:
@@ -94,7 +95,8 @@ class VRPTWSolver:
         res_dataset, res_tws = self.collect_cluster_result(dataset_reduced, tws_reduced, result, init_dataset,
                                                            output_dir, tws_all, service_time_all, spatiotemporal)
 
-        tsptw_solver = TSPTWSolver()
+        tsptw_solver = TSPTWSolver(route=route, graph=graph, penalty_value=penalty_value, population_size=population_size,
+                                   mutation_rate=mutation_rate, elite=elite, generations=generations, pool_size=pool_size)
         tsptw_results, plots_data = tsptw_solver.solve(k, data_dir=output_dir)
 
         # Evaluate final solution
