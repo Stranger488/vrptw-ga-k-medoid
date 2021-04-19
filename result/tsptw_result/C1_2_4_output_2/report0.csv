@@ -11,7 +11,7 @@ Route Activity Job Wait_Time Arrive_Time Leave_Time Distance Late_Time
 #1 service 9 0 855.46 945.46 69.18 0
 #1 service 10 0 947.69 1037.69 71.41 0
 #1 service 11 0 1041.3 1131.3 75.02 0
-#1 service 12 0 1138.51 1228.51 82.23 0
-#1 finish 0 0 1277.34 1277.34 131.07 0
+#1 finish 12 0 1138.51 1228.51 82.23 0
 -//- -//- -//- -//- -//- -//- -//- -//--
-TOTAL   66.28  1277.34 131.07 0
+TOTAL   66.28  1228.51 82.23 0
+"DIST W\O FIRST"   66.28  1104.49 48.22 0
