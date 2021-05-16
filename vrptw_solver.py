@@ -17,20 +17,92 @@ from tsptw_config_standard import *
 class VRPTWSolver:
     def __init__(self, k3_from_outer=None, mode='cluster_and_tsptw'):
         if k3_from_outer:
-            self.k3 = k3_from_outer
+            self._k3 = k3_from_outer
         else:
-            self.k3 = k3
+            self._k3 = k3
 
-        self.mode = mode
+        self._mode = mode
 
-        self.plotter = Plot()
+        self._plotter = Plot()
 
-        self.numpy_rand = np.random.RandomState(42)
+        self._numpy_rand = np.random.RandomState(42)
 
-        self.BASE_DIR = sys.path[0]
+        self._BASE_DIR = sys.path[0]
 
-    def collect_cluster_result(self, dataset_reduced, tws_reduced, result, init_dataset, output_dir, tws_all,
-                               service_time_all, spatiotemporal):
+    def solve_and_plot(self, datasets):
+        st = []
+        for dataset in datasets:
+            print(dataset['name'])
+            st.append(self._solve(dataset['data_file'], plot=dataset['plot'],
+                                  output_dir=dataset['output_dir'], text=dataset['text']))
+
+        for i, dataset in enumerate(datasets):
+            if st[i]:
+                print("Spatiotemporal res on {}: {}".format(dataset['name'], st[i]))
+
+        if True in [d['plot'] for d in datasets]:
+            plt.show()
+
+    def _solve(self, filename, plot=False, k=None, output_dir='cluster_result/', text=False):
+        dataset = pd.read_fwf(self._BASE_DIR + '/data/' + filename)
+
+        points_dataset = np.empty((0, 2))
+        tws_all = np.empty((0, 2))
+        service_time_all = np.empty((0, 1))
+
+        points_dataset, tws_all, service_time_all = self._read_standard_dataset(dataset, points_dataset, tws_all,
+                                                                                service_time_all)
+        val = self._make_solution(points_dataset, tws_all, service_time_all, k=int(dataset['VEHICLE_NUMBER'][0]),
+                                  plot=plot, output_dir=output_dir, text=text)
+        return val
+
+    def _make_solution(self, init_dataset, tws_all, service_time_all, k=None, plot=False,
+                       text=False, output_dir='cluster_result/'):
+        pathlib.Path(self._BASE_DIR + '/result/cluster_result/' + output_dir).mkdir(parents=True, exist_ok=True)
+
+        # Init and calculate all spatiotemporal distances
+        spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1=k1, k2=k2, k3=self._k3,
+                                        alpha1=alpha1, alpha2=alpha2)
+        spatiotemporal.calculate_all_distances()
+
+        # Reduce depot
+        dataset_reduced = init_dataset[1:][:]
+        tws_reduced = tws_all[1:]
+        spatiotemporal_points_dist = np.delete(spatiotemporal.spatiotemporal_dist_all, 0, 0)
+        spatiotemporal_points_dist = np.delete(spatiotemporal_points_dist, 0, 1)
+
+        if self._mode == 'cluster':
+            return self._solve_in_cluster_mode(k, spatiotemporal_points_dist, dataset_reduced, tws_reduced, init_dataset,
+                                               output_dir, tws_all, service_time_all, spatiotemporal)
+        elif self._mode == 'tsptw':
+            return self._solve_in_tsptw_mode(k, output_dir)
+
+        cluster_solver = ClusterSolver(spatiotemporal_points_dist, Z=Z, P=P, ng=ng, Pc=Pc, Pm=Pm, Pmb=Pmb, k=k,
+                                       numpy_rand=self._numpy_rand)
+        # Result will be an array of clusters, where row is a cluster, value in column - point index
+        result = cluster_solver.solve_cluster(output_dir)
+
+        # Collect and parse cluster solution
+        res_dataset, res_tws = self._collect_cluster_result(dataset_reduced, tws_reduced, result, init_dataset,
+                                                            output_dir, tws_all, service_time_all, spatiotemporal)
+
+        tsptw_solver = TSPTWSolver(route=route, graph=graph, penalty_value=penalty_value, population_size=population_size,
+                                   mutation_rate=mutation_rate, elite=elite, generations=generations, pool_size=pool_size)
+        tsptw_results, plots_data = tsptw_solver.solve(k, data_dir=output_dir)
+
+        # Evaluate final solution
+        evaluation = self._evaluate_solution(tsptw_results, output_dir)
+
+        # Plot solution
+        if plot:
+            self._plotter.plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal._MAX_TW,
+                                        np.array(init_dataset[0]), np.array(tws_all[0]), plots_data,
+                                        text=text)
+
+        return evaluation
+
+    def _collect_cluster_result(self, dataset_reduced, tws_reduced, result, init_dataset, output_dir, tws_all,
+                                service_time_all, spatiotemporal):
         # Collect result, making datasets of space data and time_cluster windows
         res_dataset = np.array([[dataset_reduced[point] for point in cluster] for cluster in result])
         res_tws = np.array([[tws_reduced[point] for point in cluster] for cluster in result])
@@ -43,7 +115,7 @@ class VRPTWSolver:
             coord_df.index = coord_df.index + 1  # shifting index
             coord_df.sort_index(inplace=True)
 
-            coord_df.to_csv(self.BASE_DIR + '/result/cluster_result/' + output_dir + 'coords{}.txt'.format(i), sep=' ',
+            coord_df.to_csv(self._BASE_DIR + '/result/cluster_result/' + output_dir + 'coords{}.txt'.format(i), sep=' ',
                             index=False)
 
             # Create time_cluster parameters file
@@ -55,111 +127,39 @@ class VRPTWSolver:
 
             tw_df.insert(2, 'TW_service_time', [service_time_all[i][0] for i in range(len(tw_df))])
 
-            tw_df.to_csv(self.BASE_DIR + '/result/cluster_result/' + output_dir + 'params{}.txt'.format(i), index=False,
+            tw_df.to_csv(self._BASE_DIR + '/result/cluster_result/' + output_dir + 'params{}.txt'.format(i), index=False,
                          sep=' ')
 
         # Output distance matrix
         distance_df = pd.DataFrame(spatiotemporal.euclidian_dist_all)
-        distance_df.to_csv(self.BASE_DIR + '/result/cluster_result/' + output_dir + 'distance_matrix.txt', sep=' ',
+        distance_df.to_csv(self._BASE_DIR + '/result/cluster_result/' + output_dir + 'distance_matrix.txt', sep=' ',
                            index=False, header=False)
 
         return res_dataset, res_tws
 
-    def make_solution(self, init_dataset, tws_all, service_time_all, k=None, plot=False,
-                      text=False, output_dir='cluster_result/'):
-        pathlib.Path(self.BASE_DIR + '/result/cluster_result/' + output_dir).mkdir(parents=True, exist_ok=True)
-
-        # Init and calculate all spatiotemporal distances
-        spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all, k1=k1, k2=k2, k3=self.k3,
-                                        alpha1=alpha1, alpha2=alpha2)
-        spatiotemporal.calculate_all_distances()
-
-        # Reduce depot
-        dataset_reduced = init_dataset[1:][:]
-        tws_reduced = tws_all[1:]
-        spatiotemporal_points_dist = np.delete(spatiotemporal.spatiotemporal_dist_all, 0, 0)
-        spatiotemporal_points_dist = np.delete(spatiotemporal_points_dist, 0, 1)
-
-        if self.mode == 'cluster':
-            return self.solve_in_cluster_mode(k, spatiotemporal_points_dist, dataset_reduced, tws_reduced, init_dataset,
-                                              output_dir, tws_all, service_time_all, spatiotemporal)
-        elif self.mode == 'tsptw':
-            return self.solve_in_tsptw_mode(k, output_dir)
-
+    def _solve_in_cluster_mode(self, k, spatiotemporal_points_dist, dataset_reduced, tws_reduced, init_dataset, output_dir,
+                               tws_all, service_time_all, spatiotemporal):
         cluster_solver = ClusterSolver(spatiotemporal_points_dist, Z=Z, P=P, ng=ng, Pc=Pc, Pm=Pm, Pmb=Pmb, k=k,
-                                       numpy_rand=self.numpy_rand)
+                                       numpy_rand=self._numpy_rand)
         # Result will be an array of clusters, where row is a cluster, value in column - point index
         result = cluster_solver.solve_cluster(output_dir)
 
         # Collect and parse cluster solution
-        res_dataset, res_tws = self.collect_cluster_result(dataset_reduced, tws_reduced, result, init_dataset,
-                                                           output_dir, tws_all, service_time_all, spatiotemporal)
-
-        tsptw_solver = TSPTWSolver(route=route, graph=graph, penalty_value=penalty_value, population_size=population_size,
-                                   mutation_rate=mutation_rate, elite=elite, generations=generations, pool_size=pool_size)
-        tsptw_results, plots_data = tsptw_solver.solve(k, data_dir=output_dir)
-
-        # Evaluate final solution
-        evaluation = self.evaluate_solution(tsptw_results, output_dir)
-
-        # Plot solution
-        if plot:
-            self.plotter.plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
-                                       np.array(init_dataset[0]), np.array(tws_all[0]), plots_data,
-                                       text=text)
-
-        return evaluation
-
-    def solve_in_cluster_mode(self, k, spatiotemporal_points_dist, dataset_reduced, tws_reduced, init_dataset, output_dir,
-                              tws_all, service_time_all, spatiotemporal):
-        cluster_solver = ClusterSolver(spatiotemporal_points_dist, Z=Z, P=P, ng=ng, Pc=Pc, Pm=Pm, Pmb=Pmb, k=k,
-                                       numpy_rand=self.numpy_rand)
-        # Result will be an array of clusters, where row is a cluster, value in column - point index
-        result = cluster_solver.solve_cluster(output_dir)
-
-        # Collect and parse cluster solution
-        res_dataset, res_tws = self.collect_cluster_result(dataset_reduced, tws_reduced, result, init_dataset,
-                                                           output_dir, tws_all, service_time_all, spatiotemporal)
+        res_dataset, res_tws = self._collect_cluster_result(dataset_reduced, tws_reduced, result, init_dataset,
+                                                            output_dir, tws_all, service_time_all, spatiotemporal)
 
         return None
 
-    def solve_in_tsptw_mode(self, k, output_dir):
+    def _solve_in_tsptw_mode(self, k, output_dir):
         tsptw_solver = TSPTWSolver()
         tsptw_results, plots_data = tsptw_solver.solve(k, data_dir=output_dir)
 
         # Evaluate final solution
-        evaluation = self.evaluate_solution(tsptw_results, output_dir)
+        evaluation = self._evaluate_solution(tsptw_results, output_dir)
 
         return None
 
-    def solve(self, filename, plot=False, k=None, output_dir='cluster_result/', text=False):
-        dataset = pd.read_fwf(self.BASE_DIR + '/data/' + filename)
-
-        points_dataset = np.empty((0, 2))
-        tws_all = np.empty((0, 2))
-        service_time_all = np.empty((0, 1))
-
-        points_dataset, tws_all, service_time_all = self.read_standard_dataset(dataset, points_dataset, tws_all,
-                                                                               service_time_all)
-        val = self.make_solution(points_dataset, tws_all, service_time_all, k=int(dataset['VEHICLE_NUMBER'][0]),
-                                 plot=plot, output_dir=output_dir, text=text)
-        return val
-
-    def solve_and_plot(self, datasets):
-        st = []
-        for dataset in datasets:
-            print(dataset['name'])
-            st.append(self.solve(dataset['data_file'], plot=dataset['plot'],
-                                 output_dir=dataset['output_dir'], text=dataset['text']))
-
-        for i, dataset in enumerate(datasets):
-            if st[i]:
-                print("Spatiotemporal res on {}: {}".format(dataset['name'], st[i]))
-
-        if True in [d['plot'] for d in datasets]:
-            plt.show()
-
-    def read_standard_dataset(self, dataset, points_dataset, tws_all, service_time_all):
+    def _read_standard_dataset(self, dataset, points_dataset, tws_all, service_time_all):
         for i in range(dataset.shape[0]):
             tws_all = np.concatenate((tws_all, [[dataset['READY_TIME'][i],
                                                  dataset['DUE_DATE'][i]]]), axis=0)
@@ -171,8 +171,8 @@ class VRPTWSolver:
 
         return points_dataset, tws_all, service_time_all
 
-    def evaluate_solution(self, tsptw_results, output_dir):
-        pathlib.Path(self.BASE_DIR + '/result/evaluation/' + output_dir).mkdir(parents=True, exist_ok=True)
+    def _evaluate_solution(self, tsptw_results, output_dir):
+        pathlib.Path(self._BASE_DIR + '/result/evaluation/' + output_dir).mkdir(parents=True, exist_ok=True)
 
         total_dist = 0.0
         wait_time = 0.0
@@ -186,7 +186,7 @@ class VRPTWSolver:
         evaluation = c_D * total_dist + c_T * wait_time + c_L * late_time
 
         result = pd.DataFrame([total_dist, wait_time, late_time, evaluation])
-        result.to_csv(self.BASE_DIR + '/result/evaluation/' + output_dir + 'evaluation.csv', sep=' ',
+        result.to_csv(self._BASE_DIR + '/result/evaluation/' + output_dir + 'evaluation.csv', sep=' ',
                       index=False, header=False)
 
         return evaluation

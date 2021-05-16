@@ -7,13 +7,13 @@ from cluster.chromosome import Chromosome
 
 class Population:
     def __init__(self, population_size, chromosome_size, distances):
-        self.population_size = population_size
+        self._population_size = population_size
 
-        self.distances = distances
+        self._distances = distances
 
         self.chromosomes = np.array([])
-        for _ in range(self.population_size):
-            self.chromosomes = np.append(self.chromosomes, Chromosome(chromosome_size, self.distances))
+        for _ in range(self._population_size):
+            self.chromosomes = np.append(self.chromosomes, Chromosome(chromosome_size, self._distances))
 
     def generate_random_population(self, numpy_random):
         # Generate random genes for every chromosome
@@ -26,30 +26,10 @@ class Population:
             chromosome.calculate_fitness()
 
     def selection(self, numpy_random):
-        return self.roulette_selection(numpy_random)
+        return self._roulette_selection(numpy_random)
 
-    def roulette_selection(self, numpy_random):
-        chrom_size = self.chromosomes[0].chromosome_size
-        fitnesses = np.array([chromosome.fitness for chromosome in self.chromosomes])
-        fitnesses_sum = np.sum(fitnesses)
-
-        rel_fitnesses = np.array([fitness / fitnesses_sum for fitness in fitnesses])
-
-        probs = np.array([np.sum(rel_fitnesses[:i + 1]) for i in range(len(rel_fitnesses))])
-
-        new_population = Population(self.population_size, chrom_size, self.distances)
-        new_population.generate_random_population(numpy_random)
-
-        for i in range(chrom_size):
-            rand = round(numpy_random.random(), 4)
-            for j, chromosome in enumerate(self.chromosomes):
-                if probs[j] > rand:
-                    new_population.chromosomes[j] = chromosome
-                    break
-
-        new_population.calculate_fitness()
-
-        return new_population
+    def crossover(self, crossover_prob, mut_prob, numpy_random):
+        return self._dmx_crossover(crossover_prob, mut_prob, numpy_random)
 
     def mutate(self, prob, numpy_random):
         for chromosome in self.chromosomes:
@@ -66,8 +46,8 @@ class Population:
 
         return self.chromosomes[min_ind]
 
-    def dmx_crossover(self, crossover_prob, mut_prob, numpy_random):
-        for i in range(0, self.population_size - 1, 2):
+    def _dmx_crossover(self, crossover_prob, mut_prob, numpy_random):
+        for i in range(0, self._population_size - 1, 2):
             if crossover_prob > round(numpy_random.random(), 4):
                 mixed_gene = np.concatenate((self.chromosomes[i].genes, self.chromosomes[i + 1].genes))
                 numpy_random.shuffle(mixed_gene)
@@ -76,10 +56,10 @@ class Population:
                 applied = []
                 for k in range(mixed_gene.size):
                     if mut_prob > round(numpy_random.random(), 4):
-                        rand = numpy_random.randint(0, self.distances[0].size - 1)
+                        rand = numpy_random.randint(0, self._distances[0].size - 1)
 
                         while rand in applied:
-                            if rand < self.distances[0].size - 1:
+                            if rand < self._distances[0].size - 1:
                                 rand += 1
                             else:
                                 rand = 0
@@ -89,8 +69,8 @@ class Population:
 
                 numpy_random.shuffle(mixed_gene)
 
-                child1 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
-                child2 = Chromosome(self.chromosomes[0].chromosome_size, self.distances)
+                child1 = Chromosome(self.chromosomes[0].chromosome_size, self._distances)
+                child2 = Chromosome(self.chromosomes[0].chromosome_size, self._distances)
 
                 k = 0  # index in child
                 m = 0  # index in mixed_gene
@@ -110,3 +90,26 @@ class Population:
 
                 self.chromosomes[i] = child1
                 self.chromosomes[i + 1] = child2
+
+    def _roulette_selection(self, numpy_random):
+        chrom_size = self.chromosomes[0].chromosome_size
+        fitnesses = np.array([chromosome.fitness for chromosome in self.chromosomes])
+        fitnesses_sum = np.sum(fitnesses)
+
+        rel_fitnesses = np.array([fitness / fitnesses_sum for fitness in fitnesses])
+
+        probs = np.array([np.sum(rel_fitnesses[:i + 1]) for i in range(len(rel_fitnesses))])
+
+        new_population = Population(self._population_size, chrom_size, self._distances)
+        new_population.generate_random_population(numpy_random)
+
+        for i in range(chrom_size):
+            rand = round(numpy_random.random(), 4)
+            for j, chromosome in enumerate(self.chromosomes):
+                if probs[j] > rand:
+                    new_population.chromosomes[j] = chromosome
+                    break
+
+        new_population.calculate_fitness()
+
+        return new_population

@@ -12,41 +12,41 @@ class Chromosome:
 
         self.fitness = math.inf
 
-        self.distances = distances
+        self._distances = distances
 
     def generate_random_chromosome(self, numpy_random):
-        self.genes = numpy_random.choice(np.arange(0, self.distances[0].size), replace=False, size=self.chromosome_size)
+        self.genes = numpy_random.choice(np.arange(0, self._distances[0].size), replace=False, size=self.chromosome_size)
 
     def calculate_fitness(self):
         costs_sum = 0.0
 
-        points_size = int(np.ceil(self.distances[0].size / self.genes.size))
+        points_size = int(np.ceil(self._distances[0].size / self.genes.size))
         deprecated = np.copy(self.genes)
 
         for i, gene in enumerate(self.genes):
             for j in range(points_size):
                 if j == 0:
-                    costs_sum += self.distances[gene][0]
+                    costs_sum += self._distances[gene][0]
                     continue
 
                 cur_min_ind = -1
                 cur_min = math.inf
-                for k, el in enumerate(self.distances[gene]):
+                for k, el in enumerate(self._distances[gene]):
                     if gene != k and el < cur_min and k not in deprecated:
                         cur_min = el
                         cur_min_ind = k
                 deprecated = np.append(deprecated, cur_min_ind)
-                costs_sum += self.distances[gene][cur_min_ind]
+                costs_sum += self._distances[gene][cur_min_ind]
 
         self.fitness = costs_sum
 
         return costs_sum
 
     def mutate(self, numpy_random):
-        rand_mutate_ind = numpy_random.randint(self.distances[0].size)
+        rand_mutate_ind = numpy_random.randint(self._distances[0].size)
 
         while rand_mutate_ind in self.genes:
-            if rand_mutate_ind < self.distances[0].size - 1:
+            if rand_mutate_ind < self._distances[0].size - 1:
                 rand_mutate_ind += 1
             else:
                 rand_mutate_ind = 0

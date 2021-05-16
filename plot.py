@@ -10,10 +10,10 @@ class Plot:
     def __init__(self):
 
         # Plot parameters
-        self.figsize_standart = (8, 6)
-        self.dpi_standart = 400
-        self.linewidth_standart = 0.5
-        self.width = self.depth = 0.5
+        self._figsize_standart = (8, 6)
+        self._dpi_standart = 400
+        self._linewidth_standart = 0.5
+        self._width = self.depth = 0.5
 
     # Function: Tour Plot
     def plot_tour_coordinates(self, coordinates, solution, axes, color, route):
@@ -55,8 +55,8 @@ class Plot:
         plt.rc('xtick', labelsize=8)  # fontsize of the tick labels
         plt.rc('ytick', labelsize=8)
 
-        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self.figsize_standart,
-                                 dpi=self.dpi_standart, subplot_kw={'projection': '3d'})
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart,
+                                 dpi=self._dpi_standart, subplot_kw={'projection': '3d'})
 
         axes.set_xlabel('x')
         axes.set_ylabel('y')
@@ -68,7 +68,7 @@ class Plot:
                   for _ in dataset]
 
         for i in range(dataset.shape[0]):
-            self.plot_with_tws(dataset[i], tws[i], max_tw, colors[i], axes)
+            self._plot_with_tws(dataset[i], tws[i], max_tw, colors[i], axes)
             self.plot_tour_coordinates(plots_data[i]['coordinates'], plots_data[i]['ga_vrp'], axes, colors[i],
                                        route=plots_data[i]['route'])
 
@@ -77,7 +77,7 @@ class Plot:
         axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[0], c='black', s=1)
         axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[1], c='black', s=1)
 
-        axes.bar3d(depo_spatio[0] - self.depth / 8., depo_spatio[1] - self.depth / 8., 0.0, self.width / 4.,
+        axes.bar3d(depo_spatio[0] - self.depth / 8., depo_spatio[1] - self.depth / 8., 0.0, self._width / 4.,
                    self.depth / 4.,
                    max_tw, color='black')
 
@@ -87,45 +87,8 @@ class Plot:
 
         axes.set_zlim(0, None)
 
-    def plot_with_tws(self, spatial_data, tws, max_tw, colors, axes):
-        cluster_size = spatial_data[0].size
-
-        x_data = np.array([i[0] for i in spatial_data])
-        y_data = np.array([i[1] for i in spatial_data])
-
-        z_data1 = np.array([i[0] for i in tws])
-        z_data2 = np.array([i[1] for i in tws])
-        dz_data = np.abs(np.subtract(z_data1, z_data2))
-
-        axes.bar3d(x_data - self.depth / 8., y_data - self.depth / 8., 0.0, self.width / 4., self.depth / 4., max_tw)
-        axes.bar3d(x_data - self.depth / 2., y_data - self.depth / 2., z_data1, self.width, self.depth, dz_data)
-
-        axes.scatter(x_data, y_data, 0.0, c=colors, s=cluster_size)
-        axes.scatter(x_data, y_data, z_data1, c=colors, s=cluster_size)
-        axes.scatter(x_data, y_data, z_data2, c=colors, s=cluster_size)
-
-    def plot(self, x, y, c='blue', label='label', xlabel='xlabel', ylabel='ylabel'):
-        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self.figsize_standart, dpi=self.dpi_standart)
-
-        axes.plot(x, y, color=c, linewidth=self.linewidth_standart, label=label)
-
-        axes.grid()
-
-        axes.legend(loc='best')
-        axes.set_xlabel(xlabel)
-        axes.set_ylabel(ylabel)
-
-    def plot_on_axes(self, axes, x, y, c='green', label='label', xlabel='xlabel', ylabel='ylabel', title='title'):
-        axes.plot(x, y, '.-', color=c, linewidth=self.linewidth_standart, label=label)
-
-        axes.grid()
-
-        axes.legend(loc='best')
-        axes.set_xlabel(xlabel)
-        axes.set_ylabel(ylabel)
-        axes.set_title(title)
-
-    def plot_data(self, testing_datasets, dims_array, k3_array, different_k3_arr, xlabel='x', ylabel='y', mapping=None):
+    def plot_data(self, testing_datasets, dims_array, k3_array, different_k3_arr, xlabel='x', ylabel='y',
+                  mapping=None):
         if mapping is None:
             mapping = ['C', 'R', 'RC']
 
@@ -137,10 +100,48 @@ class Plot:
             cmap = plt.cm.get_cmap('plasma', 5)
 
             for j, k3 in enumerate(k3_array):
-                self.plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel=xlabel,
-                                  ylabel=ylabel,
-                                  label='{}'.format(k3), title='{} dataset series'.format(mapping[i]))
+                self._plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel=xlabel,
+                                   ylabel=ylabel,
+                                   label='{}'.format(k3), title='{} dataset series'.format(mapping[i]))
 
             axes.grid()
 
         plt.show()
+
+    def _plot_with_tws(self, spatial_data, tws, max_tw, colors, axes):
+        cluster_size = spatial_data[0].size
+
+        x_data = np.array([i[0] for i in spatial_data])
+        y_data = np.array([i[1] for i in spatial_data])
+
+        z_data1 = np.array([i[0] for i in tws])
+        z_data2 = np.array([i[1] for i in tws])
+        dz_data = np.abs(np.subtract(z_data1, z_data2))
+
+        axes.bar3d(x_data - self.depth / 8., y_data - self.depth / 8., 0.0, self._width / 4., self.depth / 4., max_tw)
+        axes.bar3d(x_data - self.depth / 2., y_data - self.depth / 2., z_data1, self._width, self.depth, dz_data)
+
+        axes.scatter(x_data, y_data, 0.0, c=colors, s=cluster_size)
+        axes.scatter(x_data, y_data, z_data1, c=colors, s=cluster_size)
+        axes.scatter(x_data, y_data, z_data2, c=colors, s=cluster_size)
+
+    def _plot(self, x, y, c='blue', label='label', xlabel='xlabel', ylabel='ylabel'):
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
+
+        axes.plot(x, y, color=c, linewidth=self._linewidth_standart, label=label)
+
+        axes.grid()
+
+        axes.legend(loc='best')
+        axes.set_xlabel(xlabel)
+        axes.set_ylabel(ylabel)
+
+    def _plot_on_axes(self, axes, x, y, c='green', label='label', xlabel='xlabel', ylabel='ylabel', title='title'):
+        axes.plot(x, y, '.-', color=c, linewidth=self._linewidth_standart, label=label)
+
+        axes.grid()
+
+        axes.legend(loc='best')
+        axes.set_xlabel(xlabel)
+        axes.set_ylabel(ylabel)
+        axes.set_title(title)

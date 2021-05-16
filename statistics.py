@@ -6,26 +6,24 @@ from plot import Plot
 
 class Statistics:
     def __init__(self, testing_datasets, dims_array, k3_array):
-        self.plotter = Plot()
+        self._testing_datasets = testing_datasets
+        self._dims_array = dims_array
+        self._k3_array = k3_array
 
-        self.testing_datasets = testing_datasets
-        self.dims_array = dims_array
-        self.k3_array = k3_array
-
-        self.BASE_DIR = sys.path[0]
+        self._BASE_DIR = sys.path[0]
 
     def collect_time_data(self):
         different_k3_arr = []
-        for k3 in self.k3_array:
+        for k3 in self._k3_array:
             dataset_series_array = []
-            for dataset_series in self.testing_datasets:
+            for dataset_series in self._testing_datasets:
                 dataset_time_data = []
                 for dataset in dataset_series:
                     time_cluster = pd.read_fwf(
-                        self.BASE_DIR + '/result/cluster_result/' + dataset['name'] + '_output_{}/time_cluster.csv'.format(int(k3)),
+                        self._BASE_DIR + '/result/cluster_result/' + dataset['name'] + '_output_{}/time_cluster.csv'.format(int(k3)),
                         header=None)
                     time_tsp = pd.read_fwf(
-                        self.BASE_DIR + '/result/tsptw_result/' + dataset['name'] + '_output_{}/time_tsp.csv'.format(int(k3)), header=None)
+                        self._BASE_DIR + '/result/tsptw_result/' + dataset['name'] + '_output_{}/time_tsp.csv'.format(int(k3)), header=None)
                     time_common = time_cluster.values[0][0] + time_tsp.values[0][0]
 
                     dataset_time_data.append(time_common)
@@ -39,19 +37,19 @@ class Statistics:
         different_k3_arr_wait_time = []
         different_k3_arr_late_time = []
         different_k3_arr_eval = []
-        for k3 in self.k3_array:
+        for k3 in self._k3_array:
             dataset_series_array_dist = []
             dataset_series_array_wait_time = []
             dataset_series_array_late_time = []
             dataset_series_array_eval = []
-            for dataset_series in self.testing_datasets:
+            for dataset_series in self._testing_datasets:
                 dataset_data_dist = []
                 dataset_data_wait_time = []
                 dataset_data_late_time = []
                 dataset_data_eval = []
                 for dataset in dataset_series:
                     evaluation = pd.read_fwf(
-                        self.BASE_DIR + '/result/evaluation/' + dataset['name'] + '_output_{}/evaluation.csv'.format(int(k3)), header=None).values
+                        self._BASE_DIR + '/result/evaluation/' + dataset['name'] + '_output_{}/evaluation.csv'.format(int(k3)), header=None).values
 
                     evaluation = [row[0] for row in evaluation]
 
