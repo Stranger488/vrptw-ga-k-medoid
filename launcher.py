@@ -4,7 +4,7 @@ from plot import Plot
 
 
 class Launcher:
-    def __init__(self, in_dataset_series=None, is_solve=False, plot_stats=True, mode=None):
+    def __init__(self, in_dataset_series=None, is_solve=False, plot_stats=None, mode=None):
         self._in_dataset_series = __import__(in_dataset_series)
         self._mapping = self._in_dataset_series.mapping
         self._testing_datasets = self._in_dataset_series.testing_datasets
