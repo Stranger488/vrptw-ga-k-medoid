@@ -1,7 +1,7 @@
 pool_size = 4
 
 # Parameters - Model
-route = 'open'  # 'open', 'closed'
+route = 'closed'  # 'open', 'closed'
 graph = False  # True, False
 
 # Parameters - GA
