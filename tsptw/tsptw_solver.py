@@ -10,7 +10,7 @@ from tsptw.tsptw_genetic import TSPTWGenetic
 
 
 class TSPTWSolver:
-    def __init__(self, route='open', graph=False, penalty_value=1000, population_size=50, mutation_rate=0.1, elite=2,
+    def __init__(self, route='closed', graph=False, penalty_value=1000, population_size=50, mutation_rate=0.1, elite=2,
                  generations=20, pool_size=4):
         # Parameters - Model
         self._route = route  # 'open', 'closed'

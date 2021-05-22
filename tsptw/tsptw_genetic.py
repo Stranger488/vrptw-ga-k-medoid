@@ -9,16 +9,16 @@ class TSPTWGenetic:
     def __init__(self):
         pass
 
-    # Function: Build Coordinates
-    def build_coordinates(self, distance_matrix):
-        a           = distance_matrix[0,:].reshape(distance_matrix.shape[0], 1)
-        b           = distance_matrix[:,0].reshape(1, distance_matrix.shape[0])
-        m           = (1/2)*(a**2 + b**2 - distance_matrix**2)
-        w, u        = np.linalg.eig(np.matmul(m.T, m))
-        s           = (np.diag(np.sort(w)[::-1]))**(1/2)
-        coordinates = np.matmul(u, s**(1/2))
-        coordinates = coordinates.real[:,0:2]
-        return coordinates
+    # # Function: Build Coordinates
+    # def build_coordinates(self, distance_matrix):
+    #     a           = distance_matrix[0,:].reshape(distance_matrix.shape[0], 1)
+    #     b           = distance_matrix[:,0].reshape(1, distance_matrix.shape[0])
+    #     m           = (1/2)*(a**2 + b**2 - distance_matrix**2)
+    #     w, u        = np.linalg.eig(np.matmul(m.T, m))
+    #     s           = (np.diag(np.sort(w)[::-1]))**(1/2)
+    #     coordinates = np.matmul(u, s**(1/2))
+    #     coordinates = coordinates.real[:,0:2]
+    #     return coordinates
 
     # Function: Build Distance Matrix
     def build_distance_matrix(self, coordinates):
@@ -44,7 +44,7 @@ class TSPTWGenetic:
         subroute_j = subroute + depot
         wait       = [0]*len(subroute_j)
         time       = [0]*len(subroute_j)
-        late = [0] * len(subroute_j)
+        late       = [0] * len(subroute_j)
         for i in range(0, len(time)):
             time[i] = time[i] + distance_matrix[(subroute_i[i], subroute_j[i])]
             if (time[i] > tw_late[subroute_j][i]):
@@ -75,7 +75,7 @@ class TSPTWGenetic:
     def evaluate_cost_penalty(self, dist, time, wait, late, parameters, depot, subroute, penalty_value, route):
         tw_late = parameters[:, 1]
         tw_st   = parameters[:, 2]
-        tw_wc   = np.array([1.0 for _ in range(len(parameters))])
+        tw_wc   = np.array([10.0 for _ in range(len(parameters))])
         tw_lc   = np.array([100.0 for _ in range(len(parameters))])
         if (route == 'open'):
             subroute_ = depot + subroute
@@ -84,7 +84,7 @@ class TSPTWGenetic:
         pnlt = 0
         cost = [0]*len(subroute_)
         pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))
-        cost = [1.0 + y*val + z*val if x == 0 else cost[0] + x*1.0 + y*val + z*val for x, y, z, val in zip(dist, wait, late, tw_wc[subroute_])]
+        cost = [1.0 + y*wait_val + z*late_val if x == 0 else cost[0] + x*1.0 + y*wait_val + z*late_val for x, y, z, wait_val, late_val in zip(dist, wait, late, tw_wc[subroute_], tw_lc[subroute_])]
 
         cost[-1] = cost[-1] + pnlt*penalty_value
         return cost[-1]
@@ -130,10 +130,10 @@ class TSPTWGenetic:
                 report_lst.append(['#' + str(i+1), activity, subroute[0][j], round(wait[j], 2), arrive_time, round(time[j], 2), round(dist[j], 2), round(late[j], 2)])
         report_lst.append(['-//-', '-//-', '-//-', '-//-', '-//-', '-//-', '-//-', '-//--'])
         report_lst.append(['TOTAL', '', '', round(wt, 2), '', round(tt, 2), round(td, 2), round(lt, 2)])
-        td = td - dist[1]
-        wt = wt - wait[1]
-        tt = tt - time[1]
-        report_lst.append(['DIST W\O FIRST', '', '', round(wt, 2), '', round(tt, 2), round(td, 2), round(lt, 2)])
+        # td = td - dist[1]
+        # wt = wt - wait[1]
+        # tt = tt - time[1]
+        # report_lst.append(['DIST W\O FIRST', '', '', round(wt, 2), '', round(tt, 2), round(td, 2), round(lt, 2)])
         report_df = pd.DataFrame(report_lst, columns=column_names)
         return report_df
 
