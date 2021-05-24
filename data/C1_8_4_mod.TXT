@@ -1,6 +1,6 @@
 CUST_NO  XCOORD    YCOORD    DEMAND   READY_TIME  DUE_DATE   SERVICE_TIME   VEHICLE_NUMBER
  
-    0     200        200          0          0       1676          0             72
+    0     200        200          0          0       1676          0            72
     1     385         56         10        473        544         90
     2     201        297         10        805        855         90
     3      57        353         10          0       1377         90
