@@ -81,12 +81,13 @@ class TSPTWGenetic:
             subroute_ = depot + subroute
         else:
             subroute_ = depot + subroute + depot
-        pnlt = 0
+        # pnlt = 0
         cost = [0]*len(subroute_)
-        pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))
+        # pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))
         cost = [1.0 + y*wait_val + z*late_val if x == 0 else cost[0] + x*1.0 + y*wait_val + z*late_val for x, y, z, wait_val, late_val in zip(dist, wait, late, tw_wc[subroute_], tw_lc[subroute_])]
 
-        cost[-1] = cost[-1] + pnlt*penalty_value
+        cost[-1] = cost[-1] 
+        # + pnlt*penalty_value
         return cost[-1]
 
     # Function: Solution Report
@@ -221,19 +222,6 @@ class TSPTWGenetic:
               break
         return ix
 
-    # Function: TSP Crossover - BRBAX (Best Route Better Adjustment Recombination)
-    def crossover_tsp_brbax(self, parent_1, parent_2):
-        offspring = copy.deepcopy(parent_2)
-        cut       = random.sample(list(range(0,len(parent_1[1][0]))), 2)
-        cut.sort()
-        rand      = int.from_bytes(os.urandom(8), byteorder = 'big') / ((1 << 64) - 1)
-        A         = parent_1[1][0][cut[0]:cut[1]]
-        B         = [item for item in parent_2[1][0] if item not in A ]
-        if (rand > 0.5):
-            A.reverse()
-        offspring[1][0] = A + B
-        return offspring
-
     # Function: TSP Crossover - BCR (Best Cost Route Crossover)
     def crossover_tsp_bcr(self, parent_1, parent_2, distance_matrix, penalty_value, parameters, route):
         offspring = copy.deepcopy(parent_2)
@@ -274,11 +262,9 @@ class TSPTWGenetic:
             # TSP - Crossover
             if (len(parent_1[1]) == 1 and len(parent_2[1]) == 1):
                 if (rand > 0.5):
-                    offspring[i] = self.crossover_tsp_brbax(parent_1, parent_2)
-                    offspring[i] = self.crossover_tsp_bcr(offspring[i], parent_2, distance_matrix, penalty_value, parameters = parameters, route = route)
+                    offspring[i] = self.crossover_tsp_bcr(parent_1, parent_2, distance_matrix, penalty_value, parameters = parameters, route = route)
                 elif (rand <= 0.5):
-                    offspring[i] = self.crossover_tsp_brbax(parent_2, parent_1)
-                    offspring[i] = self.crossover_tsp_bcr(offspring[i], parent_1, distance_matrix, penalty_value, parameters = parameters, route = route)
+                    offspring[i] = self.crossover_tsp_bcr(parent_2, parent_1, distance_matrix, penalty_value, parameters = parameters, route = route)
         return offspring
 
     # Function: Mutation - Swap
