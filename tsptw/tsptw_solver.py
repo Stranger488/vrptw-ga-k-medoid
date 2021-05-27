@@ -27,7 +27,7 @@ class TSPTWSolver:
         self._tsptw_genetic = TSPTWGenetic()
         self._BASE_DIR = sys.path[0]
 
-    def solve(self, launch_count, data_dir='cluster_result/'):
+    def _solve(self, launch_count, data_dir='cluster_result/'):
         ga_reports = []
         plots_data = []
         with Pool(self._pool_size) as p:
@@ -40,7 +40,7 @@ class TSPTWSolver:
 
     def solve_tsp(self, launch_count, data_dir):
         ts = time()
-        tsptw_results, plots_data = self.solve(launch_count, data_dir=data_dir)
+        tsptw_results, plots_data = self._solve(launch_count, data_dir=data_dir)
         te = time()
 
         output = open(self._BASE_DIR + '/result/tsptw_result/' + data_dir + 'time_tsp.csv', 'w')

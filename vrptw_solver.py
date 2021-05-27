@@ -88,7 +88,7 @@ class VRPTWSolver:
 
         tsptw_solver = TSPTWSolver(route=route, graph=graph, penalty_value=penalty_value, population_size=population_size,
                                    mutation_rate=mutation_rate, elite=elite, generations=generations, pool_size=pool_size)
-        tsptw_results, plots_data = tsptw_solver.solve(k, data_dir=output_dir)
+        tsptw_results, plots_data = tsptw_solver.solve_tsp(k, data_dir=output_dir)
 
         # Evaluate final solution
         evaluation = self._evaluate_solution(tsptw_results, output_dir)
@@ -155,7 +155,7 @@ class VRPTWSolver:
                                    population_size=population_size,
                                    mutation_rate=mutation_rate, elite=elite, generations=generations,
                                    pool_size=pool_size)
-        tsptw_results, plots_data = tsptw_solver.solve(k, data_dir=output_dir)
+        tsptw_results, plots_data = tsptw_solver.solve_tsp(k, data_dir=output_dir)
 
         # Evaluate final solution
         evaluation = self._evaluate_solution(tsptw_results, output_dir)
