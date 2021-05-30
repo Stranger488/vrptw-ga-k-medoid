@@ -66,9 +66,10 @@ class TSPTWGenetic:
     def evaluate_cost(self, dist, wait, late, parameters, depot, subroute):
         tw_wc     = np.array([10.0 for _ in range(len(parameters))])
         tw_lc     = np.array([100.0 for _ in range(len(parameters))])
+        dc        = np.array([1.0 for _ in range(len(parameters))])
         subroute_ = depot + subroute + depot
         cost      = [0]*len(subroute_)
-        cost = [1.0 + y*wait_val + z*late_val if x == 0 else 1.0 + x*1.0 + y*wait_val + z*late_val for x, y, z, wait_val, late_val in zip(dist, wait, late, tw_wc[subroute_], tw_lc[subroute_])]
+        cost = [1.0 + y*wait_val + z*late_val if x == 0 else 1.0 + x*dist_val + y*wait_val + z*late_val for x, y, z, dist_val, wait_val, late_val in zip(dist, wait, late, dc[subroute_], tw_wc[subroute_], tw_lc[subroute_])]
         return cost
 
     # Function: Subroute Cost
@@ -77,6 +78,7 @@ class TSPTWGenetic:
         tw_st   = parameters[:, 2]
         tw_wc   = np.array([10.0 for _ in range(len(parameters))])
         tw_lc   = np.array([100.0 for _ in range(len(parameters))])
+        dc      = np.array([1.0 for _ in range(len(parameters))])
         if (route == 'open'):
             subroute_ = depot + subroute
         else:
@@ -84,10 +86,9 @@ class TSPTWGenetic:
         # pnlt = 0
         cost = [0]*len(subroute_)
         # pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))
-        cost = [1.0 + y*wait_val + z*late_val if x == 0 else cost[0] + x*1.0 + y*wait_val + z*late_val for x, y, z, wait_val, late_val in zip(dist, wait, late, tw_wc[subroute_], tw_lc[subroute_])]
+        cost = [1.0 + y*wait_val + z*late_val if x == 0 else cost[0] + x*dist_val + y*wait_val + z*late_val for x, y, z, dist_val, wait_val, late_val in zip(dist, wait, late, dc[subroute_], tw_wc[subroute_], tw_lc[subroute_])]
 
-        cost[-1] = cost[-1] 
-        # + pnlt*penalty_value
+        # cost[-1] = cost[-1] + pnlt*penalty_value
         return cost[-1]
 
     # Function: Solution Report
