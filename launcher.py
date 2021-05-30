@@ -55,6 +55,6 @@ class Launcher:
             self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_eval, xlabel='Customers number',
                                     ylabel='Total evaluation', mapping=self._mapping)
         else:
-            print('Unrecognized plot_stats parameter. Setting it to time...')
-            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr, xlabel='Customers number',
-                                    ylabel='Time execution, sec', mapping=self._mapping)
+            print('Unrecognized plot_stats parameter. Setting it to distance...')
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist, xlabel='Customers number',
+                                    ylabel='Total distance', mapping=self._mapping)

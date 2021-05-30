@@ -1,9 +1,11 @@
+import pathlib
+import sys
+from itertools import cycle
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.colors import rgb2hex
-
-from itertools import cycle
 
 
 class Plot:
@@ -14,6 +16,8 @@ class Plot:
         self._dpi_standart = 400
         self._linewidth_standart = 0.5
         self._width = self.depth = 0.5
+
+        self._BASE_DIR = sys.path[0]
 
     # Function: Tour Plot
     def plot_tour_coordinates(self, coordinates, solution, axes, color, route):
@@ -96,7 +100,7 @@ class Plot:
             plt.rc('font', size=5)  # controls default text sizes
             plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
             plt.rc('ytick', labelsize=4)
-            _, axes = plt.subplots(nrows=1, ncols=1, figsize=(6, 15), dpi=400)
+            fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
             cmap = plt.cm.get_cmap('plasma', 5)
 
             for j, k3 in enumerate(k3_array):
@@ -105,6 +109,12 @@ class Plot:
                                    label='{}'.format(k3), title='{} dataset series'.format(mapping[i]))
 
             axes.grid(True)
+
+            output_dir = str(mapping[i])
+            path = self._BASE_DIR + '/result/img/' + output_dir
+            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+            filename = ylabel.replace(',', '')
+            fig.savefig(path + '/' + filename.replace(' ', '_'), dpi=self._dpi_standart)
 
         plt.show()
 
