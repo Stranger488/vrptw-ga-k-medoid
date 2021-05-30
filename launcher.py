@@ -35,10 +35,11 @@ class Launcher:
 
     def _make_plot_stats(self):
         statistics = Statistics(self._testing_datasets, self._dims_array, self._k3_array)
-        different_k3_arr = statistics.collect_time_data()
+
         different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_eval = statistics.collect_evaluation()
 
         if self._plot_stats == 'time':
+            different_k3_arr = statistics.collect_time_data()
             self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr, xlabel='Customers number',
                                     ylabel='Time execution, sec', mapping=self._mapping)
         elif self._plot_stats == 'distance':

@@ -104,7 +104,7 @@ class Plot:
                                    ylabel=ylabel,
                                    label='{}'.format(k3), title='{} dataset series'.format(mapping[i]))
 
-            axes.grid()
+            axes.grid(True)
 
         plt.show()
 
