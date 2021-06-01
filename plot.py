@@ -106,7 +106,7 @@ class Plot:
             for j, k3 in enumerate(k3_array):
                 self._plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel=xlabel,
                                    ylabel=ylabel,
-                                   label='График зависимости y(x)', title='Набор данных {}'.format(mapping[i]))
+                                   label='График зависимости y(x), k3={}'.format(k3), title='Набор данных {}'.format(mapping[i]))
 
             axes.grid(True)
 
