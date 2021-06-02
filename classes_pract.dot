@@ -1,0 +1,9 @@
+digraph "classes" {
+charset="utf-8"
+rankdir=BT
+"0" [label="{ClusterSolver|_P : int\l_Pc : float\l_Pm : float\l_Pmb : float\l_best_chromosome : Chromosome\l_current_population : Population\l_distances : float[][]\l_k : int\l_ng : int\l|__init__(distances, Z, P, ng, Pc, Pm, Pmb, k, numpy_rand)\l_make_cluster_from_medoids()\l_save_new_best_chromosome(population)\l_solve()\lsolve_cluster(output_dir)\l}", shape="record"];
+"1" [label="{TSPTWSolver|_route : str\l_graph : bool\l_penalty_value : float\l_population_size : float\l_mutation_rate : float\l_elite : float\l_generations : float\l_pool_size : int\l_tsptw_genetic : TSPTWGenetic\l|__init__(route, graph, penalty_value, population_size, mutation_rate, elite, generations, pool_size)\l_solve(launch_count, data_dir)\l_solve_tsp(launch_coune, data_dir)\l_thread_solution(data_dir, i)\l}", shape="record"];
+"2" [label="{VRPTWSolver|_k3 : float\l_mode : str\l_plotter : Plot\l|__init__(k3_from_outer, mode)\l_collect_cluster_result(dataset_reduced, tws_reduced, result, init_dataset, output_dir, tws_all, service_time_all, spatiotemporal)\l_evaluate_solution(tsptw_results, output_dir)\l_make_solution(init_dataset, tws_all, service_time_all, k, plot, text, output_dir)\l_solve(filename, plot, k, output_dir, text)\l_solve_in_cluster_mode(k, spatiotemporal_points_dist, dataset_reduced, tws_reduced, init_dataset, output_dir, tws_all, service_time_all, spatiotemporal)\l_solve_in_tsptw_mode(k, output_dir)\lsolve_and_plot(datasets)\l}", shape="record"];
+"2" -> "0" [arrowhead="open", arrowtail="none", fontcolor="green", style="solid"];
+"2" -> "1" [arrowhead="open", arrowtail="none", fontcolor="green", style="solid"];
+}

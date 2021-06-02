@@ -56,5 +56,5 @@ class Launcher:
                                     ylabel='Общая оценка', mapping=self._mapping)
         else:
             print('Unrecognized plot_stats parameter. Setting it to distance...')
-            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist, xlabel='Customers number',
-                                    ylabel='Total distance', mapping=self._mapping)
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist, xlabel='Число клиентов',
+                                    ylabel='Пройденное расстояние, с', mapping=self._mapping)
