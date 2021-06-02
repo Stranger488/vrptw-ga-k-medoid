@@ -86,8 +86,8 @@ class VRPTWSolver:
         res_dataset, res_tws = self._collect_cluster_result(dataset_reduced, tws_reduced, result, init_dataset,
                                                             output_dir, tws_all, service_time_all, spatiotemporal)
 
-        tsptw_solver = TSPTWSolver(route=route, graph=graph, penalty_value=penalty_value, population_size=population_size,
-                                   mutation_rate=mutation_rate, elite=elite, generations=generations, pool_size=pool_size)
+        tsptw_solver = TSPTWSolver(route=route, graph=graph, population_size=population_size,
+                                   mutation_rate=mutation_rate, elite=elite, generations=generations, pool_size=pool_size, k1=k1, k2=k2)
         tsptw_results, plots_data = tsptw_solver.solve_tsp(k, data_dir=output_dir)
 
         # Evaluate final solution
@@ -151,10 +151,10 @@ class VRPTWSolver:
         return None
 
     def _solve_in_tsptw_mode(self, k, output_dir):
-        tsptw_solver = TSPTWSolver(route=route, graph=graph, penalty_value=penalty_value,
+        tsptw_solver = TSPTWSolver(route=route, graph=graph,
                                    population_size=population_size,
                                    mutation_rate=mutation_rate, elite=elite, generations=generations,
-                                   pool_size=pool_size)
+                                   pool_size=pool_size, k1=k1, k2=k2)
         tsptw_results, plots_data = tsptw_solver.solve_tsp(k, data_dir=output_dir)
 
         # Evaluate final solution

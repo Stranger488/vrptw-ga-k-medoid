@@ -9,17 +9,6 @@ class TSPTWGenetic:
     def __init__(self):
         pass
 
-    # # Function: Build Coordinates
-    # def build_coordinates(self, distance_matrix):
-    #     a           = distance_matrix[0,:].reshape(distance_matrix.shape[0], 1)
-    #     b           = distance_matrix[:,0].reshape(1, distance_matrix.shape[0])
-    #     m           = (1/2)*(a**2 + b**2 - distance_matrix**2)
-    #     w, u        = np.linalg.eig(np.matmul(m.T, m))
-    #     s           = (np.diag(np.sort(w)[::-1]))**(1/2)
-    #     coordinates = np.matmul(u, s**(1/2))
-    #     coordinates = coordinates.real[:,0:2]
-    #     return coordinates
-
     # Function: Build Distance Matrix
     def build_distance_matrix(self, coordinates):
        a = coordinates
@@ -63,9 +52,9 @@ class TSPTWGenetic:
         return wait, time, late
 
     # Function: Subroute Cost
-    def evaluate_cost(self, dist, wait, late, parameters, depot, subroute):
-        tw_wc     = np.array([10.0 for _ in range(len(parameters))])
-        tw_lc     = np.array([100.0 for _ in range(len(parameters))])
+    def evaluate_cost(self, dist, wait, late, parameters, depot, subroute, k1, k2):
+        tw_wc     = np.array([k1 for _ in range(len(parameters))])
+        tw_lc     = np.array([k2 for _ in range(len(parameters))])
         dc        = np.array([1.0 for _ in range(len(parameters))])
         subroute_ = depot + subroute + depot
         cost      = [0]*len(subroute_)
@@ -73,22 +62,19 @@ class TSPTWGenetic:
         return cost
 
     # Function: Subroute Cost
-    def evaluate_cost_penalty(self, dist, time, wait, late, parameters, depot, subroute, penalty_value, route):
+    def evaluate_cost_penalty(self, dist, time, wait, late, parameters, depot, subroute, route, k1, k2):
         tw_late = parameters[:, 1]
         tw_st   = parameters[:, 2]
-        tw_wc   = np.array([10.0 for _ in range(len(parameters))])
-        tw_lc   = np.array([100.0 for _ in range(len(parameters))])
+        tw_wc   = np.array([k1 for _ in range(len(parameters))])
+        tw_lc   = np.array([k2 for _ in range(len(parameters))])
         dc      = np.array([1.0 for _ in range(len(parameters))])
         if (route == 'open'):
             subroute_ = depot + subroute
         else:
             subroute_ = depot + subroute + depot
-        # pnlt = 0
         cost = [0]*len(subroute_)
-        # pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))
         cost = [1.0 + y*wait_val + z*late_val if x == 0 else cost[0] + x*dist_val + y*wait_val + z*late_val for x, y, z, dist_val, wait_val, late_val in zip(dist, wait, late, dc[subroute_], tw_wc[subroute_], tw_lc[subroute_])]
 
-        # cost[-1] = cost[-1] + pnlt*penalty_value
         return cost[-1]
 
     # Function: Solution Report
@@ -140,7 +126,7 @@ class TSPTWGenetic:
         return report_df
 
     # Function: Route Evalution & Correction
-    def target_function(self, population, distance_matrix, parameters, penalty_value, route):
+    def target_function(self, population, distance_matrix, parameters, route, k1, k2):
         cost     = [[0] for _ in range(len(population))]
         tw_late  = parameters[:, 1]
         tw_st    = parameters[:, 2]
@@ -158,15 +144,13 @@ class TSPTWGenetic:
                 dist = self.evaluate_distance(distance_matrix, individual[0][i], individual[1][i])
                 wait, time, late = self.evaluate_time(distance_matrix, parameters, depot = individual[0][i], subroute = individual[1][i])
 
-                cost_s = self.evaluate_cost(dist, wait, late, parameters, depot = individual[0][i], subroute = individual[1][i])
+                cost_s = self.evaluate_cost(dist, wait, late, parameters, depot = individual[0][i], subroute = individual[1][i], k1 = k1, k2 = k2)
                 if (route == 'open'):
                     subroute_ = individual[0][i] + individual[1][i]
                 else:
                     subroute_ = individual[0][i] + individual[1][i] + individual[0][i]
-                # pnlt = pnlt + sum(x > y + z for x, y, z in zip(time, tw_late[subroute_] , tw_st[subroute_]))
 
                 cost[k][0] = cost[k][0] + cost_s[-end]
-                # + pnlt*penalty_value
                 size = len(individual[1])
                 i = i + 1
         cost_total = copy.deepcopy(cost)
@@ -224,7 +208,7 @@ class TSPTWGenetic:
         return ix
 
     # Function: TSP Crossover - BCR (Best Cost Route Crossover)
-    def crossover_tsp_bcr(self, parent_1, parent_2, distance_matrix, penalty_value, parameters, route):
+    def crossover_tsp_bcr(self, parent_1, parent_2, distance_matrix, parameters, route, k1, k2):
         offspring = copy.deepcopy(parent_2)
         cut       = random.sample(list(range(0,len(parent_1[1][0]))), 2)
         for i in range(0, 2):
@@ -236,7 +220,7 @@ class TSPTWGenetic:
             dist_list      = [self.evaluate_distance(distance_matrix, insertion[0], insertion[1][:n] + [A] + insertion[1][n:]) for n in range(0, len(parent_2[1][0]) + 1)]
             wait_time_list = [self.evaluate_time(distance_matrix, parameters, insertion[0], insertion[1][:n] + [A] + insertion[1][n:]) for n in range(0, len(parent_2[1][0]) + 1)]
             insertion_list = [insertion[1][:n] + [A] + insertion[1][n:] for n in range(0, len(parent_2[1][0]) + 1)]
-            d_2_list       = [self.evaluate_cost_penalty(dist_list[n], wait_time_list[n][1], wait_time_list[n][0], wait_time_list[n][2], parameters, insertion[0], insertion_list[n], penalty_value, route) for n in range(0, len(dist_list))]
+            d_2_list       = [self.evaluate_cost_penalty(dist_list[n], wait_time_list[n][1], wait_time_list[n][0], wait_time_list[n][2], parameters, insertion[0], insertion_list[n], route, k1, k2) for n in range(0, len(dist_list))]
             d_2 = min(d_2_list)
             if (d_2 <= d_1):
                 d_1   = d_2
@@ -247,7 +231,7 @@ class TSPTWGenetic:
         return offspring
 
     # Function: Breeding
-    def breeding(self, cost, population, fitness, distance_matrix, elite, penalty_value, parameters, route):
+    def breeding(self, cost, population, fitness, distance_matrix, elite, parameters, route, k1, k2):
         offspring = copy.deepcopy(population)
         if (elite > 0):
             cost, population = (list(t) for t in zip(*sorted(zip(cost, population))))
@@ -263,9 +247,9 @@ class TSPTWGenetic:
             # TSP - Crossover
             if (len(parent_1[1]) == 1 and len(parent_2[1]) == 1):
                 if (rand > 0.5):
-                    offspring[i] = self.crossover_tsp_bcr(parent_1, parent_2, distance_matrix, penalty_value, parameters = parameters, route = route)
+                    offspring[i] = self.crossover_tsp_bcr(parent_1, parent_2, distance_matrix, parameters = parameters, route = route, k1 = k1, k2 = k2)
                 elif (rand <= 0.5):
-                    offspring[i] = self.crossover_tsp_bcr(parent_2, parent_1, distance_matrix, penalty_value, parameters = parameters, route = route)
+                    offspring[i] = self.crossover_tsp_bcr(parent_2, parent_1, distance_matrix, parameters = parameters, route = route, k1 = k1, k2 = k2)
         return offspring
 
     # Function: Mutation - Swap
@@ -342,14 +326,14 @@ class TSPTWGenetic:
         return round(td,2)
 
     # GA-VRP Function
-    def genetic_algorithm_tsp(self, coordinates, distance_matrix, parameters, population_size = 5, route = 'closed', mutation_rate = 0.1, elite = 0, generations = 50, penalty_value = 100000, graph = True):
+    def genetic_algorithm_tsp(self, coordinates, distance_matrix, parameters, population_size = 5, route = 'closed', mutation_rate = 0.1, elite = 0, generations = 50, graph = True, k1 = 10, k2 = 100):
         count           = 0
         solution_report = ['None']
 
         parameters[0, 0] = 0
 
         population       = self.initial_population(coordinates, distance_matrix, population_size = population_size)
-        cost, population = self.target_function(population, distance_matrix, parameters, penalty_value, route = route)
+        cost, population = self.target_function(population, distance_matrix, parameters, route = route, k1 = k1, k2 = k2)
         fitness          = self.fitness_function(cost, population_size)
         cost, population = (list(t) for t in zip(*sorted(zip(cost, population))))
         elite_ind        = self.elite_distance(population[0], distance_matrix, route = route)
@@ -357,9 +341,9 @@ class TSPTWGenetic:
         solution         = copy.deepcopy(population[0])
         print('Generation = ', count, ' Distance = ', elite_ind, ' f(x) = ', round(cost[0][0],2))
         while (count <= generations-1):
-            offspring        = self.breeding(cost, population, fitness, distance_matrix, elite, penalty_value, parameters, route)
+            offspring        = self.breeding(cost, population, fitness, distance_matrix, elite, parameters, route, k1, k2)
             offspring        = self.mutation(offspring, mutation_rate = mutation_rate, elite = elite)
-            cost, population = self.target_function(offspring, distance_matrix, parameters, penalty_value, route = route)
+            cost, population = self.target_function(offspring, distance_matrix, parameters, route = route, k1 = k1, k2 = k2)
             fitness          = self.fitness_function(cost, population_size)
             cost, population = (list(t) for t in zip(*sorted(zip(cost, population))))
             elite_child      = self.elite_distance(population[0], distance_matrix, route = route)

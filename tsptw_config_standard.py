@@ -1,5 +1,9 @@
 pool_size = 4
 
+# Parameters - evaluation
+k1 = 10
+k2 = 100
+
 # Parameters - Model
 route = 'closed'  # 'open', 'closed'
 graph = False  # True, False
