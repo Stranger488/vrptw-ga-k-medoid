@@ -37,24 +37,63 @@ class Launcher:
         statistics = Statistics(self._testing_datasets, self._dims_array, self._k3_array)
 
         different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_eval = statistics.collect_evaluation()
+        different_k3_arr_wait_time_per_customer, different_k3_arr_late_time_per_customer = statistics.collect_time_stats()
+
+        different_k3_arr_max_wait_time, different_k3_arr_max_late_time, different_k3_arr_wait_time_part, different_k3_arr_late_time_part  = statistics.collect_additional_times()
 
         if self._plot_stats == 'time':
             different_k3_arr = statistics.collect_time_data()
-            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr, xlabel='Число клиентов',
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr,
+                                    xlabel='Число клиентов',
                                     ylabel='Время выполнения программы, с', mapping=self._mapping)
         elif self._plot_stats == 'distance':
-            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist, xlabel='Число клиентов',
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist,
+                                    xlabel='Число клиентов',
                                     ylabel='Пройденное расстояние', mapping=self._mapping)
         elif self._plot_stats == 'wait_time':
-            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_wait_time, xlabel='Число клиентов',
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
+                                    different_k3_arr_wait_time, xlabel='Число клиентов',
                                     ylabel='Время ожидания', mapping=self._mapping)
         elif self._plot_stats == 'late_time':
-            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_late_time, xlabel='Число клиентов',
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
+                                    different_k3_arr_late_time, xlabel='Число клиентов',
                                     ylabel='Время опоздания', mapping=self._mapping)
         elif self._plot_stats == 'total_evaluation':
-            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_eval, xlabel='Число клиентов',
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_eval,
+                                    xlabel='Число клиентов',
                                     ylabel='Общая оценка', mapping=self._mapping)
+        elif self._plot_stats == 'avg_wait_time':
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
+                                    different_k3_arr_wait_time_per_customer,
+                                    xlabel='Число клиентов',
+                                    ylabel='Время ожидания на одного клиента', mapping=self._mapping)
+        elif self._plot_stats == 'avg_late_time':
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
+                                    different_k3_arr_late_time_per_customer,
+                                    xlabel='Число клиентов',
+                                    ylabel='Время опоздания на одного клиента', mapping=self._mapping)
+        elif self._plot_stats == 'max_wait_time':
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
+                                    different_k3_arr_max_wait_time,
+                                    xlabel='Число клиентов',
+                                    ylabel='Максимальное время ожидания', mapping=self._mapping)
+        elif self._plot_stats == 'max_late_time':
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
+                                    different_k3_arr_max_late_time,
+                                    xlabel='Число клиентов',
+                                    ylabel='Максимальное время опоздания', mapping=self._mapping)
+        elif self._plot_stats == 'wait_time_part':
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
+                                    different_k3_arr_wait_time_part,
+                                    xlabel='Число клиентов',
+                                    ylabel='Доля ожиданий среди всех вершин', mapping=self._mapping)
+        elif self._plot_stats == 'late_time_part':
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
+                                    different_k3_arr_late_time_part,
+                                    xlabel='Число клиентов',
+                                    ylabel='Доля опозданий среди всех вершин', mapping=self._mapping)
         else:
             print('Unrecognized plot_stats parameter. Setting it to distance...')
-            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist, xlabel='Число клиентов',
+            self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist,
+                                    xlabel='Число клиентов',
                                     ylabel='Пройденное расстояние, с', mapping=self._mapping)
