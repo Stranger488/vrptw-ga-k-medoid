@@ -10,11 +10,10 @@ from tsptw.tsptw_genetic import TSPTWGenetic
 
 
 class TSPTWSolver:
-    def __init__(self, route='closed', graph=False, population_size=50, mutation_rate=0.1, elite=2,
+    def __init__(self, route='closed', population_size=50, mutation_rate=0.1, elite=2,
                  generations=20, pool_size=4, k1=10, k2=100):
         # Parameters - Model
         self._route = route  # 'open', 'closed'
-        self._graph = graph  # True, False
 
         # Parameters - evaluation
         self._k1 = k1
@@ -68,7 +67,7 @@ class TSPTWSolver:
         ga_report, ga_vrp = self._tsptw_genetic.genetic_algorithm_tsp(coordinates, distance_matrix, parameters,
                                                                       self._population_size,
                                                                       self._route, self._mutation_rate, self._elite,
-                                                                      self._generations, self._graph, self._k1, self._k2)
+                                                                      self._generations, self._k1, self._k2)
 
         plot_data = {'coordinates': coordinates, 'ga_vrp': ga_vrp, 'route': self._route}
         result.append(plot_data)

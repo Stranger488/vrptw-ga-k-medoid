@@ -24,6 +24,17 @@ class TSPTWGenetic:
         distance[0:0] = [0.0]
         return distance
 
+    # Function: Elite Distance
+    def elite_distance(self, individual, distance_matrix, route):
+        if (route == 'open'):
+            end = 2
+        else:
+            end = 1
+        td = 0
+        for n in range(0, len(individual[1])):
+            td = td + self.evaluate_distance(distance_matrix, depot = individual[0][n], subroute = individual[1][n])[-end]
+        return round(td,2)
+
     # Function: Subroute Time
     def evaluate_time(self, distance_matrix, parameters, depot, subroute):
         tw_early   = parameters[:, 0]
@@ -63,8 +74,6 @@ class TSPTWGenetic:
 
     # Function: Subroute Cost
     def evaluate_cost_penalty(self, dist, time, wait, late, parameters, depot, subroute, route, k1, k2):
-        tw_late = parameters[:, 1]
-        tw_st   = parameters[:, 2]
         tw_wc   = np.array([k1 for _ in range(len(parameters))])
         tw_lc   = np.array([k2 for _ in range(len(parameters))])
         dc      = np.array([1.0 for _ in range(len(parameters))])
@@ -118,10 +127,6 @@ class TSPTWGenetic:
                 report_lst.append(['#' + str(i+1), activity, subroute[0][j], round(wait[j], 2), arrive_time, round(time[j], 2), round(dist[j], 2), round(late[j], 2)])
         report_lst.append(['-//-', '-//-', '-//-', '-//-', '-//-', '-//-', '-//-', '-//--'])
         report_lst.append(['TOTAL', '', '', round(wt, 2), '', round(tt, 2), round(td, 2), round(lt, 2)])
-        # td = td - dist[1]
-        # wt = wt - wait[1]
-        # tt = tt - time[1]
-        # report_lst.append(['DIST W\O FIRST', '', '', round(wt, 2), '', round(tt, 2), round(td, 2), round(lt, 2)])
         report_df = pd.DataFrame(report_lst, columns=column_names)
         return report_df
 
@@ -145,10 +150,6 @@ class TSPTWGenetic:
                 wait, time, late = self.evaluate_time(distance_matrix, parameters, depot = individual[0][i], subroute = individual[1][i])
 
                 cost_s = self.evaluate_cost(dist, wait, late, parameters, depot = individual[0][i], subroute = individual[1][i], k1 = k1, k2 = k2)
-                if (route == 'open'):
-                    subroute_ = individual[0][i] + individual[1][i]
-                else:
-                    subroute_ = individual[0][i] + individual[1][i] + individual[0][i]
 
                 cost[k][0] = cost[k][0] + cost_s[-end]
                 size = len(individual[1])
@@ -253,7 +254,7 @@ class TSPTWGenetic:
         return offspring
 
     # Function: Mutation - Swap
-    def mutation_tsp_vrp_swap(self, individual):
+    def mutation_tsp_swap(self, individual):
         if (len(individual[1]) == 1):
             k1 = random.sample(list(range(0, len(individual[1]))), 1)[0]
             k2 = k1
@@ -270,7 +271,7 @@ class TSPTWGenetic:
         return individual
 
     # Function: Mutation - Insertion
-    def mutation_tsp_vrp_insertion(self, individual):
+    def mutation_tsp_insertion(self, individual):
         if (len(individual[1]) == 1):
             k1 = random.sample(list(range(0, len(individual[1]))), 1)[0]
             k2 = k1
@@ -296,9 +297,9 @@ class TSPTWGenetic:
             if (probability <= mutation_rate):
                 rand = int.from_bytes(os.urandom(8), byteorder = 'big') / ((1 << 64) - 1)
                 if (rand <= 0.5):
-                    offspring[i] = self.mutation_tsp_vrp_insertion(offspring[i])
+                    offspring[i] = self.mutation_tsp_insertion(offspring[i])
                 elif(rand > 0.5):
-                    offspring[i] = self.mutation_tsp_vrp_swap(offspring[i])
+                    offspring[i] = self.mutation_tsp_swap(offspring[i])
             for k in range(0, len(offspring[i][1])):
                 if (len(offspring[i][1][k]) >= 2):
                     probability = int.from_bytes(os.urandom(8), byteorder = 'big') / ((1 << 64) - 1)
@@ -314,19 +315,8 @@ class TSPTWGenetic:
                         offspring[i][1][k][cut[0]:cut[1]+1] = C
         return offspring
 
-    # Function: Elite Distance
-    def elite_distance(self, individual, distance_matrix, route):
-        if (route == 'open'):
-            end = 2
-        else:
-            end = 1
-        td = 0
-        for n in range(0, len(individual[1])):
-            td = td + self.evaluate_distance(distance_matrix, depot = individual[0][n], subroute = individual[1][n])[-end]
-        return round(td,2)
-
     # GA-VRP Function
-    def genetic_algorithm_tsp(self, coordinates, distance_matrix, parameters, population_size = 5, route = 'closed', mutation_rate = 0.1, elite = 0, generations = 50, graph = True, k1 = 10, k2 = 100):
+    def genetic_algorithm_tsp(self, coordinates, distance_matrix, parameters, population_size = 5, route = 'closed', mutation_rate = 0.1, elite = 0, generations = 50, k1 = 10, k2 = 100):
         count           = 0
         solution_report = ['None']
 
