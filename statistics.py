@@ -22,7 +22,7 @@ class Statistics:
                         self._BASE_DIR + '/result/cluster_result/' + dataset['name'] + '_output_{}/time_cluster.csv'.format(int(k3)),
                         header=None)
                     time_tsp = pd.read_fwf(
-                        self._BASE_DIR + '/result/tsptw_result/' + dataset['name'] + '_output_{}/time_tsp.csv'.format(int(k3)), header=None)
+                        self._BASE_DIR + '/result/tsptw_result/' + dataset['name'] + '_output_{}/time_tsp_4thread.csv'.format(int(k3)), header=None)
                     time_common = time_cluster.values[0][0] + time_tsp.values[0][0]
 
                     dataset_time_data.append(time_common)

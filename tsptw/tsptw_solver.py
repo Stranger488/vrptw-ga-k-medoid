@@ -45,7 +45,7 @@ class TSPTWSolver:
         tsptw_results, plots_data = self._solve(launch_count, data_dir=data_dir)
         te = time()
 
-        output = open(self._BASE_DIR + '/result/tsptw_result/' + data_dir + 'time_tsp.csv', 'w')
+        output = open(self._BASE_DIR + '/result/tsptw_result/' + data_dir + 'time_tsp_4thread.csv', 'w')
         output.write('{}\n'.format(round(te - ts, 4)))
         output.close()
 
