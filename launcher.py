@@ -37,9 +37,13 @@ class Launcher:
         statistics = Statistics(self._testing_datasets, self._dims_array, self._k3_array)
 
         different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_eval = statistics.collect_evaluation()
+
         different_k3_arr_wait_time_per_customer, different_k3_arr_late_time_per_customer = statistics.collect_time_stats()
 
-        different_k3_arr_max_wait_time, different_k3_arr_max_late_time, different_k3_arr_wait_time_part, different_k3_arr_late_time_part  = statistics.collect_additional_times()
+        different_k3_arr_max_wait_time, different_k3_arr_max_late_time, different_k3_arr_wait_time_part, different_k3_arr_late_time_part = statistics.collect_additional_times()
+
+        wait_arr, late_arr, dist_arr = statistics.collect_bns_data()
+        avg_wait_arr, avg_late_arr = statistics.collect_bns_additional_data()
 
         if self._plot_stats == 'time':
             different_k3_arr = statistics.collect_time_data()
@@ -92,8 +96,40 @@ class Launcher:
                                     different_k3_arr_late_time_part,
                                     xlabel='Число клиентов',
                                     ylabel='Доля опозданий среди всех вершин', mapping=self._mapping)
+        elif self._plot_stats == 'distance_bns':
+            self._plotter.plot_dataset_series_with_bns(self._testing_datasets, self._dims_array,
+                                                       different_k3_arr_dist[0], dist_arr,
+                                                       xlabel='Число клиентов',
+                                                       ylabel='Пройденное расстояние (сравнение с наилучшими решениями)', mapping=self._mapping)
+        elif self._plot_stats == 'wait_time_bns':
+            self._plotter.plot_dataset_series_with_bns(self._testing_datasets, self._dims_array,
+                                                       different_k3_arr_wait_time[0], wait_arr,
+                                                       xlabel='Число клиентов',
+                                                       ylabel='Время ожидания (сравнение с наилучшими решениями)', mapping=self._mapping)
+        elif self._plot_stats == 'late_time_bns':
+            self._plotter.plot_dataset_series_with_bns(self._testing_datasets, self._dims_array,
+                                                       different_k3_arr_late_time[0], late_arr,
+                                                       xlabel='Число клиентов',
+                                                       ylabel='Время опоздания (сравнение с наилучшими решенияим)', mapping=self._mapping)
+        elif self._plot_stats == 'avg_wait_time_bns':
+            self._plotter.plot_dataset_series_with_bns(self._testing_datasets, self._dims_array,
+                                                       different_k3_arr_wait_time_per_customer[0], avg_wait_arr,
+                                                       xlabel='Число клиентов',
+                                                       ylabel='Удельное время ожидания (сравнение с наилучшими решениями)', mapping=self._mapping)
+        elif self._plot_stats == 'avg_late_time_bns':
+            self._plotter.plot_dataset_series_with_bns(self._testing_datasets, self._dims_array,
+                                                       different_k3_arr_late_time_per_customer[0], avg_late_arr,
+                                                       xlabel='Число клиентов',
+                                                       ylabel='Удельное время опоздания (сравнение с наилучшими решенияим)', mapping=self._mapping)
         else:
             print('Unrecognized plot_stats parameter. Setting it to distance...')
             self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist,
                                     xlabel='Число клиентов',
                                     ylabel='Пройденное расстояние, с', mapping=self._mapping)
+
+    def _make_bns_plots(self):
+        statistics = Statistics(self._testing_datasets, self._dims_array, self._k3_array)
+        wait_arr, late_arr, dist_arr = statistics.collect_bns_data()
+        # self._plotter.plot_data_bns(self._testing_datasets, self._dims_array, wait_arr)
+        self._plotter.plot_data_bns(self._testing_datasets, self._dims_array, dist_arr)
+        # self._plotter.plot_data_bns(self._testing_datasets, self._dims_array, late_arr)

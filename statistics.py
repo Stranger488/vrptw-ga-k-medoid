@@ -19,10 +19,12 @@ class Statistics:
                 dataset_time_data = []
                 for dataset in dataset_series:
                     time_cluster = pd.read_fwf(
-                        self._BASE_DIR + '/result/cluster_result/' + dataset['name'] + '_output_{}/time_cluster.csv'.format(int(k3)),
+                        self._BASE_DIR + '/result/cluster_result/' + dataset[
+                            'name'] + '_output_{}/time_cluster.csv'.format(int(k3)),
                         header=None)
                     time_tsp = pd.read_fwf(
-                        self._BASE_DIR + '/result/tsptw_result/' + dataset['name'] + '_output_{}/time_tsp_4thread.csv'.format(int(k3)), header=None)
+                        self._BASE_DIR + '/result/tsptw_result/' + dataset[
+                            'name'] + '_output_{}/time_tsp_4thread.csv'.format(int(k3)), header=None)
                     time_common = time_cluster.values[0][0] + time_tsp.values[0][0]
 
                     dataset_time_data.append(time_common)
@@ -48,7 +50,8 @@ class Statistics:
                 dataset_data_eval = []
                 for dataset in dataset_series:
                     evaluation = pd.read_fwf(
-                        self._BASE_DIR + '/result/evaluation/' + dataset['name'] + '_output_{}/evaluation.csv'.format(int(k3)), header=None).values
+                        self._BASE_DIR + '/result/evaluation/' + dataset['name'] + '_output_{}/evaluation.csv'.format(
+                            int(k3)), header=None).values
 
                     evaluation = [row[0] for row in evaluation]
 
@@ -79,7 +82,8 @@ class Statistics:
                 dataset_data_late_time = []
                 for i, dataset in enumerate(dataset_series):
                     evaluation = pd.read_fwf(
-                        self._BASE_DIR + '/result/evaluation/' + dataset['name'] + '_output_{}/evaluation.csv'.format(int(k3)), header=None).values
+                        self._BASE_DIR + '/result/evaluation/' + dataset['name'] + '_output_{}/evaluation.csv'.format(
+                            int(k3)), header=None).values
 
                     evaluation = [row[0] for row in evaluation]
 
@@ -121,7 +125,8 @@ class Statistics:
                     late_counter = 0
 
                     for j in range(vehicle_number):
-                        cur_report = pd.read_csv(self._BASE_DIR + '/result/tsptw_result/' + dataset['name'] + '_output_{}/report{}.csv'.format(int(k3), j), delimiter=' ')
+                        cur_report = pd.read_csv(self._BASE_DIR + '/result/tsptw_result/' + dataset[
+                            'name'] + '_output_{}/report{}.csv'.format(int(k3), j), delimiter=' ')
 
                         wait_late_df = cur_report[['Wait_Time', 'Late_Time']].values
                         for row in wait_late_df[:-2]:
@@ -149,3 +154,48 @@ class Statistics:
             different_k3_arr_late_time_part.append(dataset_series_array_late_time_part)
 
         return different_k3_arr_max_wait_time, different_k3_arr_max_late_time, different_k3_arr_wait_time_part, different_k3_arr_late_time_part
+
+    def collect_bns_data(self):
+        wait_arr_series = []
+        late_arr_series = []
+        dist_arr_series = []
+        for dataset_series in self._testing_datasets:
+            wait_arr_dataset = []
+            late_arr_dataset = []
+            dist_arr_dataset = []
+            for i, dataset in enumerate(dataset_series):
+                wait_data = pd.read_fwf(
+                    self._BASE_DIR + '/bns_wait_time/' + dataset['name'] + '_mod/wait_times.txt',
+                    header=None)
+                late_data = pd.read_fwf(
+                    self._BASE_DIR + '/bns_late_time/' + dataset['name'] + '_mod/late_times.txt',
+                    header=None)
+                dist_data = pd.read_csv(
+                    self._BASE_DIR + '/bns_dist/' + dataset['name'] + '_mod/distances.txt',
+                    header=None, sep=' ')
+                wait_arr_dataset.append(sum(wait_data[0]))
+                late_arr_dataset.append(sum(late_data[0]))
+                dist_arr_dataset.append(sum(dist_data[0]))
+            wait_arr_series.append(wait_arr_dataset)
+            late_arr_series.append(late_arr_dataset)
+            dist_arr_series.append(dist_arr_dataset)
+        return wait_arr_series, late_arr_series, dist_arr_series
+
+    def collect_bns_additional_data(self):
+        wait_arr_series = []
+        late_arr_series = []
+        for dataset_series in self._testing_datasets:
+            wait_arr_dataset = []
+            late_arr_dataset = []
+            for i, dataset in enumerate(dataset_series):
+                wait_data = pd.read_fwf(
+                    self._BASE_DIR + '/bns_wait_time/' + dataset['name'] + '_mod/wait_times.txt',
+                    header=None)
+                late_data = pd.read_fwf(
+                    self._BASE_DIR + '/bns_late_time/' + dataset['name'] + '_mod/late_times.txt',
+                    header=None)
+                wait_arr_dataset.append(sum(wait_data[0]) / self._dims_array[i])
+                late_arr_dataset.append(sum(late_data[0]) / self._dims_array[i])
+            wait_arr_series.append(wait_arr_dataset)
+            late_arr_series.append(late_arr_dataset)
+        return wait_arr_series, late_arr_series
