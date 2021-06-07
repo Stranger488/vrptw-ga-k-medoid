@@ -70,7 +70,7 @@ class Launcher:
             self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
                                     different_k3_arr_wait_time_per_customer,
                                     xlabel='Число клиентов',
-                                    ylabel='Время ожидания на одного клиента', mapping=self._mapping)
+                                    ylabel='Время ожидания на одно ТС', mapping=self._mapping)
         elif self._plot_stats == 'avg_late_time':
             self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array,
                                     different_k3_arr_late_time_per_customer,
@@ -115,12 +115,12 @@ class Launcher:
             self._plotter.plot_dataset_series_with_bns(self._testing_datasets, self._dims_array,
                                                        different_k3_arr_wait_time_per_customer[0], avg_wait_arr,
                                                        xlabel='Число клиентов',
-                                                       ylabel='Удельное время ожидания (сравнение с наилучшими решениями)', mapping=self._mapping)
+                                                       ylabel='Время ожидания на одно ТС (сравнение с наилучшими решениями)', mapping=self._mapping)
         elif self._plot_stats == 'avg_late_time_bns':
             self._plotter.plot_dataset_series_with_bns(self._testing_datasets, self._dims_array,
                                                        different_k3_arr_late_time_per_customer[0], avg_late_arr,
                                                        xlabel='Число клиентов',
-                                                       ylabel='Удельное время опоздания (сравнение с наилучшими решенияим)', mapping=self._mapping)
+                                                       ylabel='Время опоздания на одного клиента (сравнение с наилучшими решенияим)', mapping=self._mapping)
         else:
             print('Unrecognized plot_stats parameter. Setting it to distance...')
             self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist,

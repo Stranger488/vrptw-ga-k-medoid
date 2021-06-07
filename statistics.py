@@ -81,13 +81,16 @@ class Statistics:
                 dataset_data_wait_time = []
                 dataset_data_late_time = []
                 for i, dataset in enumerate(dataset_series):
+                    data = pd.read_fwf(self._BASE_DIR + '/data/' + dataset['data_file'])
+                    vehicle_number = int(data['VEHICLE_NUMBER'][0])
+
                     evaluation = pd.read_fwf(
                         self._BASE_DIR + '/result/evaluation/' + dataset['name'] + '_output_{}/evaluation.csv'.format(
                             int(k3)), header=None).values
 
                     evaluation = [row[0] for row in evaluation]
 
-                    dataset_data_wait_time.append(evaluation[1] / self._dims_array[i])
+                    dataset_data_wait_time.append(evaluation[1] / vehicle_number)
                     dataset_data_late_time.append(evaluation[2] / self._dims_array[i])
                 dataset_series_array_wait_time.append(dataset_data_wait_time)
                 dataset_series_array_late_time.append(dataset_data_late_time)
@@ -188,13 +191,16 @@ class Statistics:
             wait_arr_dataset = []
             late_arr_dataset = []
             for i, dataset in enumerate(dataset_series):
+                data = pd.read_fwf(self._BASE_DIR + '/data/' + dataset['data_file'])
+                vehicle_number = int(data['VEHICLE_NUMBER'][0])
+
                 wait_data = pd.read_fwf(
                     self._BASE_DIR + '/bns_wait_time/' + dataset['name'] + '_mod/wait_times.txt',
                     header=None)
                 late_data = pd.read_fwf(
                     self._BASE_DIR + '/bns_late_time/' + dataset['name'] + '_mod/late_times.txt',
                     header=None)
-                wait_arr_dataset.append(sum(wait_data[0]) / self._dims_array[i])
+                wait_arr_dataset.append(sum(wait_data[0]) / vehicle_number)
                 late_arr_dataset.append(sum(late_data[0]) / self._dims_array[i])
             wait_arr_series.append(wait_arr_dataset)
             late_arr_series.append(late_arr_dataset)
