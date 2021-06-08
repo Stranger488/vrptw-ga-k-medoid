@@ -60,6 +60,7 @@ class BNSCollector:
         output_dir = filename[:-4] + '/'
         pathlib.Path(self._BASE_DIR + '/bns_wait_time/' + output_dir).mkdir(parents=True, exist_ok=True)
         pathlib.Path(self._BASE_DIR + '/bns_late_time/' + output_dir).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(self._BASE_DIR + '/bns_total_time/' + output_dir).mkdir(parents=True, exist_ok=True)
         pathlib.Path(self._BASE_DIR + '/bns_dist/' + output_dir).mkdir(parents=True, exist_ok=True)
 
         dataset = pd.read_fwf(self._BASE_DIR + '/data/' + filename)
@@ -74,6 +75,7 @@ class BNSCollector:
         routes_dataset = self._read_standard_route(filename)
         wait_time_dataset = np.zeros(len(routes_dataset))
         late_time_dataset = np.zeros(len(routes_dataset))
+        total_time_dataset = np.zeros(len(routes_dataset))
         dist_dataset = np.zeros(len(routes_dataset))
 
         for i, route in enumerate(routes_dataset):
@@ -90,21 +92,26 @@ class BNSCollector:
                 late_time = cur_time - tws_all[j][1]
                 if wait_time > 0.0:
                     cur_wait_time += wait_time
+                    cur_time = tws_all[j][0]
                 if late_time > 0.0:
                     cur_late_time += late_time
 
                 cur_time += service_time_all[j]
                 prev = j
+            cur_time += euclidian_dist[prev][0]
             cur_distance += euclidian_dist[prev][0]
 
             wait_time_dataset[i] = cur_wait_time
             late_time_dataset[i] = cur_late_time
+            total_time_dataset[i] = cur_time
 
             dist_dataset[i] = cur_distance
 
         wait_time_df = pd.DataFrame(wait_time_dataset)
         late_time_df = pd.DataFrame(late_time_dataset)
+        total_time_df = pd.DataFrame(total_time_dataset)
         dist_df = pd.DataFrame(dist_dataset)
+
         dist_df[1] = 0
         dist_df.loc[0, 1] = sum(dist_dataset)
 
@@ -112,6 +119,8 @@ class BNSCollector:
                             sep=' ')
         late_time_df.to_csv(self._BASE_DIR + '/bns_late_time/' + output_dir + 'late_times.txt', index=False,
                             sep=' ')
+        total_time_df.to_csv(self._BASE_DIR + '/bns_total_time/' + output_dir + 'total_times.txt', index=False,
+                             sep=' ')
         dist_df.to_csv(self._BASE_DIR + '/bns_dist/' + output_dir + 'distances.txt', index=False,
                        sep=' ')
 
