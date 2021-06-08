@@ -43,7 +43,10 @@ class Launcher:
         different_k3_arr_max_wait_time, different_k3_arr_max_late_time, different_k3_arr_wait_time_part, different_k3_arr_late_time_part = statistics.collect_additional_times()
 
         wait_arr, late_arr, dist_arr = statistics.collect_bns_data()
+
         avg_wait_arr, avg_late_arr = statistics.collect_bns_additional_data()
+
+        std_wait_time_arr, std_wait_time_arr_bns = statistics.collect_standard_deviation_with_bns()
 
         if self._plot_stats == 'time':
             different_k3_arr = statistics.collect_time_data()
@@ -121,15 +124,12 @@ class Launcher:
                                                        different_k3_arr_late_time_per_customer[0], avg_late_arr,
                                                        xlabel='Число клиентов',
                                                        ylabel='Время опоздания на одного клиента (сравнение с наилучшими решенияим)', mapping=self._mapping)
+        elif self._plot_stats == 'std_wait_time_bns':
+            self._plotter.plot_dataset_series_hist_with_bns(self._testing_datasets, std_wait_time_arr, std_wait_time_arr_bns,
+                                                       xlabel='Среднеквадратичное отклонение по времени ожидания (сравнение с наилучшими решенияим)',
+                                                       ylabel='Число датасетов', mapping=self._mapping)
         else:
             print('Unrecognized plot_stats parameter. Setting it to distance...')
             self._plotter.plot_data(self._testing_datasets, self._dims_array, self._k3_array, different_k3_arr_dist,
                                     xlabel='Число клиентов',
                                     ylabel='Пройденное расстояние, с', mapping=self._mapping)
-
-    def _make_bns_plots(self):
-        statistics = Statistics(self._testing_datasets, self._dims_array, self._k3_array)
-        wait_arr, late_arr, dist_arr = statistics.collect_bns_data()
-        # self._plotter.plot_data_bns(self._testing_datasets, self._dims_array, wait_arr)
-        self._plotter.plot_data_bns(self._testing_datasets, self._dims_array, dist_arr)
-        # self._plotter.plot_data_bns(self._testing_datasets, self._dims_array, late_arr)

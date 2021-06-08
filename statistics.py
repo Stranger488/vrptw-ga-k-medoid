@@ -205,3 +205,32 @@ class Statistics:
             wait_arr_series.append(wait_arr_dataset)
             late_arr_series.append(late_arr_dataset)
         return wait_arr_series, late_arr_series
+
+    def collect_standard_deviation_with_bns(self):
+        wait_arr_series = []
+        wait_arr_series_bns = []
+        for dataset_series in self._testing_datasets:
+            wait_arr_dataset = []
+            wait_arr_dataset_bns = []
+
+            for i, dataset in enumerate(dataset_series):
+                data = pd.read_fwf(self._BASE_DIR + '/data/' + dataset['data_file'])
+                vehicle_number = int(data['VEHICLE_NUMBER'][0])
+
+                wait_arr_route = []
+                for j in range(vehicle_number):
+                    cur_report = pd.read_csv(self._BASE_DIR + '/result/tsptw_result/' + dataset[
+                        'name'] + '_output_{}/report{}.csv'.format(2, j), delimiter=' ')
+
+                    wait_df = cur_report[['Wait_Time']].values
+                    wait_arr_route.append(float(wait_df[-1]))
+
+                wait_data_bns = pd.read_fwf(
+                    self._BASE_DIR + '/bns_wait_time/' + dataset['name'] + '_mod/wait_times.txt',
+                    header=None)
+
+                wait_arr_dataset.append(np.std(wait_arr_route))
+                wait_arr_dataset_bns.append(np.std(wait_data_bns[0][1:].values))
+            wait_arr_series.append(wait_arr_dataset)
+            wait_arr_series_bns.append(wait_arr_dataset_bns)
+        return wait_arr_series, wait_arr_series_bns

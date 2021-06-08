@@ -106,7 +106,7 @@ class Plot:
             for j, k3 in enumerate(k3_array):
                 self._plot_on_axes(axes, dims_array, different_k3_arr[j][i], c=cmap(j), xlabel=xlabel,
                                    ylabel=ylabel,
-                                   label='График зависимости y(x), k3={}'.format(k3),
+                                   label='k3={}'.format(k3),
                                    title='Набор данных {}'.format(mapping[i]))
 
             axes.grid(True)
@@ -116,32 +116,6 @@ class Plot:
             pathlib.Path(path).mkdir(parents=True, exist_ok=True)
             filename = ylabel.replace(',', '')
             fig.savefig(path + '/' + filename.replace(' ', '_'), dpi=self._dpi_standart)
-
-        plt.show()
-
-    def plot_data_bns(self, testing_datasets, dims_array, data_arr, xlabel='x', ylabel='y',
-                      mapping=None):
-        if mapping is None:
-            mapping = ['C', 'R', 'RC']
-
-        for i in range(len(testing_datasets)):
-            plt.rc('font', size=5)  # controls default text sizes
-            plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
-            plt.rc('ytick', labelsize=4)
-            fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
-
-            self._plot_on_axes(axes, dims_array, data_arr[i], xlabel=xlabel,
-                               ylabel=ylabel,
-                               label='График зависимости y(x)',
-                               title='Набор данных {}'.format(mapping[i]))
-
-            axes.grid(True)
-
-            # output_dir = str(mapping[i])
-            # path = self._BASE_DIR + '/result/img/' + output_dir
-            # pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-            # filename = ylabel.replace(',', '')
-            # fig.savefig(path + '/' + filename.replace(' ', '_'), dpi=self._dpi_standart)
 
         plt.show()
 
@@ -175,6 +149,30 @@ class Plot:
             filename = filename.replace('(', '')
             filename = filename.replace(')', '')
             fig.savefig(path + '/' + filename.replace(' ', '_'), dpi=self._dpi_standart)
+
+        plt.show()
+
+    def plot_dataset_series_hist_with_bns(self, testing_datasets, arr, bns_arr, xlabel='x', ylabel='y',
+                                          mapping=None):
+        if mapping is None:
+            mapping = ['C', 'R', 'RC']
+
+        for i in range(len(testing_datasets)):
+            plt.rc('font', size=5)  # controls default text sizes
+            plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
+            plt.rc('ytick', labelsize=4)
+
+            fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
+
+            axes.hist([arr[i], bns_arr[i]], rwidth=0.7, bins=len(arr[i]), label=['Алгоритм', 'Наилучшее известное решение'])
+            # axes.hist(bns_arr, rwidth=0.7, bins=len(testing_datasets[i]))
+
+            axes.grid(True)
+            axes.legend(loc='best')
+
+            axes.set_xlabel(xlabel)
+            axes.set_ylabel(ylabel)
+            axes.set_title('Набор данных {}'.format(mapping[i]))
 
         plt.show()
 
