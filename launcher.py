@@ -36,13 +36,13 @@ class Launcher:
     def _make_plot_stats(self):
         statistics = Statistics(self._testing_datasets, self._dims_array, self._k3_array)
 
-        different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_eval = statistics.collect_evaluation()
+        different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_total_time, different_k3_arr_eval = statistics.collect_evaluation()
 
         different_k3_arr_wait_time_per_customer, different_k3_arr_late_time_per_customer = statistics.collect_time_stats()
 
         different_k3_arr_max_wait_time, different_k3_arr_max_late_time, different_k3_arr_wait_time_part, different_k3_arr_late_time_part = statistics.collect_additional_times()
 
-        wait_arr, late_arr, dist_arr = statistics.collect_bns_data()
+        wait_arr, late_arr, total_arr, dist_arr = statistics.collect_bns_data()
         avg_wait_arr, avg_late_arr = statistics.collect_bns_additional_data()
 
         if self._plot_stats == 'time':
@@ -111,6 +111,11 @@ class Launcher:
                                                        different_k3_arr_late_time[0], late_arr,
                                                        xlabel='Число клиентов',
                                                        ylabel='Время опоздания (сравнение с наилучшими решенияим)', mapping=self._mapping)
+        elif self._plot_stats == 'total_time_bns':
+            self._plotter.plot_dataset_series_with_bns(self._testing_datasets, self._dims_array,
+                                                       different_k3_arr_total_time[0], total_arr,
+                                                       xlabel='Число клиентов',
+                                                       ylabel='Время в пути (сравнение с наилучшими решенияим)', mapping=self._mapping)                                                       
         elif self._plot_stats == 'avg_wait_time_bns':
             self._plotter.plot_dataset_series_with_bns(self._testing_datasets, self._dims_array,
                                                        different_k3_arr_wait_time_per_customer[0], avg_wait_arr,

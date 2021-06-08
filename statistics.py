@@ -37,16 +37,19 @@ class Statistics:
         different_k3_arr_dist = []
         different_k3_arr_wait_time = []
         different_k3_arr_late_time = []
+        different_k3_arr_total_time = []
         different_k3_arr_eval = []
         for k3 in self._k3_array:
             dataset_series_array_dist = []
             dataset_series_array_wait_time = []
             dataset_series_array_late_time = []
+            dataset_series_array_total_time = []
             dataset_series_array_eval = []
             for dataset_series in self._testing_datasets:
                 dataset_data_dist = []
                 dataset_data_wait_time = []
                 dataset_data_late_time = []
+                dataset_data_total_time = []
                 dataset_data_eval = []
                 for dataset in dataset_series:
                     evaluation = pd.read_fwf(
@@ -58,17 +61,20 @@ class Statistics:
                     dataset_data_dist.append(evaluation[0])
                     dataset_data_wait_time.append(evaluation[1])
                     dataset_data_late_time.append(evaluation[2])
-                    dataset_data_eval.append(evaluation[3])
+                    dataset_data_total_time.append(evaluation[3])
+                    dataset_data_eval.append(evaluation[4])
                 dataset_series_array_dist.append(dataset_data_dist)
                 dataset_series_array_wait_time.append(dataset_data_wait_time)
                 dataset_series_array_late_time.append(dataset_data_late_time)
+                dataset_series_array_total_time.append(dataset_data_total_time)
                 dataset_series_array_eval.append(dataset_data_eval)
             different_k3_arr_dist.append(dataset_series_array_dist)
             different_k3_arr_wait_time.append(dataset_series_array_wait_time)
             different_k3_arr_late_time.append(dataset_series_array_late_time)
+            different_k3_arr_total_time.append(dataset_series_array_total_time)
             different_k3_arr_eval.append(dataset_series_array_eval)
 
-        return different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_eval
+        return different_k3_arr_dist, different_k3_arr_wait_time, different_k3_arr_late_time, different_k3_arr_total_time, different_k3_arr_eval
 
     def collect_time_stats(self):
         different_k3_arr_wait_time = []
@@ -161,10 +167,12 @@ class Statistics:
     def collect_bns_data(self):
         wait_arr_series = []
         late_arr_series = []
+        total_arr_series = []
         dist_arr_series = []
         for dataset_series in self._testing_datasets:
             wait_arr_dataset = []
             late_arr_dataset = []
+            total_arr_dataset = []
             dist_arr_dataset = []
             for i, dataset in enumerate(dataset_series):
                 wait_data = pd.read_fwf(
@@ -173,16 +181,21 @@ class Statistics:
                 late_data = pd.read_fwf(
                     self._BASE_DIR + '/bns_late_time/' + dataset['name'] + '_mod/late_times.txt',
                     header=None)
+                total_data = pd.read_fwf(
+                    self._BASE_DIR + '/bns_total_time/' + dataset['name'] + '_mod/total_times.txt',
+                    header=None)
                 dist_data = pd.read_csv(
                     self._BASE_DIR + '/bns_dist/' + dataset['name'] + '_mod/distances.txt',
                     header=None, sep=' ')
                 wait_arr_dataset.append(sum(wait_data[0]))
                 late_arr_dataset.append(sum(late_data[0]))
+                total_arr_dataset.append(sum(total_data[0]))
                 dist_arr_dataset.append(sum(dist_data[0]))
             wait_arr_series.append(wait_arr_dataset)
             late_arr_series.append(late_arr_dataset)
+            total_arr_series.append(total_arr_dataset)
             dist_arr_series.append(dist_arr_dataset)
-        return wait_arr_series, late_arr_series, dist_arr_series
+        return wait_arr_series, late_arr_series, total_arr_series, dist_arr_series
 
     def collect_bns_additional_data(self):
         wait_arr_series = []

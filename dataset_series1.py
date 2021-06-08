@@ -92,7 +92,7 @@ RC1_6_3_dataset = {
 
 mapping = ['C', 'R', 'RC']
 dims_array = np.array([100, 200, 400, 600])
-k3_array = np.array([2.0, 10.0, 100.0, 1000.0])
+k3_array = np.array([2.0, 10.0, 100.0])
 
 testing_datasets = [[c104_dataset, C1_2_4_dataset, C1_4_4_dataset, C1_6_4_dataset],
                     [r110_dataset, R1_2_10_dataset, R1_4_10_dataset, R1_6_10_dataset],

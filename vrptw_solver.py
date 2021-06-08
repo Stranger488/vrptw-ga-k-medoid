@@ -179,15 +179,17 @@ class VRPTWSolver:
         total_dist = 0.0
         wait_time = 0.0
         late_time = 0.0
+        total_time = 0.0
 
         for result in tsptw_results:
             total_dist += result['Distance'][len(result) - 1]
             wait_time += result['Wait_Time'][len(result) - 1]
             late_time += result['Late_Time'][len(result) - 1]
+            total_time += result['Leave_Time'][len(result) - 1]
 
         evaluation = c_D * total_dist + c_T * wait_time + c_L * late_time
 
-        result = pd.DataFrame([total_dist, wait_time, late_time, evaluation])
+        result = pd.DataFrame([total_dist, wait_time, late_time, total_time, evaluation])
         result.to_csv(self._BASE_DIR + '/result/evaluation/' + output_dir + 'evaluation.csv', sep=' ',
                       index=False, header=False)
 
