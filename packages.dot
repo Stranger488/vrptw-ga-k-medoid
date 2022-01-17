@@ -1,0 +1,19 @@
+digraph "packages" {
+charset="utf-8"
+rankdir=BT
+"0" [label="D:\Disk_D\dev\study\diplom\impls\my\cluster\chromosome.py", shape="box"];
+"1" [label="D:\Disk_D\dev\study\diplom\impls\my\cluster\cluster_solver.py", shape="box"];
+"2" [label="D:\Disk_D\dev\study\diplom\impls\my\cluster\population.py", shape="box"];
+"3" [label="D:\Disk_D\dev\study\diplom\impls\my\cluster\spatiotemporal.py", shape="box"];
+"4" [label="launcher", shape="box"];
+"5" [label="main", shape="box"];
+"6" [label="plot", shape="box"];
+"7" [label="statistics", shape="box"];
+"8" [label="vrptw_solver", shape="box"];
+"4" -> "6" [arrowhead="open", arrowtail="none"];
+"4" -> "7" [arrowhead="open", arrowtail="none"];
+"4" -> "8" [arrowhead="open", arrowtail="none"];
+"5" -> "4" [arrowhead="open", arrowtail="none"];
+"7" -> "6" [arrowhead="open", arrowtail="none"];
+"8" -> "6" [arrowhead="open", arrowtail="none"];
+}

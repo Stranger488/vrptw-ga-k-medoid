@@ -2,9 +2,8 @@ import pathlib
 import sys
 from itertools import cycle
 
-import numpy as np
 import matplotlib.pyplot as plt
-
+import numpy as np
 from matplotlib.colors import rgb2hex
 
 
@@ -13,7 +12,7 @@ class Plot:
 
         # Plot parameters
         self._figsize_standart = (8, 6)
-        self._dpi_standart = 400
+        self._dpi_standart = 1200
         self._linewidth_standart = 0.5
         self._width = self.depth = 0.5
 
@@ -75,6 +74,41 @@ class Plot:
             self._plot_with_tws(dataset[i], tws[i], max_tw, colors[i], axes)
             self.plot_tour_coordinates(plots_data[i]['coordinates'], plots_data[i]['ga_vrp'], axes, colors[i],
                                        route=plots_data[i]['route'])
+
+        axes.scatter(depo_spatio[0], depo_spatio[1], 0.0, c='black', s=1)
+
+        axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[0], c='black', s=1)
+        axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[1], c='black', s=1)
+
+        axes.bar3d(depo_spatio[0] - self.depth / 8., depo_spatio[1] - self.depth / 8., 0.0, self._width / 4.,
+                   self.depth / 4.,
+                   max_tw, color='black')
+
+        if text:
+            for i, data in enumerate(init_dataset):
+                axes.text(data[0], data[1], 0.0, str(i + 1))
+
+        axes.set_zlim(0, None)
+
+    def plot_clusters_parallel(self, init_dataset, dataset, tws, max_tw, depo_spatio, depo_tws, text=False):
+        plt.rc('font', size=5)  # controls default text sizes
+        plt.rc('xtick', labelsize=8)  # fontsize of the tick labels
+        plt.rc('ytick', labelsize=8)
+
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart,
+                                 dpi=self._dpi_standart, subplot_kw={'projection': '3d'})
+
+        axes.set_xlabel('x')
+        axes.set_ylabel('y')
+        axes.set_zlabel('z')
+
+        axes.set_title('Clusters')
+
+        colors = [rgb2hex([np.random.random_sample(), np.random.random_sample(), np.random.random_sample()])
+                  for _ in dataset]
+
+        for i in range(dataset.shape[0]):
+            self._plot_with_tws(dataset[i], tws[i], max_tw, colors[i], axes)
 
         axes.scatter(depo_spatio[0], depo_spatio[1], 0.0, c='black', s=1)
 
@@ -213,3 +247,25 @@ class Plot:
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
         axes.set_title(title)
+
+    def plot_parallel_time(self, x, y, c='blue', label='label', xlabel='Число процессоров', ylabel='Время выполнения',
+                           title='title'):
+        plt.rc('font', size=2)  # controls default text sizes
+        plt.rc('xtick', labelsize=2)  # fontsize of the tick labels
+        plt.rc('ytick', labelsize=2)
+
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(4, 3), dpi=self._dpi_standart)
+
+        plt.subplots_adjust(wspace=0.6, hspace=0.6, left=0.13, bottom=0.25, right=0.96, top=0.92)
+
+        axes.plot(x, y, '.-', markersize=1, color=c, linewidth=self._linewidth_standart, label=label)
+
+        axes.grid()
+
+        axes.legend(loc='best')
+        axes.set_xlabel(xlabel, labelpad=1, fontsize=2)
+        axes.set_ylabel(ylabel, labelpad=1, fontsize=2)
+        axes.set_title(title, pad=1)
+
+    def show(self):
+        plt.show()

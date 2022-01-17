@@ -1,8 +1,8 @@
 import argparse
 
-from launcher import Launcher
-
 from mpl_toolkits.mplot3d.axis3d import Axis
+
+from launcher import Launcher
 
 
 # fix wrong z-offsets in 3d plot
