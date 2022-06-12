@@ -23,8 +23,10 @@ def set_options():
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('--in_dataset_series', action='store', type=str,
                             help='Input file with dataset series to solve')
-    arg_parser.add_argument('--mode', action='store_true',
-                            help='Solving with procs 1 to os.cpu_count() or os.cpu_count()')
+    arg_parser.add_argument('--mode', action='store', type=str,
+                            help='Solving with procs 1 to os.cpu_count(), os.cpu_count() or without solving')
+    arg_parser.add_argument('--plot_time_stats', action='store_true',
+                            help='Plot time stats')
 
     arguments = arg_parser.parse_args()
 
@@ -32,7 +34,8 @@ def set_options():
 
 
 def main(arguments):
-    launcher = LauncherCluster(in_dataset_series=arguments.in_dataset_series, mode=arguments.mode)
+    launcher = LauncherCluster(in_dataset_series=arguments.in_dataset_series,
+                               mode=arguments.mode, plot_time_stats=arguments.plot_time_stats)
     launcher.launch()
 
 

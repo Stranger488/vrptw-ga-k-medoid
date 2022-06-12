@@ -2,9 +2,12 @@ import pathlib
 import sys
 from itertools import cycle
 
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import rgb2hex
+
+matplotlib.use('Agg')
 
 
 class Plot:
@@ -248,24 +251,24 @@ class Plot:
         axes.set_ylabel(ylabel)
         axes.set_title(title)
 
-    def plot_parallel_time(self, x, y, c='blue', label='label', xlabel='Число процессоров', ylabel='Время выполнения',
-                           title='title'):
-        plt.rc('font', size=2)  # controls default text sizes
-        plt.rc('xtick', labelsize=2)  # fontsize of the tick labels
-        plt.rc('ytick', labelsize=2)
+    def plot_parallel_time(self, x, y, c='blue', label='Зависимость времени выполнения от числа процессоров',
+                           xlabel='Число процессоров', ylabel='Время выполнения',
+                           title=''):
+        plt.rc('font', size=5)  # controls default text sizes
+        plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
+        plt.rc('ytick', labelsize=4)
 
         fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(4, 3), dpi=self._dpi_standart)
-
-        plt.subplots_adjust(wspace=0.6, hspace=0.6, left=0.13, bottom=0.25, right=0.96, top=0.92)
-
-        axes.plot(x, y, '.-', markersize=1, color=c, linewidth=self._linewidth_standart, label=label)
+        axes.plot(x, y, '.-', markersize=3, color=c, linewidth=self._linewidth_standart, label=label)
 
         axes.grid()
 
         axes.legend(loc='best')
-        axes.set_xlabel(xlabel, labelpad=1, fontsize=2)
-        axes.set_ylabel(ylabel, labelpad=1, fontsize=2)
+        axes.set_xlabel(xlabel, labelpad=1, fontsize=4)
+        axes.set_ylabel(ylabel, labelpad=1, fontsize=4)
         axes.set_title(title, pad=1)
+
+        fig.savefig(fname='test.png', dpi=self._dpi_standart)
 
     def show(self):
         plt.show()
