@@ -71,7 +71,6 @@ class ClusterSolver:
         if best_chromosome.fitness < self._best_chromosome.fitness:
             self._best_chromosome = best_chromosome
 
-    # TODO: проанализировать, в последние маршруты попадают одни и те же вершины
     def _make_cluster_from_medoids(self):
         medoids = self._best_chromosome.genes
         points_size = int(np.ceil(self._distances[0].size / medoids.size))

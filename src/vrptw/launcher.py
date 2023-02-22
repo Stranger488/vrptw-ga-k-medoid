@@ -1,5 +1,7 @@
 import importlib
 
+import numpy as np
+
 from src.common.plot import Plot
 from src.common.statistics import Statistics
 from src.vrptw.vrptw_solver import VRPTWSolver
@@ -8,14 +10,18 @@ from src.vrptw.vrptw_solver import VRPTWSolver
 class Launcher:
     def __init__(self, launch_entries: str = None,
                  plot_stats: str = None,
+                 plot_solutions: str = None,
                  solve_cluster: str = 'default',
                  solve_tsptw: str = 'default'):
         self._launch_entries = importlib.import_module(launch_entries)
 
         self._vrptw_launch_entry = self._launch_entries.vrptw_launch_entry
 
-        # True, если необходимо после решения собрать статистику
+        # True, если необходимо собрать статистику оп решению
         self._plot_stats = plot_stats
+
+        # True, если необходимо визуализировать итоговое решение
+        self._plot_solutions = plot_solutions
 
         # True, если необходимо запустить первый этап
         self._solve_cluster = solve_cluster
@@ -120,12 +126,15 @@ class Launcher:
     def launch(self):
         self._make_solving()
 
+        if self._plot_solutions:
+            self._make_plot_solutions()
+
         if self._plot_stats:
             self._make_plot_stats()
 
     def _make_solving(self):
         vrptw_solver = VRPTWSolver(vrptw_launch_entry=self._vrptw_launch_entry)
-        vrptw_solver.solve_and_plot(self._solve_cluster, self._solve_tsptw)
+        vrptw_solver.solve(self._solve_cluster, self._solve_tsptw)
 
     def _make_plot_stats(self):
         statistics = Statistics(self._vrptw_launch_entry)
@@ -140,3 +149,18 @@ class Launcher:
             plot_lambda(stats_df, bks_stats_df, stat, xlabel=self.plot_stats_dict[stat]['xlabel'],
                         ylabel=self.plot_stats_dict[stat]['ylabel'],
                         output_dir=self._vrptw_launch_entry.PLOT_STATS_OUTPUT)
+
+    def _make_plot_solutions(self):
+        if self._vrptw_launch_entry.is_plot:
+            for entry in self._vrptw_launch_entry.cluster_launch_entry_arr:
+                points_dataset, tws_all, service_time_all, vehicle_number = VRPTWSolver.read_input_for_cluster_mode(
+                    self._vrptw_launch_entry.BASE_DIR + '/input/task/' + entry.dataset.data_file)
+
+                dataset_reduced, spatiotemporal, spatiotemporal_points_dist, tws_reduced = \
+                    VRPTWSolver.calculate_spatiotemporal(entry, points_dataset, service_time_all, tws_all)
+
+                # TODO: все данные для построения графиков нужно как-то получить независимо от первого этапа
+                self._plotter.plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
+                                            np.array(init_dataset[0]), np.array(tws_all[0]), plots_data,
+                                            text=self._vrptw_launch_entry.is_text)
+            self._plotter.show()

@@ -30,7 +30,7 @@ class VRPTWSolver:
         self._plotter = Plot()
 
     # Выводить ли график решения - задается в каждом entry
-    def solve_and_plot(self, solve_cluster, solve_tsptw):
+    def solve(self, solve_cluster, solve_tsptw):
         if solve_cluster is not None:
             cluster_result_entry_arr = self._solve_in_cluster_mode(solve_cluster)
         if solve_tsptw is not None:
@@ -69,7 +69,7 @@ class VRPTWSolver:
         points_dataset, tws_all, service_time_all, vehicle_number = VRPTWSolver.read_input_for_cluster_mode(
             self._vrptw_launch_entry.BASE_DIR + '/input/task/' + cluster_launch_entry.dataset.data_file)
 
-        dataset_reduced, spatiotemporal, spatiotemporal_points_dist, tws_reduced = self._calculate_spatiotemporal(
+        dataset_reduced, spatiotemporal, spatiotemporal_points_dist, tws_reduced = self.calculate_spatiotemporal(
             cluster_launch_entry, points_dataset, service_time_all, tws_all)
         cluster_solver = ClusterSolver(distances=spatiotemporal_points_dist, Z=cluster_launch_entry.Z,
                                        P=cluster_launch_entry.P,
@@ -123,7 +123,8 @@ class VRPTWSolver:
 
         return res_dataset, res_tws
 
-    def _calculate_spatiotemporal(self, cluster_launch_entry, init_dataset, service_time_all, tws_all):
+    @staticmethod
+    def calculate_spatiotemporal(cluster_launch_entry, init_dataset, service_time_all, tws_all):
         # Init and calculate all spatiotemporal distances
         spatiotemporal = Spatiotemporal(init_dataset, tws_all, service_time_all,
                                         k1=cluster_launch_entry.k1, k2=cluster_launch_entry.k2,
@@ -158,13 +159,6 @@ class VRPTWSolver:
                                              self._vrptw_launch_entry.EVALUATION_OUTPUT
                                              + tsptw_launch_entry.common_id
                                              + '/evaluation.csv')
-
-        # TODO: все данные для построения графиков нужно как-то получить независимо от первого этапа
-        # if self._vrptw_launch_entry.is_plot:
-        # self._plotter.plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
-        #                             np.array(init_dataset[0]), np.array(tws_all[0]), plots_data,
-        #                             text=self._vrptw_launch_entry.is_text)
-        # plt.show()
 
         return TSPTWResultEntry(tsptw_results, plots_data, evaluation)
 

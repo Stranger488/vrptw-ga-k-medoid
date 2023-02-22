@@ -21,22 +21,26 @@ class Chromosome:
         costs_sum = 0.0
 
         points_size = int(np.ceil(self._distances[0].size / self.genes.size))
-        deprecated = np.copy(self.genes)
+
+        approved = np.arange(self._distances[0].size)
+
+        # Убрать медоиды из поиска
+        approved = np.delete(approved, np.ravel([np.where(approved == med) for med in self.genes]))
 
         for gene in self.genes:
-            for j in range(points_size):
-                if j == 0:
-                    costs_sum += self._distances[gene][0]
-                    continue
+            for _ in range(points_size - 1):
+                if approved.size != 0:
+                    # Строка с расстояниями до других вершин
+                    cur_dist = self._distances[gene]
 
-                cur_min_ind = -1
-                cur_min = math.inf
-                for k, el in enumerate(self._distances[gene]):
-                    if gene != k and el < cur_min and k not in deprecated:
-                        cur_min = el
-                        cur_min_ind = k
-                deprecated = np.append(deprecated, cur_min_ind)
-                costs_sum += self._distances[gene][cur_min_ind]
+                    # Ищем значение и индекс ближайшей вершины
+                    cur_min = cur_dist[approved].min()
+                    cur_min_ind = np.ravel(np.where(cur_dist == cur_min))[0]
+
+                    costs_sum += cur_min
+
+                    # Удаляем из списка разрешенных
+                    approved = approved[approved != cur_min_ind]
 
         self.fitness = costs_sum
 

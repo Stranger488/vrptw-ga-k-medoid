@@ -16,6 +16,7 @@ def _get_coord_info_new(self, renderer):
 def main(arguments):
     launcher = Launcher(launch_entries=arguments.launch_entries,
                         plot_stats=arguments.plot_stats,
+                        plot_solutions=arguments.plot_solutions,
                         solve_cluster=arguments.solve_cluster,
                         solve_tsptw=arguments.solve_tsptw)
     launcher.launch()

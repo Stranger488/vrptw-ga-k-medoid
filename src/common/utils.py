@@ -19,6 +19,8 @@ def set_options():
                             help='Launch tsptw in one of modes: default, dm')
     arg_parser.add_argument('--plot_stats', action='store_true',
                             help='Turn on plot_stats mode, stats array to plot is in configuration')
+    arg_parser.add_argument('--plot_solutions', action='store_true',
+                            help='Turn on plot_solutions mode')
 
     arguments = arg_parser.parse_args()
 
