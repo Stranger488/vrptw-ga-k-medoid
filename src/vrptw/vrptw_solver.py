@@ -1,5 +1,6 @@
 from multiprocessing import Pool
 
+import numpy
 import numpy as np
 import pandas as pd
 
@@ -8,7 +9,7 @@ from src.cluster.cluster_result_entry import ClusterResultEntry
 from src.cluster.cluster_solver import ClusterSolver
 from src.cluster.spatiotemporal import Spatiotemporal
 from src.common.plot import Plot
-from src.common.utils import timing, create_directory, read_standard_dataset
+from src.common.utils import timing, create_directory, read_standard_dataset, calc_euclidian_dist_all
 from src.tsptw.tsptw_launch_entry import TSPTWLaunchEntry
 from src.tsptw.tsptw_result_entry import TSPTWResultEntry
 from src.tsptw.tsptw_solver import TSPTWSolver
@@ -141,27 +142,32 @@ class VRPTWSolver:
     def _solve_tsptw_base(self, tsptw_launch_entry: TSPTWLaunchEntry, lambda_to_solve):
         create_directory(self._vrptw_launch_entry.TSPTW_OUTPUT + tsptw_launch_entry.common_id)
 
+        data = pd.read_fwf(self._vrptw_launch_entry.BASE_DIR + '/input/task/'
+                           + tsptw_launch_entry.dataset.data_file)
+        vehicle_number = int(data['VEHICLE_NUMBER'][0])
         # TODO: read data here and remember necessary for plotting and evaluation
+        coordinates, distance_matrix, parameters = VRPTWSolver.read_input_for_tsptw_mode(vehicle_number,
+            self._vrptw_launch_entry.CLUSTER_OUTPUT + tsptw_launch_entry.common_id + '/')
 
-        tsptw_solver = TSPTWSolver(route=tsptw_launch_entry.route,
-                                   population_size=tsptw_launch_entry.population_size,
-                                   mutation_rate=tsptw_launch_entry.mutation_rate,
-                                   elite=tsptw_launch_entry.elite,
-                                   generations=tsptw_launch_entry.generations,
-                                   pool_size=tsptw_launch_entry.proc_count,
-                                   k1=tsptw_launch_entry.k1, k2=tsptw_launch_entry.k2)
+        tsptw_solver = TSPTWSolver(vehicle_number=vehicle_number, coordinates=coordinates,
+                                   distance_matrix=distance_matrix, parameters=parameters)
         tsptw_results, plots_data = lambda_to_solve(tsptw_solver,
                                                     self._vrptw_launch_entry.TSPTW_OUTPUT
                                                     + tsptw_launch_entry.common_id
                                                     + '/time_tsptw.csv')
 
+        self._collect_tsptw_result(tsptw_results, self._vrptw_launch_entry.TSPTW_OUTPUT + tsptw_launch_entry.common_id + '/')
+
         evaluation = self._evaluate_solution(tsptw_results,
                                              self._vrptw_launch_entry.EVALUATION_OUTPUT
-                                             + tsptw_launch_entry.common_id
-                                             + '/evaluation.csv')
+                                             + tsptw_launch_entry.common_id)
 
         return TSPTWResultEntry(tsptw_results, plots_data, evaluation)
 
+    def _collect_tsptw_result(self, tsptw_results, path):
+        for i in range(len(tsptw_results)):
+            res = pd.DataFrame(tsptw_results[i])
+            res.to_csv(path + 'report{}.txt'.format(i), sep=' ', index=False, header=False)
     def _solve_in_tsptw_mode(self, solve_tsptw):
         full_result = np.array([], dtype=TSPTWResultEntry)
 
@@ -189,6 +195,21 @@ class VRPTWSolver:
         points_dataset, tws_all, service_time_all = read_standard_dataset(dataset)
         vehicle_number = int(dataset['VEHICLE_NUMBER'][0])
         return points_dataset, tws_all, service_time_all, vehicle_number
+
+    def read_input_for_tsptw_mode(vehicle_number, path):
+        coordinates = numpy.empty(vehicle_number, dtype=object)
+
+        distance_matrix = numpy.empty(vehicle_number, dtype=object)
+        parameters = numpy.empty(vehicle_number, dtype=object)
+        for v in range(vehicle_number):
+            coords = pd.read_csv(path + 'coords{}.txt'.format(v), sep=' ')
+            coordinates[v] = coords.values
+
+            distance_matrix[v] = calc_euclidian_dist_all(coordinates[v])
+
+            params = pd.read_csv(path + 'params{}.txt'.format(v), sep=' ')
+            parameters[v] = params.values
+        return coordinates, distance_matrix, parameters
 
     def _evaluate_solution(self, tsptw_results, output_dir):
         create_directory(output_dir)
