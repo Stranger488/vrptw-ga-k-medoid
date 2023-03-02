@@ -2,6 +2,7 @@ from multiprocessing import Pool
 
 import numpy as np
 import pandas as pd
+from numpy import ndarray
 
 from src.cluster.cluster_launch_entry import ClusterLaunchEntry
 from src.cluster.cluster_result_entry import ClusterResultEntry
@@ -58,7 +59,7 @@ class VRPTWSolver:
             full_result = np.append(full_result, result)
         return full_result
 
-    def _solve_cluster_sequential(self, full_result, lambda_to_solve):
+    def _solve_cluster_sequential(self, full_result: ndarray, lambda_to_solve):
         for cluster_launch_entry in self._cluster_launch_entry_arr:
             result = self._solve_cluster_base(cluster_launch_entry, lambda_to_solve)
             full_result = np.append(full_result, result)

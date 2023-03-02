@@ -105,7 +105,7 @@ class Launcher:
             'total_time_bks': {
                 'plot_lambda': self._plotter.plot_stats_bks,
                 'xlabel': 'Число клиентов',
-                'ylabel': 'Общее время в пути(сравнение с наилучшими решенияим)'
+                'ylabel': 'Общее время в пути (сравнение с наилучшими решенияим)'
             },
             'avg_wait_time_bks': {
                 'plot_lambda': self._plotter.plot_stats_bks,
@@ -151,16 +151,15 @@ class Launcher:
                         output_dir=self._vrptw_launch_entry.PLOT_STATS_OUTPUT)
 
     def _make_plot_solutions(self):
-        if self._vrptw_launch_entry.is_plot:
-            for entry in self._vrptw_launch_entry.cluster_launch_entry_arr:
-                points_dataset, tws_all, service_time_all, vehicle_number = VRPTWSolver.read_input_for_cluster_mode(
-                    self._vrptw_launch_entry.BASE_DIR + '/input/task/' + entry.dataset.data_file)
+        for entry in self._vrptw_launch_entry.cluster_launch_entry_arr:
+            points_dataset, tws_all, service_time_all, vehicle_number = VRPTWSolver.read_input_for_cluster_mode(
+                self._vrptw_launch_entry.BASE_DIR + '/input/task/' + entry.dataset.data_file)
 
-                dataset_reduced, spatiotemporal, spatiotemporal_points_dist, tws_reduced = \
-                    VRPTWSolver.calculate_spatiotemporal(entry, points_dataset, service_time_all, tws_all)
+            dataset_reduced, spatiotemporal, spatiotemporal_points_dist, tws_reduced = \
+                VRPTWSolver.calculate_spatiotemporal(entry, points_dataset, service_time_all, tws_all)
 
-                # TODO: все данные для построения графиков нужно как-то получить независимо от первого этапа
-                self._plotter.plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
-                                            np.array(init_dataset[0]), np.array(tws_all[0]), plots_data,
-                                            text=self._vrptw_launch_entry.is_text)
-            self._plotter.show()
+            # TODO: все данные для построения графиков нужно как-то получить независимо от первого этапа
+            self._plotter.plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
+                                        np.array(init_dataset[0]), np.array(tws_all[0]), plots_data,
+                                        text=self._vrptw_launch_entry.is_text)
+        self._plotter.show()

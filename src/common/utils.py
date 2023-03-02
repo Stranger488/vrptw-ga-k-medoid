@@ -14,9 +14,9 @@ def set_options():
     arg_parser.add_argument('--launch_entries', action='store', type=str,
                             help='Input file with launch entries to solve')
     arg_parser.add_argument('--solve_cluster', action='store', type=str,
-                            help='Launch cluster in one of modes: default, dm')
+                            help='Launch cluster in one of modes: default, sequential, dm')
     arg_parser.add_argument('--solve_tsptw', action='store', type=str,
-                            help='Launch tsptw in one of modes: default, dm')
+                            help='Launch tsptw in one of modes: default, sequential, dm')
     arg_parser.add_argument('--plot_stats', action='store_true',
                             help='Turn on plot_stats mode, stats array to plot is in configuration')
     arg_parser.add_argument('--plot_solutions', action='store_true',

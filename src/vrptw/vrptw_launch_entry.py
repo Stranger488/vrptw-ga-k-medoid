@@ -11,7 +11,7 @@ class VRPTWLaunchEntry:
                  k3_arr=np.array([2.0, ]),
                  dataset_arr=None,
                  proc_count=os.cpu_count(),
-                 is_plot: bool = False, is_text: bool = False,
+                 is_text: bool = False,
                  plot_stats_type_arr=None,
                  custom_cluster_launch_entry: ClusterLaunchEntry = ClusterLaunchEntry(),
                  custom_tsptw_launch_entry: TSPTWLaunchEntry = TSPTWLaunchEntry()):
@@ -32,7 +32,6 @@ class VRPTWLaunchEntry:
         self.c_T = c_T
         self.c_L = c_L
 
-        self.is_plot = is_plot
         self.is_text = is_text
         self.proc_count = proc_count
         self.plot_stats_type_arr = plot_stats_type_arr
