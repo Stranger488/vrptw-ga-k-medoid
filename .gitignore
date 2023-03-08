@@ -138,3 +138,6 @@ dmypy.json
 cython_debug/
 
 .idea/
+
+vrptw_result/*/plot_solutions/
+vrptw_result/*/plot_stats/

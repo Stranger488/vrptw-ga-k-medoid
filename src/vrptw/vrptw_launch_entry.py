@@ -44,3 +44,4 @@ class VRPTWLaunchEntry:
         self.TSPTW_OUTPUT = self.BASE_DIR + '/vrptw_result/' + self.vrptw_entry_id + '/tsptw_result/'
         self.EVALUATION_OUTPUT = self.BASE_DIR + '/vrptw_result/' + self.vrptw_entry_id + '/evaluation/'
         self.PLOT_STATS_OUTPUT = self.BASE_DIR + '/vrptw_result/' + self.vrptw_entry_id + '/plot_stats/'
+        self.PLOT_SOLUTIONS_OUTPUT = self.BASE_DIR + '/vrptw_result/' + self.vrptw_entry_id + '/plot_solutions/'

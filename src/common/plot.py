@@ -1,5 +1,4 @@
 import os
-from itertools import cycle
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -22,42 +21,18 @@ class Plot:
 
         self._BASE_DIR = os.path.abspath(os.curdir)
 
-    # Function: Tour Plot
-    def plot_tour_coordinates(self, coordinates, solution, axes, color, route):
-        depot = solution[0]
-        city_tour = solution[1]
-        cycol = cycle(
-            ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22',
-             '#17becf', '#bf77f6', '#ff9408', '#d1ffbd', '#c85a53', '#3a18b1', '#ff796c', '#04d8b2', '#ffb07c',
-             '#aaa662', '#0485d1', '#fffe7a', '#b0dd16', '#85679', '#12e193', '#82cafc', '#ac9362', '#f8481c',
-             '#c292a1', '#c0fa8b', '#ca7b80', '#f4d054', '#fbdd7e', '#ffff7e', '#cd7584', '#f9bc08', '#c7c10c'])
-        # plt.style.use('ggplot')
-        for j in range(0, len(city_tour)):
-            if (route == 'closed'):
-                xy = np.zeros((len(city_tour[j]) + 2, 2))
-            else:
-                xy = np.zeros((len(city_tour[j]) + 1, 2))
-            for i in range(0, xy.shape[0]):
-                if (i == 0):
-                    xy[i, 0] = coordinates[depot[j][i], 0]
-                    xy[i, 1] = coordinates[depot[j][i], 1]
-                    if (route == 'closed'):
-                        xy[-1, 0] = coordinates[depot[j][i], 0]
-                        xy[-1, 1] = coordinates[depot[j][i], 1]
-                if (i > 0 and i < len(city_tour[j]) + 1):
-                    xy[i, 0] = coordinates[city_tour[j][i - 1], 0]
-                    xy[i, 1] = coordinates[city_tour[j][i - 1], 1]
-            axes.plot(xy[:, 0], xy[:, 1], 0.0, marker='s', alpha=0.5, markersize=1, color=color, linewidth=0.5)
-        for i in range(0, coordinates.shape[0]):
-            if i == 0:
-                axes.plot(coordinates[i, 0], coordinates[i, 1], 0.0, marker='s', alpha=1.0, markersize=3, color='k')
-                # axes.text(coordinates[i,0], coordinates[i,1] + 0.04, z=0.0, s=i,  ha = 'center', va = 'bottom', color = 'k', fontsize = 5)
-            else:
-                # axes.text(coordinates[i,0],  coordinates[i,1] + 0.04, z=0.0, s=i, ha = 'center', va = 'bottom', color = 'k', fontsize = 5)
-                pass
-        return
+    def _plot_route(self, spatial_data, color, route_type, axes):
+        # Пары (x, y)
+        plot_data = np.copy(spatial_data)
+        depot = np.copy(spatial_data[0])
+        if route_type == 'closed':
+            plot_data = np.append(plot_data, depot.reshape((1, 2)), axis=0)
 
-    def plot_clusters(self, init_dataset, dataset, tws, max_tw, depo_spatio, depo_tws, plots_data, text=False):
+        # Вывести все маршруты
+        axes.plot(plot_data[:, 0], plot_data[:, 1], 0.0, marker='s', alpha=0.5,
+                  markersize=1, color=color, linewidth=0.5)
+
+    def plot_clusters_routes(self, points_with_ind, tws, route_type, text, output_dir):
         plt.rc('font', size=5)  # controls default text sizes
         plt.rc('xtick', labelsize=8)  # fontsize of the tick labels
         plt.rc('ytick', labelsize=8)
@@ -69,64 +44,37 @@ class Plot:
         axes.set_ylabel('y')
         axes.set_zlabel('z')
 
-        axes.set_title('Clusters')
+        axes.set_title('Кластеры и маршруты')
 
         colors = [rgb2hex([np.random.random_sample(), np.random.random_sample(), np.random.random_sample()])
-                  for _ in dataset]
+                  for _ in points_with_ind]
 
-        for i in range(dataset.shape[0]):
-            self._plot_with_tws(dataset[i], tws[i], max_tw, colors[i], axes)
-            self.plot_tour_coordinates(plots_data[i]['coordinates'], plots_data[i]['ga_vrp'], axes, colors[i],
-                                       route=plots_data[i]['route'])
+        max_tw = tws[0][0][1]
 
-        axes.scatter(depo_spatio[0], depo_spatio[1], 0.0, c='black', s=1)
-        axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[0], c='black', s=1)
-        axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[1], c='black', s=1)
+        # Для каждого ТС
+        for v in range(points_with_ind.shape[0]):
+            self._plot_tws(points_with_ind[v][1:, :2], tws[v][1:], max_tw, colors[v], axes)
+            self._plot_route(points_with_ind[v][:, :2], colors[v], route_type, axes)
 
-        axes.bar3d(depo_spatio[0] - self.depth / 8., depo_spatio[1] - self.depth / 8., 0.0, self._width / 4.,
-                   self.depth / 4.,
-                   max_tw, color='black')
+            if text:
+                for p in points_with_ind[v]:
+                    axes.text(p[0], p[1], 0.0, str(int(p[2])))
 
-        if text:
-            for i, data in enumerate(init_dataset):
-                axes.text(data[0], data[1], 0.0, str(i + 1))
+        # Берем у первого ТС информацию о депо
+        first_points = points_with_ind[0]
+        first_tws = tws[0]
+        axes.scatter(first_points[0, 0], first_points[0, 1], 0.0, c='black', s=1)
+        axes.scatter(first_points[0, 0], first_points[0, 1], first_tws[0, 1], c='black', s=1)
+        axes.scatter(first_points[0, 0], first_points[0, 1], first_tws[0, 1], c='black', s=1)
 
-        axes.set_zlim(0, None)
+        axes.bar3d(first_points[0, 0] - self.depth / 8., first_points[0, 1] - self.depth / 8., 0.0, self._width / 4.,
+                   self.depth / 4., max_tw, color='black')
 
-    def plot_clusters_parallel(self, init_dataset, dataset, tws, max_tw, depo_spatio, depo_tws, text=False):
-        plt.rc('font', size=5)  # controls default text sizes
-        plt.rc('xtick', labelsize=8)  # fontsize of the tick labels
-        plt.rc('ytick', labelsize=8)
+        # Для депо выводим еще дополнительную метку
+        axes.plot(first_points[0, 0], first_points[0, 1], 0.0, marker='s', alpha=1.0, markersize=3, color='k')
 
-        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart,
-                                 dpi=self._dpi_standart, subplot_kw={'projection': '3d'})
-
-        axes.set_xlabel('x')
-        axes.set_ylabel('y')
-        axes.set_zlabel('z')
-
-        axes.set_title('Clusters')
-
-        colors = [rgb2hex([np.random.random_sample(), np.random.random_sample(), np.random.random_sample()])
-                  for _ in dataset]
-
-        for i in range(dataset.shape[0]):
-            self._plot_with_tws(dataset[i], tws[i], max_tw, colors[i], axes)
-
-        axes.scatter(depo_spatio[0], depo_spatio[1], 0.0, c='black', s=1)
-
-        axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[0], c='black', s=1)
-        axes.scatter(depo_spatio[0], depo_spatio[1], depo_tws[1], c='black', s=1)
-
-        axes.bar3d(depo_spatio[0] - self.depth / 8., depo_spatio[1] - self.depth / 8., 0.0, self._width / 4.,
-                   self.depth / 4.,
-                   max_tw, color='black')
-
-        if text:
-            for i, data in enumerate(init_dataset):
-                axes.text(data[0], data[1], 0.0, str(i + 1))
-
-        axes.set_zlim(0, None)
+        create_directory(output_dir)
+        fig.savefig(output_dir + '/solution', dpi=self._dpi_standart)
 
     def plot_stats(self, stats_df, bks_stats_df, data_column_name, xlabel='x', ylabel='y', output_dir=''):
         grouped = stats_df.groupby('dataset_type')
@@ -154,59 +102,70 @@ class Plot:
         grouped = stats_df.groupby('dataset_type')
         for i, (name, group) in enumerate(grouped):
             k3_grouped = group.groupby('k3')
-            for k3, g in k3_grouped:
-                plt.rc('font', size=5)  # controls default text sizes
-                plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
-                plt.rc('ytick', labelsize=4)
-                fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
-                cmap = plt.cm.get_cmap('plasma', 2)
-
-                self._plot_on_axes(axes, group['dim'], group[data_column_name], xlabel=xlabel,
-                                   ylabel=ylabel, c=cmap(0),
-                                   label='Результаты работы алгоритма',
-                                   title='Набор данных {}, k3 = {}'.format(name, k3))
-                self._plot_on_axes(axes, group['dim'],
-                                   bks_stats_df[bks_stats_df['name'] == group['name'].iloc[0]][data_column_name],
-                                   xlabel=xlabel,
-                                   ylabel=ylabel, c=cmap(1),
-                                   label='Наилучшее известное решение',
-                                   title='Набор данных {}'.format(name))
-
-                axes.grid(True)
-
-                final_output_dir = output_dir + name
-                create_directory(final_output_dir)
-                filename = ylabel.replace(',', '').replace('(', '').replace(')', '').replace(' ', '_')
-                fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
-        plt.show()
-
-    # TODO: hist для новой архитектуры
-    def plot_dataset_series_hist_with_bns(self, testing_datasets, arr, bns_arr, xlabel='x', ylabel='y',
-                                          mapping=None):
-        if mapping is None:
-            mapping = ['C', 'R', 'RC']
-
-        for i in range(len(testing_datasets)):
+            fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
+            cmap = plt.cm.get_cmap('plasma', k3_grouped.dim.ngroups + 1)
             plt.rc('font', size=5)  # controls default text sizes
             plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
             plt.rc('ytick', labelsize=4)
+            for j, (k3, g) in enumerate(k3_grouped):
+                self._plot_on_axes(axes, group['dim'], group[data_column_name[:-4]], xlabel=xlabel,
+                                   ylabel=ylabel, c=cmap(j),
+                                   label='Результаты работы алгоритма, k3 = {}'.format(k3),
+                                   title='Набор данных {}'.format(name))
 
+            self._plot_on_axes(axes, group['dim'].iloc[0],
+                               bks_stats_df[bks_stats_df['name'] == group['name'].iloc[0]][data_column_name],
+                               xlabel=xlabel,
+                               ylabel=ylabel, c=cmap(k3_grouped.dim.ngroups + 1),
+                               label='Наилучшее известное решение',
+                               title='Набор данных {}'.format(name))
+            axes.grid(True)
+
+            final_output_dir = output_dir + name
+            create_directory(final_output_dir)
+            filename = ylabel.replace(',', '').replace('(', '').replace(')', '').replace(' ', '_')
+            fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
+
+        # plt.show()
+
+    def plot_stats_bks_hist(self, stats_df, bks_stats_df, data_column_name, xlabel='x', ylabel='y', output_dir=''):
+        grouped = stats_df.groupby('dataset_type')
+        for i, (name, group) in enumerate(grouped):
+            k3_grouped = group.groupby('k3')
+            plt.rc('font', size=5)  # controls default text sizes
+            plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
+            plt.rc('ytick', labelsize=4)
             fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
+            for j, (k3, g) in enumerate(k3_grouped):
+                axes.hist(
+                    g[data_column_name],
+                    rwidth=1.0,
+                    bins=len(g[data_column_name]),
+                    label='Результаты работы алгоритма, k3 = {}'.format(k3)
+                )
 
-            axes.hist([arr[i], bns_arr[i]], rwidth=0.7, bins=len(arr[i]),
-                      label=['Алгоритм', 'Наилучшее известное решение'])
-            # axes.hist(bns_arr, rwidth=0.7, bins=len(testing_datasets[i]))
+            bks_hist_data = bks_stats_df[bks_stats_df['name'] == group['name'].iloc[0]][data_column_name]
+            axes.hist(
+                bks_hist_data,
+                rwidth=0.7,
+                bins=len(bks_hist_data),
+                label='Наилучшее известное решение'
+            )
 
             axes.grid(True)
             axes.legend(loc='best')
-
             axes.set_xlabel(xlabel)
             axes.set_ylabel(ylabel)
-            axes.set_title('Набор данных {}'.format(mapping[i]))
+            axes.set_title('Набор данных {}'.format(name))
 
-        plt.show()
+            final_output_dir = output_dir + name
+            create_directory(final_output_dir)
+            filename = ylabel.replace(',', '').replace('(', '').replace(')', '').replace(' ', '_')
+            fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
 
-    def _plot_with_tws(self, spatial_data, tws, max_tw, colors, axes):
+        # plt.show()
+
+    def _plot_tws(self, spatial_data, tws, max_tw, colors, axes):
         cluster_size = spatial_data[0].size
 
         x_data = np.array([i[0] for i in spatial_data])
@@ -244,6 +203,7 @@ class Plot:
         axes.set_ylabel(ylabel)
         axes.set_title(title)
 
+    # TODO: доработать
     def plot_parallel_time(self, x, y, c='blue', label='Зависимость времени выполнения от числа процессоров',
                            xlabel='Число процессоров', ylabel='Время выполнения',
                            title=''):

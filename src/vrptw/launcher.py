@@ -1,6 +1,7 @@
 import importlib
 
 import numpy as np
+import pandas as pd
 
 from src.common.plot import Plot
 from src.common.statistics import Statistics
@@ -17,7 +18,7 @@ class Launcher:
 
         self._vrptw_launch_entry = self._launch_entries.vrptw_launch_entry
 
-        # True, если необходимо собрать статистику оп решению
+        # True, если необходимо собрать статистику оп ре'data_column_name': time_common,шению
         self._plot_stats = plot_stats
 
         # True, если необходимо визуализировать итоговое решение
@@ -32,93 +33,112 @@ class Launcher:
         self._plotter = Plot()
 
         self.plot_stats_dict = {
-            'time_common': {
+            'time_common_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'time_common',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Время выполнения программы, с'
             },
-            'distance': {
+            'distance_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'distance',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Пройденное расстояние'
             },
-            'wait_time': {
+            'wait_time_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'wait_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Время ожидания'
             },
-            'late_time': {
+            'late_time_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'late_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Время опоздания'
             },
-            'total_evaluation': {
+            'total_evaluation_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'total_evaluation',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Общая оценка'
             },
-            'avg_wait_time': {
+            'avg_wait_time_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'avg_wait_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Время ожидания на одно ТС'
             },
-            'avg_late_time': {
+            'avg_late_time_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'avg_late_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Время опоздания на одного клиента'
             },
-            'max_wait_time': {
+            'max_wait_time_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'max_wait_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Максимальное время ожидания'
             },
-            'max_late_time': {
+            'max_late_time_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'max_late_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Максимальное время опоздания'
             },
-            'wait_time_part': {
+            'wait_time_part_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'wait_time_part',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Доля ожиданий среди всех вершин'
             },
-            'late_time_part': {
+            'late_time_part_stats': {
                 'plot_lambda': self._plotter.plot_stats,
+                'data_column_name': 'late_time_part',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Доля опозданий среди всех вершин'
             },
-            'distance_bks': {
+            'distance_bks_stats': {
                 'plot_lambda': self._plotter.plot_stats_bks,
+                'data_column_name': 'distance',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Пройденное расстояние (сравнение с наилучшими решениями)'
             },
-            'wait_time_bks': {
+            'wait_time_bks_stats': {
                 'plot_lambda': self._plotter.plot_stats_bks,
+                'data_column_name': 'wait_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Время ожидания (сравнение с наилучшими решениями)'
             },
-            'late_time_bks': {
+            'late_time_bks_stats': {
                 'plot_lambda': self._plotter.plot_stats_bks,
+                'data_column_name': 'late_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Время опоздания (сравнение с наилучшими решенияим)'
             },
-            'total_time_bks': {
+            'total_time_bks_stats': {
                 'plot_lambda': self._plotter.plot_stats_bks,
+                'data_column_name': 'total_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Общее время в пути (сравнение с наилучшими решенияим)'
             },
-            'avg_wait_time_bks': {
+            'avg_wait_time_bks_stats': {
                 'plot_lambda': self._plotter.plot_stats_bks,
+                'data_column_name': 'avg_wait_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Время ожидания на одно ТС (сравнение с наилучшими решениями)'
             },
-            'avg_late_time_bks': {
+            'avg_late_time_bks_stats': {
                 'plot_lambda': self._plotter.plot_stats_bks,
+                'data_column_name': 'avg_late_time',
                 'xlabel': 'Число клиентов',
                 'ylabel': 'Время опоздания на одного клиента (сравнение с наилучшими решенияим)'
             },
-            'std_wait_time_bks': {
-                'xlabel': 'Число клиентов',
+            'std_wait_time_bks_stats': {
+                'plot_lambda': self._plotter.plot_stats_bks_hist,
+                'data_column_name': 'std_wait_time',
+                'xlabel': '',
                 'ylabel': 'Среднеквадратичное отклонение по времени ожидания (сравнение с наилучшими решенияим)'
             }
         }
@@ -142,24 +162,40 @@ class Launcher:
         stats_df = statistics.collect_all_stats()
         bks_stats_df = statistics.collect_bks_stats()
 
-        # TODO: bks plot
         for stat in self._vrptw_launch_entry.plot_stats_type_arr:
             plot_lambda = self.plot_stats_dict[stat]['plot_lambda']
 
-            plot_lambda(stats_df, bks_stats_df, stat, xlabel=self.plot_stats_dict[stat]['xlabel'],
+            plot_lambda(stats_df, bks_stats_df, self.plot_stats_dict[stat]['data_column_name'],
+                        xlabel=self.plot_stats_dict[stat]['xlabel'],
                         ylabel=self.plot_stats_dict[stat]['ylabel'],
                         output_dir=self._vrptw_launch_entry.PLOT_STATS_OUTPUT)
 
     def _make_plot_solutions(self):
         for entry in self._vrptw_launch_entry.cluster_launch_entry_arr:
-            points_dataset, tws_all, service_time_all, vehicle_number = VRPTWSolver.read_input_for_cluster_mode(
-                self._vrptw_launch_entry.BASE_DIR + '/input/task/' + entry.dataset.data_file)
+            data = pd.read_fwf(self._vrptw_launch_entry.BASE_DIR + '/input/task/'
+                               + entry.dataset.data_file)
+            vehicle_number = int(data['VEHICLE_NUMBER'][0])
 
-            dataset_reduced, spatiotemporal, spatiotemporal_points_dist, tws_reduced = \
-                VRPTWSolver.calculate_spatiotemporal(entry, points_dataset, service_time_all, tws_all)
+            coords, params, report = VRPTWSolver.read_input_for_plot_solutions(vehicle_number,
+                                                                               self._vrptw_launch_entry.CLUSTER_OUTPUT
+                                                                               + entry.common_id + '/',
+                                                                               self._vrptw_launch_entry.TSPTW_OUTPUT
+                                                                               + entry.common_id + '/')
+            coords_sorted = np.empty(vehicle_number, dtype=object)
+            params_sorted = np.empty(vehicle_number, dtype=object)
+            for v in range(vehicle_number):
+                # v-е ТС, на второй позиции индексы вершин внутри кластера,
+                # slice до -3 чтобы получить индексы без возвращения в депо
+                permutation_list = [int(el) for el in report[v]['Job'][:-3]]
+                coords_sorted[v] = np.array([coords[v][i] for i in permutation_list])
+                params_sorted[v] = np.array([params[v][i] for i in permutation_list])
 
-            # TODO: все данные для построения графиков нужно как-то получить независимо от первого этапа
-            self._plotter.plot_clusters(dataset_reduced, res_dataset, res_tws, spatiotemporal.MAX_TW,
-                                        np.array(init_dataset[0]), np.array(tws_all[0]), plots_data,
-                                        text=self._vrptw_launch_entry.is_text)
-        self._plotter.show()
+            # Можно в будущем настроить параметр запуска, но для удобной визулиации лучше без возвращения ТС в депо
+            # route_type = 'closed' if report[0][2].values[0] == report[0][2].values[-3] else 'open'
+            route_type = 'open'
+            self._plotter.plot_clusters_routes(coords_sorted, params_sorted,
+                                               route_type, self._vrptw_launch_entry.is_text,
+                                               self._vrptw_launch_entry.PLOT_SOLUTIONS_OUTPUT
+                                               + entry.common_id)
+
+        # self._plotter.show()

@@ -91,19 +91,21 @@ class VRPTWSolver:
     def _collect_cluster_result(self, dataset_reduced, tws_reduced, result, init_dataset, output_dir, tws_all,
                                 service_time_all, spatiotemporal):
         # Collect output, making datasets of space input and time_cluster windows
-        res_dataset = [[dataset_reduced[point] for point in cluster if point != -1] for cluster in result]
-        res_tws = [[tws_reduced[point] for point in cluster if point != -1] for cluster in result]
+        res_dataset = np.array([[dataset_reduced[point] for point in cluster if point != -1] for cluster in result])
+        res_tws = np.array([[tws_reduced[point] for point in cluster if point != -1] for cluster in result])
+        res_indexes = np.array([[point + 1 for point in cluster if point != -1] for cluster in result])
 
         for i, cluster in enumerate(res_dataset):
             # Create coords file
             coord_df = pd.DataFrame(res_dataset[i], columns=['X', 'Y'])
+            coord_df['ind'] = res_indexes[i]
 
-            coord_df.loc[-1] = init_dataset[0]
+            coord_df.loc[-1] = np.append(init_dataset[0], 0)
             coord_df.index = coord_df.index + 1  # shifting index
             coord_df.sort_index(inplace=True)
 
-            coord_df.to_csv(self._vrptw_launch_entry.CLUSTER_OUTPUT + output_dir + 'coords{}.csv'.format(i), sep=' ',
-                            index=False)
+            coord_df.to_csv(self._vrptw_launch_entry.CLUSTER_OUTPUT + output_dir + 'coords{}.csv'.format(i),
+                            sep=' ', index=False)
 
             # Create time_cluster parameters file
             tw_df = pd.DataFrame(res_tws[i], columns=['TW_early', 'TW_late'])
@@ -115,8 +117,7 @@ class VRPTWSolver:
             tw_df.insert(2, 'TW_service_time', np.array([service_time_all[i][0] for i in range(len(tw_df))]))
 
             tw_df.to_csv(self._vrptw_launch_entry.CLUSTER_OUTPUT + output_dir + 'params{}.csv'.format(i),
-                         index=False,
-                         sep=' ')
+                         index=False, sep=' ')
 
         # Output distance matrix
         distance_df = pd.DataFrame(spatiotemporal.euclidian_dist_all)
@@ -168,7 +169,7 @@ class VRPTWSolver:
     def _collect_tsptw_result(self, tsptw_results, path):
         for i in range(len(tsptw_results)):
             res = pd.DataFrame(tsptw_results[i])
-            res.to_csv(path + 'report{}.csv'.format(i), sep=' ', index=False, header=False)
+            res.to_csv(path + 'report{}.csv'.format(i), sep=' ', index=False, header=True)
 
     def _solve_in_tsptw_mode(self, solve_tsptw):
         full_result = np.array([], dtype=TSPTWResultEntry)
@@ -206,13 +207,24 @@ class VRPTWSolver:
         parameters = numpy.empty(vehicle_number, dtype=object)
         for v in range(vehicle_number):
             coords = pd.read_csv(path + 'coords{}.csv'.format(v), sep=' ')
-            coordinates[v] = coords.values
+            coordinates[v] = coords[['X', 'Y']].values
 
             distance_matrix[v] = calc_euclidian_dist_all(coordinates[v])
 
             params = pd.read_csv(path + 'params{}.csv'.format(v), sep=' ')
             parameters[v] = params.values
         return coordinates, distance_matrix, parameters
+
+    @staticmethod
+    def read_input_for_plot_solutions(vehicle_number, path_cluster, path_tsptw):
+        coords = numpy.empty(vehicle_number, dtype=object)
+        params = numpy.empty(vehicle_number, dtype=object)
+        report = numpy.empty(vehicle_number, dtype=object)
+        for v in range(vehicle_number):
+            coords[v] = pd.read_csv(path_cluster + 'coords{}.csv'.format(v), sep=' ').values
+            params[v] = pd.read_csv(path_cluster + 'params{}.csv'.format(v), sep=' ').values
+            report[v] = pd.read_csv(path_tsptw + 'report{}.csv'.format(v), sep=' ')
+        return coords, params, report
 
     def _evaluate_solution(self, tsptw_results, output_dir):
         create_directory(output_dir)

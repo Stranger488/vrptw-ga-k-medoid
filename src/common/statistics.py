@@ -33,7 +33,7 @@ class Statistics:
 
         total_time_arr = []
 
-        std_wait_arr = []
+        std_wait_time_arr = []
 
         # tsptw_launch_entry и cluster_launch_entry соответствуют друг другу
         for i, tsptw_launch_entry in enumerate(self._tsptw_launch_entry_arr):
@@ -46,7 +46,7 @@ class Statistics:
             self._fill_evaluation_data(tsptw_launch_entry, vehicle_number, i,
                                        evaluation_arr, wait_time_arr, late_time_arr)
             self._fill_additional_time_stats(tsptw_launch_entry, vehicle_number, max_wait_time_arr, max_late_time_arr,
-                                             wait_time_part_arr, late_time_part_arr, total_time_arr, std_wait_arr)
+                                             wait_time_part_arr, late_time_part_arr, total_time_arr, std_wait_time_arr)
 
             common_id_arr.append(tsptw_launch_entry.common_id)
             dim_arr.append(tsptw_launch_entry.dataset.dim)
@@ -73,6 +73,7 @@ class Statistics:
             'wait_time_part': wait_time_part_arr,
             'late_time_part': late_time_part_arr,
             'total_time': total_time_arr,
+            'std_wait_time': std_wait_time_arr
         })
 
     def _fill_time_stats(self, launch_entry, time_cluster_arr, time_tsptw_arr, time_common_arr):
@@ -100,7 +101,7 @@ class Statistics:
 
     def _fill_additional_time_stats(self, launch_entry, vehicle_number,
                                     max_wait_time_arr, max_late_time_arr, wait_time_part_arr,
-                                    late_time_part_arr, total_time_arr, std_wait_arr):
+                                    late_time_part_arr, total_time_arr, std_wait_time_arr):
         max_wait_time = 0.0
         max_late_time = 0.0
 
@@ -136,7 +137,7 @@ class Statistics:
 
         total_time_arr.append(total_travel_time / vehicle_number)
 
-        std_wait_arr.append(np.std(wait_arr_route))
+        std_wait_time_arr.append(np.std(wait_arr_route))
 
     ### collect stats from bks
     def collect_bks_stats(self):
@@ -151,7 +152,7 @@ class Statistics:
         add_late_arr = []
         add_total_arr = []
 
-        std_wait_arr_bns = []
+        std_wait_time_arr_bks = []
 
         dataset_name_arr = []
 
@@ -178,16 +179,17 @@ class Statistics:
             add_total_arr.append(total_time_sum / vehicle_number)
 
             ### std
-            std_wait_arr_bns.append(np.std(group['wait_time'].values))
+            std_wait_time_arr_bks.append(np.std(group['wait_time'].values))
 
             dataset_name_arr.append(name)
 
         return pd.DataFrame({
             'name': dataset_name_arr,
-            'wait_time_bks': wait_time_sum_arr,
-            'late_time_bks': late_time_sum_arr,
-            'total_time_bks': total_time_sum_arr,
-            'distance_bks': distance_sum_arr,
+            'wait_time': wait_time_sum_arr,
+            'late_time': late_time_sum_arr,
+            'total_time': total_time_sum_arr,
+            'distance': distance_sum_arr,
+            'std_wait_time': std_wait_time_arr_bks,
         })
 
     ### parse bks and save stats

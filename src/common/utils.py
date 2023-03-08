@@ -3,13 +3,27 @@ import pathlib
 from time import time
 
 import numpy as np
+from mpl_toolkits.mplot3d.axis3d import Axis
 from sklearn.metrics.pairwise import euclidean_distances
 
 # fix wrong z-offsets in 3d plot
 from src.common.dataset import Dataset
 
 
+# TODO: испытать, обязательно ли должно быть в main'e
+def _get_coord_info_new(self, renderer):
+    mins, maxs, cs, deltas, tc, highs = self._get_coord_info_old(renderer)
+    correction = deltas * [0, 0, 1.0 / 4]
+    mins += correction
+    maxs -= correction
+    return mins, maxs, cs, deltas, tc, highs
+
+
 def set_options():
+    if not hasattr(Axis, "_get_coord_info_old"):
+        Axis._get_coord_info_old = Axis._get_coord_info
+    Axis._get_coord_info = _get_coord_info_new
+
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument('--launch_entries', action='store', type=str,
                             help='Input file with launch entries to solve')

@@ -90,7 +90,15 @@ class ClusterSolver:
                     cur_dist = self._distances[gene]
 
                     # Ищем индекс ближайшей вершины
-                    cur_min_ind = np.ravel(np.where(cur_dist == cur_dist[approved].min()))[0]
+                    cur_min_ind = -1
+                    cur_min = np.inf
+                    for ind, el in enumerate(cur_dist):
+                        if ind in approved and el < cur_min:
+                            cur_min = el
+                            cur_min_ind = ind
+
+                    # cur_min_ind = np.ravel(np.where(cur_dist == cur_dist[approved].min()))[0]
+
                     result[i][j] = cur_min_ind
 
                     # Удаляем из списка разрешенных
