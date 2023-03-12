@@ -79,16 +79,17 @@ class Plot:
     def plot_stats(self, stats_df, bks_stats_df, data_column_name, xlabel='x', ylabel='y', output_dir=''):
         grouped = stats_df.groupby('dataset_type')
         for i, (name, group) in enumerate(grouped):
+            k3_grouped = group.groupby('k3')
             plt.rc('font', size=5)  # controls default text sizes
             plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
             plt.rc('ytick', labelsize=4)
             fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
             cmap = plt.cm.get_cmap('plasma', group.shape[0])
-
-            self._plot_on_axes(axes, group['dim'], group[data_column_name], c=cmap(i), xlabel=xlabel,
-                               ylabel=ylabel,
-                               label='k3={}'.format(group['k3']),
-                               title='Набор данных {}'.format(name))
+            for j, (k3, g) in enumerate(k3_grouped):
+                self._plot_on_axes(axes, g['dim'], g[data_column_name], xlabel=xlabel,
+                                   ylabel=ylabel, c=cmap(j),
+                                   label='Результаты работы алгоритма, k3 = {}'.format(k3),
+                                   title='Набор данных {}'.format(name))
 
             axes.grid(True)
 
@@ -96,19 +97,19 @@ class Plot:
             create_directory(final_output_dir)
             filename = ylabel.replace(',', '').replace(' ', '_')
             fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
-        plt.show()
+        # plt.show()
 
     def plot_stats_bks(self, stats_df, bks_stats_df, data_column_name, xlabel='x', ylabel='y', output_dir=''):
         grouped = stats_df.groupby('dataset_type')
         for i, (name, group) in enumerate(grouped):
             k3_grouped = group.groupby('k3')
             fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
-            cmap = plt.cm.get_cmap('plasma', k3_grouped.dim.ngroups + 1)
+            cmap = plt.cm.get_cmap('plasma', group.shape[0] + 1)
             plt.rc('font', size=5)  # controls default text sizes
             plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
             plt.rc('ytick', labelsize=4)
             for j, (k3, g) in enumerate(k3_grouped):
-                self._plot_on_axes(axes, group['dim'], group[data_column_name[:-4]], xlabel=xlabel,
+                self._plot_on_axes(axes, g['dim'], g[data_column_name], xlabel=xlabel,
                                    ylabel=ylabel, c=cmap(j),
                                    label='Результаты работы алгоритма, k3 = {}'.format(k3),
                                    title='Набор данных {}'.format(name))
@@ -116,7 +117,7 @@ class Plot:
             self._plot_on_axes(axes, group['dim'].iloc[0],
                                bks_stats_df[bks_stats_df['name'] == group['name'].iloc[0]][data_column_name],
                                xlabel=xlabel,
-                               ylabel=ylabel, c=cmap(k3_grouped.dim.ngroups + 1),
+                               ylabel=ylabel, c=cmap(group.shape[0] + 1),
                                label='Наилучшее известное решение',
                                title='Набор данных {}'.format(name))
             axes.grid(True)
