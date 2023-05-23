@@ -17,7 +17,7 @@ vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='test',
                                       k3_arr=np.array([2.0, 10.0, 100.0]),
                                       dataset_arr=dataset_arr,
                                       is_text=True,
-                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=25),
+                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=25, ng=5),
                                       plot_stats_type_arr=np.array([
                                           'std_wait_time_bks_stats',
                                       ]))

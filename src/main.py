@@ -4,7 +4,7 @@ from src.common.utils import set_options
 from src.vrptw.launcher import Launcher
 
 
-# TODO: испытать, обязательно ли должно быть в main'e
+# TODO: должно быть в main'e?
 def _get_coord_info_new(self, renderer):
     mins, maxs, cs, deltas, tc, highs = self._get_coord_info_old(renderer)
     correction = deltas * [0, 0, 1.0 / 4]
