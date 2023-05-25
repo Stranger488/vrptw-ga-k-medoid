@@ -4,6 +4,8 @@ import math
 
 import numpy as np
 
+from src.common.utils import make_cluster_from_medoids
+
 
 class Chromosome:
     def __init__(self, chromosome_size, distances):
@@ -18,30 +20,7 @@ class Chromosome:
         self.genes = numpy_random.choice(self._distances[0].size, replace=False, size=self.chromosome_size)
 
     def calculate_fitness(self):
-        costs_sum = 0.0
-
-        points_size = int(np.ceil(self._distances[0].size / self.genes.size))
-
-        approved = np.arange(self._distances[0].size)
-
-        # Убрать медоиды из поиска
-        approved = np.delete(approved, np.ravel([np.where(approved == med) for med in self.genes]))
-
-        for gene in self.genes:
-            for _ in range(points_size - 1):
-                if approved.size != 0:
-                    # Строка с расстояниями до других вершин
-                    cur_dist = self._distances[gene]
-
-                    # Ищем значение и индекс ближайшей вершины
-                    cur_min = cur_dist[approved].min()
-                    cur_min_ind = np.ravel(np.where(cur_dist == cur_min))[0]
-
-                    costs_sum += cur_min
-
-                    # Удаляем из списка разрешенных
-                    approved = approved[approved != cur_min_ind]
-
+        clusters, costs_sum = make_cluster_from_medoids(self._distances, [], self.genes)
         self.fitness = costs_sum
 
         return costs_sum

@@ -348,18 +348,20 @@ class TSPTWGenetic:
         cost = copy.deepcopy(cost)
         solution = copy.deepcopy(population[0])
         print('Generation = ', count, ' Distance = ', elite_ind, ' f(x) = ', round(cost[0][0], 2))
-        while count <= generations - 1:
-            offspring = self.breeding(cost, population, fitness, distance_matrix, elite, parameters, route, k1, k2)
-            offspring = self.mutation(offspring, mutation_rate=mutation_rate, elite=elite)
-            cost, population = self.target_function(offspring, distance_matrix, parameters, route=route, k1=k1, k2=k2)
-            fitness = self.fitness_function(cost, population_size)
-            cost, population = (list(t) for t in zip(*sorted(zip(cost, population))))
-            elite_child = self.elite_distance(population[0], distance_matrix, route=route)
-            if elite_ind > elite_child:
-                elite_ind = elite_child
-                solution = copy.deepcopy(population[0])
-            count = count + 1
-            print('Generation = ', count, ' Distance = ', elite_ind, ' f(x) = ', round(cost[0][0], 2))
+        if len(solution) > 3:
+            while count <= generations - 1:
+                offspring = self.breeding(cost, population, fitness, distance_matrix, elite, parameters, route, k1, k2)
+                offspring = self.mutation(offspring, mutation_rate=mutation_rate, elite=elite)
+                cost, population = self.target_function(offspring, distance_matrix, parameters, route=route, k1=k1,
+                                                        k2=k2)
+                fitness = self.fitness_function(cost, population_size)
+                cost, population = (list(t) for t in zip(*sorted(zip(cost, population))))
+                elite_child = self.elite_distance(population[0], distance_matrix, route=route)
+                if elite_ind > elite_child:
+                    elite_ind = elite_child
+                    solution = copy.deepcopy(population[0])
+                count = count + 1
+                print('Generation = ', count, ' Distance = ', elite_ind, ' f(x) = ', round(cost[0][0], 2))
 
         solution_report = self.show_report(solution, distance_matrix, parameters, route=route)
 

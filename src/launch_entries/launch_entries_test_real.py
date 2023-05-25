@@ -5,10 +5,10 @@ from src.common.dataset import Dataset
 from src.vrptw.vrptw_launch_entry import VRPTWLaunchEntry
 
 dataset_arr = np.array([
-    # Dataset(data_file='c104_mod.txt',
-    #         dataset_type='C', dim=100),
-    # Dataset(data_file='r110_mod.txt',
-    #         dataset_type='R', dim=100),
+    Dataset(data_file='c104_mod.txt',
+            dataset_type='C', dim=100),
+    Dataset(data_file='r110_mod.txt',
+            dataset_type='R', dim=100),
     Dataset(data_file='rc103_mod.txt',
             dataset_type='RC', dim=100),
 
@@ -29,9 +29,10 @@ dataset_arr = np.array([
 
 vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='test_real',
                                       k3_arr=np.array([2.0, 10.0, 100.0]),
+                                      # k3_arr=np.array([2.0, ]),
                                       dataset_arr=dataset_arr,
                                       is_text=True,
-                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=25, ng=5),
+                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=25, ng=25),
                                       plot_stats_type_arr=np.array([
-                                          'late_time_part', 'wait_time_bks'
+                                          'late_time_part_stats', 'wait_time_bks_stats'
                                       ]))

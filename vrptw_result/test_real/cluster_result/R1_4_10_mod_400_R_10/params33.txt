@@ -1,4 +1,0 @@
-TW_early TW_late TW_service_time
-0.0 804.0 0.0
-81.0 192.0 10.0
-486.0 616.0 10.0

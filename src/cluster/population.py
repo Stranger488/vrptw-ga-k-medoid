@@ -51,44 +51,48 @@ class Population:
 
                 # TODO: стоит ли округлять numpy_random.random()?
 
-                # Apply built-in mutation
-                applied = []
-                for k in range(mixed_gene.size):
-                    if mut_prob > round(numpy_random.random(), 4):
-                        rand = numpy_random.randint(self._distances[0].size - 1)
-
-                        while rand in applied:
-                            if rand < self._distances[0].size - 1:
-                                rand += 1
-                            else:
-                                rand = 0
-
-                        applied.append(rand)
-                        mixed_gene[k] = rand
+                self._apply_builtin_mutation(mixed_gene, mut_prob, numpy_random)
 
                 numpy_random.shuffle(mixed_gene)
 
                 child1 = Chromosome(self.chromosomes[0].chromosome_size, self._distances)
                 child2 = Chromosome(self.chromosomes[0].chromosome_size, self._distances)
 
-                k = 0  # index in child
-                m = 0  # index in mixed_gene
-                while k < child1.genes.size:
-                    if mixed_gene[m] not in child1.genes:
-                        child1.genes[k] = mixed_gene[m]
-                        k += 1
-                    m += 1
-
-                k = 0  # index in child
-                m = 0  # index in mixed_gene
-                while k < child1.genes.size:
-                    if mixed_gene[mixed_gene.size - m - 1] not in child2.genes:
-                        child2.genes[k] = mixed_gene[mixed_gene.size - m - 1]
-                        k += 1
-                    m += 1
+                self._fill_children(child1, child2, mixed_gene)
 
                 self.chromosomes[i] = child1
                 self.chromosomes[i + 1] = child2
+
+    def _fill_children(self, child1, child2, mixed_gene):
+        k = 0  # index in child
+        m = 0  # index in mixed_gene
+        while k < child1.genes.size:
+            if mixed_gene[m] not in child1.genes:
+                child1.genes[k] = mixed_gene[m]
+                k += 1
+            m += 1
+        k = 0  # index in child
+        m = 0  # index in mixed_gene
+        while k < child1.genes.size:
+            if mixed_gene[mixed_gene.size - m - 1] not in child2.genes:
+                child2.genes[k] = mixed_gene[mixed_gene.size - m - 1]
+                k += 1
+            m += 1
+
+    def _apply_builtin_mutation(self, mixed_gene, mut_prob, numpy_random):
+        applied = []
+        for k in range(int(mixed_gene.size / 2)):
+            if mut_prob > round(numpy_random.random(), 4):
+                rand = numpy_random.randint(self._distances[0].size - 1)
+
+                while rand in applied:
+                    if rand < self._distances[0].size - 1:
+                        rand += 1
+                    else:
+                        rand = 0
+
+                applied.append(rand)
+                mixed_gene[k] = rand
 
     def _roulette_selection(self, numpy_random):
         chrom_size = self.chromosomes[0].chromosome_size

@@ -4,6 +4,7 @@ from time import time
 
 import numpy as np
 from mpl_toolkits.mplot3d.axis3d import Axis
+from numpy import inf
 from sklearn.metrics.pairwise import euclidean_distances
 
 # fix wrong z-offsets in 3d plot
@@ -103,3 +104,79 @@ def read_standard_route(full_path):
             routes.append(route)
 
     return routes
+
+
+def make_cluster_from_medoids(distances, dm_priority_list, medoids):
+    points_size = int(np.ceil(distances[0].size / medoids.size))
+    result = np.full((medoids.size, points_size), -1)
+    costs_sum = 0.0
+
+    approved = np.arange(distances[0].size)
+
+    # Убрать медоиды из поиска, вручную их помещаем в кластер на нулевую позицию
+    approved = np.delete(approved, np.ravel([np.where(approved == med) for med in medoids]))
+
+    # Сформировать список из паттернов
+    all_priority_list = np.array([list(item[1]) for item in dm_priority_list], dtype=list)
+
+    # Если есть паттерны для распределения
+    if all_priority_list.size != 0:
+        # Для каждого кластера
+        for i, gene in enumerate(medoids):
+            # Сначала заполнить медоиды
+            result[i][0] = gene
+            # Поиск паттерна, суммарное расстояние от каждой вершины которого до текущего медоида минимально
+            # Медоид может быть в паттерне - учитывается при занесении вершин в кластеры
+            # Если медоид в паттерне, то расстояние будет нулевым, что повысит вероятность попадания вершин из паттерна в его кластер
+            cur_near_pattern_ind = -1
+            cur_min_priority_sum = inf
+            for ind, pattern in enumerate(all_priority_list):
+                priority_sums = np.sum([distances[gene][ii] for ii in pattern])
+                if priority_sums < cur_min_priority_sum:
+                    cur_min_priority_sum = priority_sums
+                    cur_near_pattern_ind = ind
+
+            # Если паттерн по длине вдруг оказался больше размера кластера (по идее практически невозможно)
+            best_pattern = all_priority_list[cur_near_pattern_ind]
+            if len(best_pattern) > points_size:
+                all_priority_list[cur_near_pattern_ind] = best_pattern[cur_near_pattern_ind:points_size]
+
+            j = 1
+            for el in best_pattern:
+                # Размещаем все вершины, если они входят в список разрешенных
+                if el in approved:
+                    result[i][j] = el
+                    costs_sum += distances[gene][el]
+                    j += 1
+
+                    # Удалить размещенную вершину из списка разрешенных
+                    approved = approved[approved != el]
+
+    for i, gene in enumerate(medoids):
+        # Сразу помещаем медоид
+        result[i][0] = gene
+        # Идем только по незаполненным
+        j_inds = [ind for ind, e in enumerate(result[i]) if e == -1]
+        for j in j_inds:
+            if approved.size != 0:
+                # Строка с расстояниями до других вершин
+                cur_dist = distances[gene]
+
+                # Ищем индекс ближайшей вершины
+                cur_min_ind = -1
+                cur_min = np.inf
+                for ind, el in enumerate(cur_dist):
+                    if ind in approved and el < cur_min:
+                        cur_min = el
+                        cur_min_ind = ind
+
+                # Не найдем минимум, если он не в approved
+                if cur_min != np.inf:
+                    costs_sum += cur_min
+
+                    result[i][j] = cur_min_ind
+
+                    # Удаляем из списка разрешенных
+                    approved = approved[approved != cur_min_ind]
+
+    return result, costs_sum

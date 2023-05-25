@@ -91,9 +91,10 @@ class VRPTWSolver:
     def _collect_cluster_result(self, dataset_reduced, tws_reduced, result, init_dataset, output_dir, tws_all,
                                 service_time_all, spatiotemporal):
         # Collect output, making datasets of space input and time_cluster windows
-        res_dataset = np.array([[dataset_reduced[point] for point in cluster if point != -1] for cluster in result])
-        res_tws = np.array([[tws_reduced[point] for point in cluster if point != -1] for cluster in result])
-        res_indexes = np.array([[point + 1 for point in cluster if point != -1] for cluster in result])
+        res_dataset = np.array([[dataset_reduced[point] for point in cluster if point != -1] for cluster in result],
+                               dtype=list)
+        res_tws = np.array([[tws_reduced[point] for point in cluster if point != -1] for cluster in result], dtype=list)
+        res_indexes = np.array([[point + 1 for point in cluster if point != -1] for cluster in result], dtype=list)
 
         for i, cluster in enumerate(res_dataset):
             # Create coords file
@@ -149,7 +150,7 @@ class VRPTWSolver:
         vehicle_number = int(data['VEHICLE_NUMBER'][0])
         # TODO: read data here and remember necessary for plotting and evaluation
         coordinates, distance_matrix, parameters = VRPTWSolver.read_input_for_tsptw_mode(vehicle_number,
-            self._vrptw_launch_entry.CLUSTER_OUTPUT + tsptw_launch_entry.common_id + '/')
+                                                                                         self._vrptw_launch_entry.CLUSTER_OUTPUT + tsptw_launch_entry.common_id + '/')
 
         tsptw_solver = TSPTWSolver(vehicle_number=vehicle_number, coordinates=coordinates,
                                    distance_matrix=distance_matrix, parameters=parameters)
@@ -158,7 +159,8 @@ class VRPTWSolver:
                                                     + tsptw_launch_entry.common_id
                                                     + '/time_tsptw.csv')
 
-        self._collect_tsptw_result(tsptw_results, self._vrptw_launch_entry.TSPTW_OUTPUT + tsptw_launch_entry.common_id + '/')
+        self._collect_tsptw_result(tsptw_results,
+                                   self._vrptw_launch_entry.TSPTW_OUTPUT + tsptw_launch_entry.common_id + '/')
 
         evaluation = self._evaluate_solution(tsptw_results,
                                              self._vrptw_launch_entry.EVALUATION_OUTPUT
@@ -243,7 +245,7 @@ class VRPTWSolver:
                      + self._vrptw_launch_entry.c_L * late_time
 
         result = pd.DataFrame([total_dist, wait_time, late_time, evaluation])
-        result.to_csv(output_dir + 'evaluation.csv', sep=' ',
+        result.to_csv(output_dir + '/evaluation.csv', sep=' ',
                       index=False, header=False)
 
         return evaluation
