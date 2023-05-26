@@ -1,13 +1,12 @@
-import os
-
-import matplotlib
+# import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import rgb2hex
 
 from src.common.utils import create_directory
 
-matplotlib.use('TkAgg')
+
+# matplotlib.use('TkAgg')
 
 
 class Plot:
@@ -18,8 +17,6 @@ class Plot:
         self._dpi_standart = 1200
         self._linewidth_standart = 0.5
         self._width = self.depth = 0.5
-
-        self._BASE_DIR = os.path.abspath(os.curdir)
 
     def _plot_route(self, spatial_data, color, route_type, axes):
         # Пары (x, y)
@@ -97,6 +94,7 @@ class Plot:
             create_directory(final_output_dir)
             filename = ylabel.replace(',', '').replace(' ', '_')
             fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
+            plt.close(fig)
         # plt.show()
 
     def plot_stats_bks(self, stats_df, bks_stats_df, data_column_name, xlabel='x', ylabel='y', output_dir=''):
@@ -163,6 +161,7 @@ class Plot:
             create_directory(final_output_dir)
             filename = ylabel.replace(',', '').replace('(', '').replace(')', '').replace(' ', '_')
             fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
+            plt.close(fig)
 
         # plt.show()
 

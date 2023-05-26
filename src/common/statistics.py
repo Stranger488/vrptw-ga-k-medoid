@@ -2,12 +2,15 @@ import numpy as np
 import pandas as pd
 
 from src.common.utils import read_standard_dataset, calc_euclidian_dist_all, read_standard_route
+from src.common.vrptw_path_holder import VRPTWPathHolder
 from src.vrptw.vrptw_launch_entry import VRPTWLaunchEntry
 
 
 class Statistics:
-    def __init__(self, vrptw_launch_entry: VRPTWLaunchEntry):
+    def __init__(self, vrptw_launch_entry: VRPTWLaunchEntry, vrptw_path_holder: VRPTWPathHolder):
         self._vrptw_launch_entry = vrptw_launch_entry
+        self._vrptw_path_holder = vrptw_path_holder
+
         self._cluster_launch_entry_arr = self._vrptw_launch_entry.cluster_launch_entry_arr
         self._tsptw_launch_entry_arr = self._vrptw_launch_entry.tsptw_launch_entry_arr
 
@@ -39,7 +42,7 @@ class Statistics:
         # tsptw_launch_entry и cluster_launch_entry соответствуют друг другу
         for i, tsptw_launch_entry in enumerate(self._tsptw_launch_entry_arr):
             # TODO: только ради vehicle_number, может поместить куда-то количество тс?
-            data = pd.read_fwf(self._vrptw_launch_entry.BASE_DIR + '/input/task/'
+            data = pd.read_fwf(self._vrptw_path_holder.BASE_DIR + '/input/task/'
                                + tsptw_launch_entry.dataset.data_file)
             vehicle_number = int(data['VEHICLE_NUMBER'][0])
 
@@ -83,11 +86,11 @@ class Statistics:
 
     def _fill_time_stats(self, launch_entry, time_cluster_arr, time_tsptw_arr, time_common_arr):
         time_cluster = pd.read_fwf(
-            self._vrptw_launch_entry.CLUSTER_OUTPUT + launch_entry.common_id + '/time_cluster.csv',
+            self._vrptw_path_holder.CLUSTER_OUTPUT + launch_entry.common_id + '/time_cluster.csv',
             header=None
         )
         time_tsptw = pd.read_fwf(
-            self._vrptw_launch_entry.TSPTW_OUTPUT + launch_entry.common_id + '/time_tsptw.csv',
+            self._vrptw_path_holder.TSPTW_OUTPUT + launch_entry.common_id + '/time_tsptw.csv',
             header=None
         )
         time_cluster_arr.append(time_cluster.values[0][0])
@@ -96,7 +99,7 @@ class Statistics:
 
     def _fill_evaluation_data(self, launch_entry, vehicle_number, i, evaluation_arr, wait_time_arr, late_time_arr):
         evaluation_data = pd.read_fwf(
-            self._vrptw_launch_entry.EVALUATION_OUTPUT + launch_entry.common_id + '/evaluation.csv',
+            self._vrptw_path_holder.EVALUATION_OUTPUT + launch_entry.common_id + '/evaluation.csv',
             header=None
         )
         evaluation_arr[i] = evaluation_data.transpose().values[0]
@@ -119,7 +122,7 @@ class Statistics:
         wait_arr_route = []
         late_arr_route = []
         for j in range(vehicle_number):
-            cur_report = pd.read_csv(self._vrptw_launch_entry.TSPTW_OUTPUT
+            cur_report = pd.read_csv(self._vrptw_path_holder.TSPTW_OUTPUT
                                      + launch_entry.common_id
                                      + '/report{}.csv'.format(j), delimiter=' ')
 
@@ -223,13 +226,13 @@ class Statistics:
         dim_all = np.array([])
 
         for d in dataset_arr:
-            dataset = pd.read_fwf(self._vrptw_launch_entry.BASE_DIR + '/input/task/'
+            dataset = pd.read_fwf(self._vrptw_path_holder.BASE_DIR + '/input/task/'
                                   + d.data_file)
 
             points_dataset, tws_all, service_time_all = read_standard_dataset(dataset)
             euclidian_dist = calc_euclidian_dist_all(points_dataset)
 
-            routes_dataset = read_standard_route(self._vrptw_launch_entry.BASE_DIR + '/input/bks/' + d.data_file)
+            routes_dataset = read_standard_route(self._vrptw_path_holder.BASE_DIR + '/input/bks/' + d.data_file)
             routes_len = len(routes_dataset)
             wait_time_arr = np.zeros(routes_len)
             late_time_arr = np.zeros(routes_len)

@@ -13,7 +13,9 @@ class ClusterLaunchEntry:
                  Z=10, P=100, ng=25,
                  Pc=0.65, Pm=0.2, Pmb=0.05,
                  proc_count=os.cpu_count(),
-                 dataset: Dataset = None):
+                 dataset: Dataset = None,
+                 dm_size=os.cpu_count(),
+                 dm_ng=15):
         self.k1 = k1
         self.k2 = k2
         self.k3 = k3
@@ -28,6 +30,9 @@ class ClusterLaunchEntry:
 
         self.proc_count = proc_count
         self.dataset = dataset
+
+        self.dm_size = dm_size
+        self.dm_ng = dm_ng
 
         self.result = None
         self.common_id = get_common_entry_id(self.k3, self.dataset)

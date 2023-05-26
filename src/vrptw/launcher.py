@@ -5,6 +5,7 @@ import pandas as pd
 
 from src.common.plot import Plot
 from src.common.statistics import Statistics
+from src.common.vrptw_path_holder import VRPTWPathHolder
 from src.vrptw.vrptw_solver import VRPTWSolver
 
 
@@ -18,7 +19,7 @@ class Launcher:
 
         self._vrptw_launch_entry = self._launch_entries.vrptw_launch_entry
 
-        # True, если необходимо собрать статистику оп ре'data_column_name': time_common,шению
+        # True, если необходимо собрать статистику по решению
         self._plot_stats = plot_stats
 
         # True, если необходимо визуализировать итоговое решение
@@ -29,6 +30,8 @@ class Launcher:
 
         # True, если необходимо запустить второй этап
         self._solve_tsptw = solve_tsptw
+
+        self._vrptw_path_holder = VRPTWPathHolder(self._vrptw_launch_entry.vrptw_entry_id, solve_cluster, solve_tsptw)
 
         self._plotter = Plot()
 
@@ -153,11 +156,11 @@ class Launcher:
             self._make_plot_stats()
 
     def _make_solving(self):
-        vrptw_solver = VRPTWSolver(vrptw_launch_entry=self._vrptw_launch_entry)
+        vrptw_solver = VRPTWSolver(self._vrptw_launch_entry, self._vrptw_path_holder)
         vrptw_solver.solve(self._solve_cluster, self._solve_tsptw)
 
     def _make_plot_stats(self):
-        statistics = Statistics(self._vrptw_launch_entry)
+        statistics = Statistics(self._vrptw_launch_entry, self._vrptw_path_holder)
 
         stats_df = statistics.collect_all_stats()
         bks_stats_df = statistics.collect_bks_stats()
@@ -168,18 +171,18 @@ class Launcher:
             plot_lambda(stats_df, bks_stats_df, self.plot_stats_dict[stat]['data_column_name'],
                         xlabel=self.plot_stats_dict[stat]['xlabel'],
                         ylabel=self.plot_stats_dict[stat]['ylabel'],
-                        output_dir=self._vrptw_launch_entry.PLOT_STATS_OUTPUT)
+                        output_dir=self._vrptw_path_holder.PLOT_STATS_OUTPUT)
 
     def _make_plot_solutions(self):
         for entry in self._vrptw_launch_entry.cluster_launch_entry_arr:
-            data = pd.read_fwf(self._vrptw_launch_entry.BASE_DIR + '/input/task/'
+            data = pd.read_fwf(self._vrptw_path_holder.BASE_DIR + '/input/task/'
                                + entry.dataset.data_file)
             vehicle_number = int(data['VEHICLE_NUMBER'][0])
 
             coords, params, report = VRPTWSolver.read_input_for_plot_solutions(vehicle_number,
-                                                                               self._vrptw_launch_entry.CLUSTER_OUTPUT
+                                                                               self._vrptw_path_holder.CLUSTER_OUTPUT
                                                                                + entry.common_id + '/',
-                                                                               self._vrptw_launch_entry.TSPTW_OUTPUT
+                                                                               self._vrptw_path_holder.TSPTW_OUTPUT
                                                                                + entry.common_id + '/')
             coords_sorted = np.empty(vehicle_number, dtype=object)
             params_sorted = np.empty(vehicle_number, dtype=object)
@@ -195,7 +198,7 @@ class Launcher:
             route_type = 'open'
             self._plotter.plot_clusters_routes(coords_sorted, params_sorted,
                                                route_type, self._vrptw_launch_entry.is_text,
-                                               self._vrptw_launch_entry.PLOT_SOLUTIONS_OUTPUT
+                                               self._vrptw_path_holder.PLOT_SOLUTIONS_OUTPUT
                                                + entry.common_id)
 
         # self._plotter.show()

@@ -38,10 +38,3 @@ class VRPTWLaunchEntry:
 
         self.vrptw_entry_id = vrptw_entry_id
         self.dataset_arr = dataset_arr
-
-        self.BASE_DIR = os.path.abspath(os.curdir)
-        self.CLUSTER_OUTPUT = self.BASE_DIR + '/vrptw_result/' + self.vrptw_entry_id + '/cluster_result/'
-        self.TSPTW_OUTPUT = self.BASE_DIR + '/vrptw_result/' + self.vrptw_entry_id + '/tsptw_result/'
-        self.EVALUATION_OUTPUT = self.BASE_DIR + '/vrptw_result/' + self.vrptw_entry_id + '/evaluation/'
-        self.PLOT_STATS_OUTPUT = self.BASE_DIR + '/vrptw_result/' + self.vrptw_entry_id + '/plot_stats/'
-        self.PLOT_SOLUTIONS_OUTPUT = self.BASE_DIR + '/vrptw_result/' + self.vrptw_entry_id + '/plot_solutions/'

@@ -11,6 +11,7 @@ from src.cluster.cluster_solver import ClusterSolver
 from src.cluster.spatiotemporal import Spatiotemporal
 from src.common.plot import Plot
 from src.common.utils import timing, create_directory, read_standard_dataset, calc_euclidian_dist_all
+from src.common.vrptw_path_holder import VRPTWPathHolder
 from src.tsptw.tsptw_launch_entry import TSPTWLaunchEntry
 from src.tsptw.tsptw_result_entry import TSPTWResultEntry
 from src.tsptw.tsptw_solver import TSPTWSolver
@@ -24,8 +25,10 @@ def lambda_cluster_default(s, t):
 
 
 class VRPTWSolver:
-    def __init__(self, vrptw_launch_entry: VRPTWLaunchEntry):
+    def __init__(self, vrptw_launch_entry: VRPTWLaunchEntry, vrptw_path_holder: VRPTWPathHolder):
         self._vrptw_launch_entry = vrptw_launch_entry
+        self._vrptw_path_holder = vrptw_path_holder
+
         self._cluster_launch_entry_arr = vrptw_launch_entry.cluster_launch_entry_arr
         self._tsptw_launch_entry_arr = vrptw_launch_entry.tsptw_launch_entry_arr
 
@@ -67,9 +70,9 @@ class VRPTWSolver:
         return full_result
 
     def _solve_cluster_base(self, cluster_launch_entry: ClusterLaunchEntry, lambda_to_solve):
-        create_directory(self._vrptw_launch_entry.CLUSTER_OUTPUT + cluster_launch_entry.common_id)
+        create_directory(self._vrptw_path_holder.CLUSTER_OUTPUT + cluster_launch_entry.common_id)
         points_dataset, tws_all, service_time_all, vehicle_number = VRPTWSolver.read_input_for_cluster_mode(
-            self._vrptw_launch_entry.BASE_DIR + '/input/task/' + cluster_launch_entry.dataset.data_file)
+            self._vrptw_path_holder.BASE_DIR + '/input/task/' + cluster_launch_entry.dataset.data_file)
 
         dataset_reduced, spatiotemporal, spatiotemporal_points_dist, tws_reduced = self.calculate_spatiotemporal(
             cluster_launch_entry, points_dataset, service_time_all, tws_all)
@@ -80,7 +83,7 @@ class VRPTWSolver:
                                        k=vehicle_number)
 
         # Result will be an array of clusters, where row is a cluster, value in column - point index
-        result = lambda_to_solve(cluster_solver, self._vrptw_launch_entry.CLUSTER_OUTPUT
+        result = lambda_to_solve(cluster_solver, self._vrptw_path_holder.CLUSTER_OUTPUT
                                  + cluster_launch_entry.common_id + '/time_cluster.csv')
         # Collect and parse cluster solution
         res_dataset, res_tws = self._collect_cluster_result(dataset_reduced, tws_reduced, result, points_dataset,
@@ -105,7 +108,7 @@ class VRPTWSolver:
             coord_df.index = coord_df.index + 1  # shifting index
             coord_df.sort_index(inplace=True)
 
-            coord_df.to_csv(self._vrptw_launch_entry.CLUSTER_OUTPUT + output_dir + 'coords{}.csv'.format(i),
+            coord_df.to_csv(self._vrptw_path_holder.CLUSTER_OUTPUT + output_dir + 'coords{}.csv'.format(i),
                             sep=' ', index=False)
 
             # Create time_cluster parameters file
@@ -117,12 +120,12 @@ class VRPTWSolver:
 
             tw_df.insert(2, 'TW_service_time', np.array([service_time_all[i][0] for i in range(len(tw_df))]))
 
-            tw_df.to_csv(self._vrptw_launch_entry.CLUSTER_OUTPUT + output_dir + 'params{}.csv'.format(i),
+            tw_df.to_csv(self._vrptw_path_holder.CLUSTER_OUTPUT + output_dir + 'params{}.csv'.format(i),
                          index=False, sep=' ')
 
         # Output distance matrix
         distance_df = pd.DataFrame(spatiotemporal.euclidian_dist_all)
-        distance_df.to_csv(self._vrptw_launch_entry.CLUSTER_OUTPUT + output_dir + 'distance_matrix.csv', sep=' ',
+        distance_df.to_csv(self._vrptw_path_holder.CLUSTER_OUTPUT + output_dir + 'distance_matrix.csv', sep=' ',
                            index=False, header=False)
 
         return res_dataset, res_tws
@@ -143,27 +146,27 @@ class VRPTWSolver:
         return dataset_reduced, spatiotemporal, spatiotemporal_points_dist, tws_reduced
 
     def _solve_tsptw_base(self, tsptw_launch_entry: TSPTWLaunchEntry, lambda_to_solve):
-        create_directory(self._vrptw_launch_entry.TSPTW_OUTPUT + tsptw_launch_entry.common_id)
+        create_directory(self._vrptw_path_holder.TSPTW_OUTPUT + tsptw_launch_entry.common_id)
 
-        data = pd.read_fwf(self._vrptw_launch_entry.BASE_DIR + '/input/task/'
+        data = pd.read_fwf(self._vrptw_path_holder.BASE_DIR + '/input/task/'
                            + tsptw_launch_entry.dataset.data_file)
         vehicle_number = int(data['VEHICLE_NUMBER'][0])
         # TODO: read data here and remember necessary for plotting and evaluation
         coordinates, distance_matrix, parameters = VRPTWSolver.read_input_for_tsptw_mode(vehicle_number,
-                                                                                         self._vrptw_launch_entry.CLUSTER_OUTPUT + tsptw_launch_entry.common_id + '/')
+                                                                                         self._vrptw_path_holder.CLUSTER_OUTPUT + tsptw_launch_entry.common_id + '/')
 
         tsptw_solver = TSPTWSolver(vehicle_number=vehicle_number, coordinates=coordinates,
                                    distance_matrix=distance_matrix, parameters=parameters)
         tsptw_results, plots_data = lambda_to_solve(tsptw_solver,
-                                                    self._vrptw_launch_entry.TSPTW_OUTPUT
+                                                    self._vrptw_path_holder.TSPTW_OUTPUT
                                                     + tsptw_launch_entry.common_id
                                                     + '/time_tsptw.csv')
 
         self._collect_tsptw_result(tsptw_results,
-                                   self._vrptw_launch_entry.TSPTW_OUTPUT + tsptw_launch_entry.common_id + '/')
+                                   self._vrptw_path_holder.TSPTW_OUTPUT + tsptw_launch_entry.common_id + '/')
 
         evaluation = self._evaluate_solution(tsptw_results,
-                                             self._vrptw_launch_entry.EVALUATION_OUTPUT
+                                             self._vrptw_path_holder.EVALUATION_OUTPUT
                                              + tsptw_launch_entry.common_id)
 
         return TSPTWResultEntry(tsptw_results, plots_data, evaluation)

@@ -28,11 +28,28 @@ dataset_arr = np.array([
 ])
 
 vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='test_real',
-                                      k3_arr=np.array([2.0, 10.0, 100.0]),
-                                      # k3_arr=np.array([2.0, ]),
+                                      # k3_arr=np.array([2.0, 10.0, 100.0]),
+                                      k3_arr=np.array([2.0, ]),
                                       dataset_arr=dataset_arr,
                                       is_text=True,
-                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=25, ng=25),
+                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=5, ng=1),
                                       plot_stats_type_arr=np.array([
-                                          'late_time_part_stats', 'wait_time_bks_stats'
+                                          'time_common_stats',
+                                          'distance_stats',
+                                          'wait_time_stats',
+                                          'late_time_stats',
+                                          'total_evaluation_stats',
+                                          'avg_wait_time_stats',
+                                          'avg_late_time_stats',
+                                          'max_wait_time_stats',
+                                          'max_late_time_stats',
+                                          'wait_time_part_stats',
+                                          'late_time_part_stats',
+                                          'distance_bks_stats',
+                                          'wait_time_bks_stats',
+                                          'late_time_bks_stats',
+                                          'total_time_bks_stats',
+                                          'avg_wait_time_bks_stats',
+                                          'avg_late_time_bks_stats',
+                                          'std_wait_time_bks_stats',
                                       ]))

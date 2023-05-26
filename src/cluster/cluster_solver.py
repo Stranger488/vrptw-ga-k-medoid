@@ -1,6 +1,5 @@
 import heapq
 import math
-import os
 from multiprocessing import Pool
 
 import numpy as np
@@ -16,7 +15,6 @@ from src.common.utils import make_cluster_from_medoids
 
 class ClusterSolver:
     def __init__(self, distances, Z=10, P=20, ng=25, Pc=0.65, Pm=0.2, Pmb=0.05, k=None,
-                 numpy_rand=None,
                  dm_size=4, dm_ng=5):
         self._distances = distances
 
@@ -45,8 +43,6 @@ class ClusterSolver:
 
         self._DM_MAX_PATTERNS_SEARCH = 10
         self._DM_MAX_PRIORITY_LIST_SIZE = self._k
-
-        self._BASE_DIR = os.path.abspath(os.curdir)
 
     # параллелизм здесь внутри будет для режима data_mining
     def solve_cluster_core_data_mining(self):
@@ -105,13 +101,18 @@ class ClusterSolver:
         # Мультистарт
         rand_arr = self._numpy_rand.rand(self._dm_size, 1)
         np_rand_arr = [np.random.RandomState(int(100 * i)) for i in rand_arr]
-        res = []
 
-        with Pool(self._dm_size) as p:
+        args = []
+        for np_rand in np_rand_arr:
             current_best_chromosome, population = self.init(
                 DMPopulation(self._P, self._k, self._distances, self._dm_cur_priority_list),
-                DMChromosome(self._k, self._distances, self._dm_cur_priority_list))
-            args = [(population, current_best_chromosome, np_rand) for np_rand in np_rand_arr]
+                DMChromosome(self._k, self._distances, self._dm_cur_priority_list),
+                np_rand
+            )
+            args.append((population, current_best_chromosome, np_rand))
+
+        res = []
+        with Pool(self._dm_size) as p:
             result = p.starmap(self._solve, args)
 
             best_res = None
@@ -150,8 +151,8 @@ class ClusterSolver:
 
         return cur_best_chromosome
 
-    def init(self, population, chromosome):
-        population.generate_random_population(self._numpy_rand)
+    def init(self, population, chromosome, numpy_rand):
+        population.generate_random_population(numpy_rand)
         population.calculate_fitness()
         current_best_chromosome = self._get_new_best_chromosome(chromosome, population)
         return current_best_chromosome, population
