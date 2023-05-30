@@ -348,7 +348,7 @@ class TSPTWGenetic:
         cost = copy.deepcopy(cost)
         solution = copy.deepcopy(population[0])
         print('Generation = ', count, ' Distance = ', elite_ind, ' f(x) = ', round(cost[0][0], 2))
-        if len(solution) > 3:
+        if len(solution[1][0]) > 3:
             while count <= generations - 1:
                 offspring = self.breeding(cost, population, fitness, distance_matrix, elite, parameters, route, k1, k2)
                 offspring = self.mutation(offspring, mutation_rate=mutation_rate, elite=elite)

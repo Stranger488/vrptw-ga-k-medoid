@@ -32,7 +32,7 @@ vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='test_real',
                                       k3_arr=np.array([2.0, ]),
                                       dataset_arr=dataset_arr,
                                       is_text=True,
-                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=5, ng=1),
+                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=5, ng_arr=[1, ]),
                                       plot_stats_type_arr=np.array([
                                           'time_common_stats',
                                           'distance_stats',

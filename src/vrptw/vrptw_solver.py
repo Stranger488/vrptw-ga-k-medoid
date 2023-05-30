@@ -78,7 +78,7 @@ class VRPTWSolver:
             cluster_launch_entry, points_dataset, service_time_all, tws_all)
         cluster_solver = ClusterSolver(distances=spatiotemporal_points_dist, Z=cluster_launch_entry.Z,
                                        P=cluster_launch_entry.P,
-                                       ng=cluster_launch_entry.ng, Pc=cluster_launch_entry.Pc,
+                                       ng_arr=cluster_launch_entry.ng_arr, Pc=cluster_launch_entry.Pc,
                                        Pm=cluster_launch_entry.Pm, Pmb=cluster_launch_entry.Pmb,
                                        k=vehicle_number)
 
@@ -86,10 +86,13 @@ class VRPTWSolver:
         result = lambda_to_solve(cluster_solver, self._vrptw_path_holder.CLUSTER_OUTPUT
                                  + cluster_launch_entry.common_id + '/time_cluster.csv')
         # Collect and parse cluster solution
-        res_dataset, res_tws = self._collect_cluster_result(dataset_reduced, tws_reduced, result, points_dataset,
-                                                            cluster_launch_entry.common_id + '/', tws_all,
-                                                            service_time_all, spatiotemporal)
-        return ClusterResultEntry(result, res_dataset, res_tws, spatiotemporal, dataset_reduced)
+        if result is not None:
+            res_dataset, res_tws = self._collect_cluster_result(dataset_reduced, tws_reduced, result, points_dataset,
+                                                                cluster_launch_entry.common_id + '/', tws_all,
+                                                                service_time_all, spatiotemporal)
+            return ClusterResultEntry(result, res_dataset, res_tws, spatiotemporal, dataset_reduced)
+
+        return None
 
     def _collect_cluster_result(self, dataset_reduced, tws_reduced, result, init_dataset, output_dir, tws_all,
                                 service_time_all, spatiotemporal):
