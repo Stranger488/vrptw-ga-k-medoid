@@ -67,7 +67,7 @@ class Population:
         k = 0  # index in child
         m = 0  # index in mixed_gene
         while k < child1.genes.size:
-            if mixed_gene[m] not in child1.genes:
+            if m < len(mixed_gene) and mixed_gene[m] not in child1.genes:
                 child1.genes[k] = mixed_gene[m]
                 k += 1
             m += 1

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from src.cluster.chromosome import Chromosome
 from src.common.utils import make_cluster_from_medoids
 
