@@ -52,6 +52,8 @@ class ClusterLaunchEntry:
                                  Z=cluster_launch_entry.Z, P=cluster_launch_entry.P,
                                  ng_arr=cluster_launch_entry.ng_arr, Pc=cluster_launch_entry.Pc,
                                  Pm=cluster_launch_entry.Pm, Pmb=cluster_launch_entry.Pmb,
+                                 dm_ng=cluster_launch_entry.dm_ng,
+                                 dm_size=cluster_launch_entry.dm_size,
                                  proc_count=proc_count, dataset=dataset)
                              for k3 in k3_arr for dataset in dataset_arr])
 

@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 from src.cluster.cluster_launch_entry import ClusterLaunchEntry
@@ -25,20 +27,44 @@ dataset_arr = np.array([
             dataset_type='R', dim=400),
     Dataset(data_file='RC1_4_3_mod.TXT',
             dataset_type='RC', dim=400),
+
+    Dataset(data_file='C1_6_4_mod.TXT',
+            dataset_type='C', dim=600),
+    Dataset(data_file='R1_6_10_mod.TXT',
+            dataset_type='R', dim=600),
+    Dataset(data_file='RC1_6_3_mod.TXT',
+            dataset_type='RC', dim=600),
+
+    Dataset(data_file='C1_8_4_mod.TXT',
+            dataset_type='C', dim=800),
+    Dataset(data_file='R1_8_10_mod.TXT',
+            dataset_type='R', dim=800),
+    Dataset(data_file='RC1_8_3_mod.TXT',
+            dataset_type='RC', dim=800),
+
+    Dataset(data_file='C1_10_4_mod.TXT',
+            dataset_type='C', dim=1000),
+    Dataset(data_file='R1_10_10_mod.TXT',
+            dataset_type='R', dim=1000),
+    Dataset(data_file='RC1_10_3_mod.TXT',
+            dataset_type='RC', dim=1000),
 ])
 
-vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='real_part1',
+vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='stats',
                                       k3_arr=np.array([2.0, 10.0, 100.0]),
-                                      dataset_arr=dataset_arr,
-                                      is_text=True,
-                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=100, ng_arr=[30, 20, 20, 15, 15],
-                                                                                     dm_ng=5, dm_size=8),
+                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=100, ng_arr=[30, 20, 15, 15, 20],
+                                                                                     dm_ng=5,
+                                                                                     dm_size=os.cpu_count()
+                                                                                     ),
                                       plot_stats_type_arr=np.array([
+                                          'time_common_stats',
+
+                                          'distance_stats',
+                                          'distance_bks_stats',
+
                                           'avg_wait_time_stats',
                                           'avg_late_time_stats',
-                                          'time_common_stats',
                                           'avg_wait_time_bks_stats',
                                           'avg_late_time_bks_stats',
-
                                       ])
                                       )

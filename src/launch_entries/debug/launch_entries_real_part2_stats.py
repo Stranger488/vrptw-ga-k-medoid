@@ -39,6 +39,7 @@ vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='real_part2',
                                           'time_common_stats',
                                           'avg_wait_time_bks_stats',
                                           'avg_late_time_bks_stats',
+                                          'distance_stats',
 
                                       ])
                                       )

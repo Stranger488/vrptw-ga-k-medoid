@@ -36,6 +36,8 @@ def set_options():
                             help='Turn on plot_stats mode, stats array to plot is in configuration')
     arg_parser.add_argument('--plot_solutions', action='store_true',
                             help='Turn on plot_solutions mode')
+    arg_parser.add_argument('--mode_path', action='store', type=str,
+                            help='Mode path')
 
     arguments = arg_parser.parse_args()
 
@@ -144,7 +146,7 @@ def make_cluster_from_medoids(distances, dm_priority_list, medoids):
             j = 1
             for el in best_pattern:
                 # Размещаем все вершины, если они входят в список разрешенных
-                if el in approved:
+                if el in approved and j < result[0].size:
                     result[i][j] = el
                     costs_sum += distances[gene][el]
                     j += 1

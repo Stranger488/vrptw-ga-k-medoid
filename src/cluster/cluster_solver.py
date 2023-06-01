@@ -42,7 +42,7 @@ class ClusterSolver:
         self._dm_ng = dm_ng
         self._dm_cur_priority_list = []
 
-        self._dm_sup_threshold = 0.08
+        self._dm_sup_threshold = 3
         self._dm_min_pattern_length = 3
 
         self._DM_MAX_PATTERNS_SEARCH = 2
@@ -53,6 +53,7 @@ class ClusterSolver:
         # Заданное число итераций для dm режима
         global_best_res = None
         global_best_fitness = inf
+        global_best_chrom = DMChromosome(self._k, self._distances, self._dm_cur_priority_list)
         for i in range(self._dm_ng):
             print("DM iteration: {}. Best fitness: {}".format(i, global_best_fitness))
 
@@ -61,11 +62,13 @@ class ClusterSolver:
 
             cur_best_res = None
             cur_best_fitness = None
+            cur_best_chrom = None
             while patterns_search_i < self._DM_MAX_PATTERNS_SEARCH and len(patterns) == 0:
                 print("DM. dm: {}, patterns_search_i: {}.".format(i, patterns_search_i))
 
                 # Получаем список с кластерами для каждого запуска
-                res, cur_best_res, cur_best_fitness = self._make_multistart_genetic(i)
+                res, cur_best_res, cur_best_fitness, cur_best_chrom = self._make_multistart_genetic(i,
+                                                                                                    global_best_chrom)
                 # Помещаем все кластеры из разных потоков в один глобальный список
                 flatten_res = res.reshape(self._dm_size * self._k, res[0][0].shape[0])
 
@@ -103,21 +106,24 @@ class ClusterSolver:
             if cur_best_fitness < global_best_fitness:
                 global_best_res = cur_best_res
                 global_best_fitness = cur_best_fitness
+                global_best_chrom = cur_best_chrom
 
         return global_best_res
 
-    def _make_multistart_genetic(self, dm_iter_ind):
+    def _make_multistart_genetic(self, dm_iter_ind, elite_chromosome):
         # Мультистарт
         rand_arr = self._numpy_rand.rand(self._dm_size, 1)
         np_rand_arr = [np.random.RandomState(int(100 * i)) for i in rand_arr]
 
         args = []
         for np_rand in np_rand_arr:
+            dm_population = DMPopulation(self._P, self._k, self._distances, self._dm_cur_priority_list)
             current_best_chromosome, population = self._init(
-                DMPopulation(self._P, self._k, self._distances, self._dm_cur_priority_list),
-                DMChromosome(self._k, self._distances, self._dm_cur_priority_list),
+                dm_population,
+                elite_chromosome,
                 np_rand
             )
+            dm_population.chromosomes[0] = current_best_chromosome
             args.append((population, current_best_chromosome, np_rand, self._ng_arr[dm_iter_ind]))
 
         res = []
@@ -125,6 +131,7 @@ class ClusterSolver:
             result = p.starmap(self._solve, args)
 
             best_res = None
+            best_chromosome = None
             cur_best_fitness = inf
             for chrom in result:
                 clusters, _ = make_cluster_from_medoids(self._distances, self._dm_cur_priority_list, chrom.genes)
@@ -136,8 +143,9 @@ class ClusterSolver:
                 if chrom.fitness < cur_best_fitness:
                     cur_best_fitness = chrom.fitness
                     best_res = clusters
+                    best_chromosome = chrom
 
-        return np.array(res), best_res, cur_best_fitness
+        return np.array(res), best_res, cur_best_fitness, best_chromosome
 
     def solve(self):
         current_best_chromosome, population = self._init(Population(self._P, self._k, self._distances),
@@ -179,7 +187,7 @@ class ClusterSolver:
     def _get_new_best_chromosome(self, current_best_chromosome, population):
         best_chromosome_ind = population.find_best_chromosome_ind()
         best_chromosome = population.chromosomes[best_chromosome_ind]
-        print("cur fitness: {}".format(best_chromosome.fitness))
+        # print("cur fitness: {}".format(best_chromosome.fitness))
         if best_chromosome.fitness < current_best_chromosome.fitness:
             return best_chromosome
         return current_best_chromosome

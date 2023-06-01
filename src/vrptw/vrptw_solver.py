@@ -65,8 +65,11 @@ class VRPTWSolver:
 
     def _solve_cluster_sequential(self, full_result: ndarray, lambda_to_solve):
         for cluster_launch_entry in self._cluster_launch_entry_arr:
-            result = self._solve_cluster_base(cluster_launch_entry, lambda_to_solve)
-            full_result = np.append(full_result, result)
+            try:
+                result = self._solve_cluster_base(cluster_launch_entry, lambda_to_solve)
+                full_result = np.append(full_result, result)
+            except:
+                print("ERROR, cluster_launch_entry = {}".format(cluster_launch_entry.common_id))
         return full_result
 
     def _solve_cluster_base(self, cluster_launch_entry: ClusterLaunchEntry, lambda_to_solve):
@@ -80,8 +83,11 @@ class VRPTWSolver:
                                        P=cluster_launch_entry.P,
                                        ng_arr=cluster_launch_entry.ng_arr, Pc=cluster_launch_entry.Pc,
                                        Pm=cluster_launch_entry.Pm, Pmb=cluster_launch_entry.Pmb,
+                                       dm_ng=cluster_launch_entry.dm_ng,
+                                       dm_size=cluster_launch_entry.dm_size,
                                        k=vehicle_number)
 
+        print("Start: common_id = {}".format(cluster_launch_entry.common_id))
         # Result will be an array of clusters, where row is a cluster, value in column - point index
         result = lambda_to_solve(cluster_solver, self._vrptw_path_holder.CLUSTER_OUTPUT
                                  + cluster_launch_entry.common_id + '/time_cluster.csv')

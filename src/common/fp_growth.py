@@ -147,7 +147,8 @@ class FPGrowth:
     @staticmethod
     def fpgrowth(item_set_list, min_sup_ratio):
         frequency = FPGrowth.get_frequency_from_list(item_set_list)
-        min_sup = len(item_set_list) * min_sup_ratio
+        # min_sup = len(item_set_list) * min_sup_ratio
+        min_sup = min_sup_ratio
         fp_tree, header_table = FPGrowth.construct_tree(item_set_list, frequency, min_sup)
         if fp_tree is None:
             print('No frequent item set')
@@ -160,6 +161,6 @@ class FPGrowth:
             freq_items_with_support = []
             for item_set in freq_items:
                 item_set_sup = FPGrowth.get_support(item_set, item_set_list)
-                freq_items_with_support.append([item_set_sup / len(item_set_list), item_set])
+                freq_items_with_support.append([item_set_sup, item_set])
 
             return freq_items_with_support, rules

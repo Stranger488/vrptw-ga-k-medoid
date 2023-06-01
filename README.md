@@ -33,7 +33,7 @@
 - 'distance_stats' - пройденное расстояние
 - 'wait_time_stats' - время ожидания
 - 'late_time_stats' - время опоздания
-- 'total_evaвluation_stats' - общая оценка
+- 'total_evaluation_stats' - общая оценка
 - 'avg_wait_time_stats' - время ожидания на одно ТС
 - 'avg_late_time_stats' - время опоздания на одного клиента
 - 'max_wait_time_stats' - максимальное время ожидания

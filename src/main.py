@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.append(os.getcwd())
+
 from mpl_toolkits.mplot3d.axis3d import Axis
 
 from src.common.utils import set_options
@@ -18,7 +23,8 @@ def main(arguments):
                         plot_stats=arguments.plot_stats,
                         plot_solutions=arguments.plot_solutions,
                         solve_cluster=arguments.solve_cluster,
-                        solve_tsptw=arguments.solve_tsptw)
+                        solve_tsptw=arguments.solve_tsptw,
+                        mode_path=arguments.mode_path)
     launcher.launch()
 
 

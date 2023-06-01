@@ -14,7 +14,8 @@ class Launcher:
                  plot_stats: str = None,
                  plot_solutions: str = None,
                  solve_cluster: str = 'default',
-                 solve_tsptw: str = 'default'):
+                 solve_tsptw: str = 'default',
+                 mode_path: str = 'dm_default'):
         self._launch_entries = importlib.import_module(launch_entries)
 
         self._vrptw_launch_entry = self._launch_entries.vrptw_launch_entry
@@ -31,7 +32,7 @@ class Launcher:
         # True, если необходимо запустить второй этап
         self._solve_tsptw = solve_tsptw
 
-        self._vrptw_path_holder = VRPTWPathHolder(self._vrptw_launch_entry.vrptw_entry_id, solve_cluster, solve_tsptw)
+        self._vrptw_path_holder = VRPTWPathHolder(self._vrptw_launch_entry.vrptw_entry_id, mode_path)
 
         self._plotter = Plot()
 

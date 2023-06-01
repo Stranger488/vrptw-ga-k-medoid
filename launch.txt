@@ -1,0 +1,10 @@
+src/main.py --solve_cluster dm --solve_tsptw default --launch_entries launch_entries.testing.solve_part1 --mode_path dm_default
+--solve_cluster dm --solve_tsptw default --launch_entries launch_entries.testing.solve_part2 --mode_path dm_default
+--solve_cluster dm --solve_tsptw default --launch_entries launch_entries.testing.solve_part3 --mode_path dm_default
+--solve_cluster dm --solve_tsptw default --launch_entries launch_entries.testing.solve_part4 --mode_path dm_default
+--solve_cluster dm --solve_tsptw default --launch_entries launch_entries.testing.solve_part5 --mode_path dm_default
+--solve_cluster dm --solve_tsptw default --launch_entries launch_entries.testing.solve_part6 --mode_path dm_default
+--solve_cluster dm --solve_tsptw default --launch_entries launch_entries.testing.solve_part7 --mode_path dm_default
+--solve_cluster dm --solve_tsptw default --launch_entries launch_entries.testing.solve_part8 --mode_path dm_default
+
+--plot_stats --launch_entries launch_entries.testing.stats --mode_path dm_default
