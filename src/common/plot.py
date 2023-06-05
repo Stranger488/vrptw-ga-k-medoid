@@ -112,12 +112,14 @@ class Plot:
                                    label='Результаты работы алгоритма, k3 = {}'.format(k3),
                                    title='Набор данных {}'.format(name))
 
-            self._plot_on_axes(axes, group['dim'].iloc[0],
-                               bks_stats_df[bks_stats_df['name'] == group['name'].iloc[0]][data_column_name],
-                               xlabel=xlabel,
-                               ylabel=ylabel, c=cmap(group.shape[0] + 1),
-                               label='Наилучшее известное решение',
-                               title='Набор данных {}'.format(name))
+                if j == k3_grouped.ngroups - 1:
+                    self._plot_on_axes(axes, g['dim'],
+                                       bks_stats_df[bks_stats_df['name'].isin(g['name'].values)].sort_values(
+                                           'wait_time')[data_column_name],
+                                       xlabel=xlabel,
+                                       ylabel=ylabel, c=cmap(group.shape[0] + 1),
+                                       label='Наилучшее известное решение',
+                                       title='Набор данных {}'.format(name))
             axes.grid(True)
 
             final_output_dir = output_dir + name
