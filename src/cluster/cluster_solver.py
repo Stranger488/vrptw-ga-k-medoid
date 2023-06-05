@@ -8,7 +8,7 @@ from src.cluster.chromosome import Chromosome
 from src.cluster.dm_chromosome import DMChromosome
 from src.cluster.dm_population import DMPopulation
 from src.cluster.population import Population
-from src.common.fp_growth import FPGrowth
+from src.common.fp import find_frequent_patterns
 from src.common.utils import make_cluster_from_medoids
 
 
@@ -73,13 +73,20 @@ class ClusterSolver:
                 flatten_res = res.reshape(self._dm_size * self._k, res[0][0].shape[0])
 
                 # запуск fp-growth для поиска лучшей хромосомы из набора res
-                patterns, _ = FPGrowth.fpgrowth(flatten_res.tolist(), self._dm_sup_threshold)
+                patterns = find_frequent_patterns(flatten_res.tolist(), self._dm_sup_threshold)
+                # patterns, _ = FPGrowth.fpgrowth(flatten_res.tolist(), self._dm_sup_threshold)
                 filtered_patterns = []
-                if patterns is not None:
-                    for sup, pattern in patterns:
-                        if all(-1 != el and 0 != el for el in pattern) and len(pattern) >= self._dm_min_pattern_length:
-                            filtered_patterns.append([sup, pattern])
+
+                for key in patterns:
+                    if all(-1 != el and 0 != el for el in key):
+                        filtered_patterns.append([patterns[key], list(key)])
                 patterns = filtered_patterns
+
+                # if patterns is not None:
+                #     for sup, pattern in patterns:
+                #         if all(-1 != el and 0 != el for el in pattern) and len(pattern) >= self._dm_min_pattern_length:
+                #             filtered_patterns.append([sup, pattern])
+                # patterns = filtered_patterns
                 patterns.sort(key=lambda x: (x[0], len(x[1])), reverse=True)
 
                 patterns_search_i += 1

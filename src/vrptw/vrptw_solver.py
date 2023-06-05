@@ -68,8 +68,9 @@ class VRPTWSolver:
             try:
                 result = self._solve_cluster_base(cluster_launch_entry, lambda_to_solve)
                 full_result = np.append(full_result, result)
-            except:
-                print("ERROR, cluster_launch_entry = {}".format(cluster_launch_entry.common_id))
+            except Exception as e:
+                print("ERROR: e, cluster_launch_entry = {}".format(cluster_launch_entry.common_id))
+                print(e)
         return full_result
 
     def _solve_cluster_base(self, cluster_launch_entry: ClusterLaunchEntry, lambda_to_solve):
