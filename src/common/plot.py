@@ -226,6 +226,22 @@ class Plot:
         fig.savefig(fname='test.png', dpi=self._dpi_standart)
         plt.show()
 
+    def plot_function(self, iter_arr, function_arr):
+        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
+
+        self._plot_on_axes(axes, iter_arr, function_arr, xlabel='Номер итерации',
+                           ylabel='Значение целевой функции', c=cmap(j),
+                           label='График сходимости целевой функции, k3 = {}'.format(k3),
+                           title='Набор данных {}'.format(name))
+
+        axes.grid(True)
+
+        final_output_dir = output_dir + name
+        create_directory(final_output_dir)
+        filename = ylabel.replace(',', '').replace(' ', '_')
+        fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
+        plt.close(fig)
+
     @staticmethod
     def show():
         plt.show()

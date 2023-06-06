@@ -12,12 +12,12 @@ dataset_arr = np.array([
     Dataset(data_file='rc103_mod.txt',
             dataset_type='RC', dim=100),
 
-    Dataset(data_file='C1_2_4_mod.TXT',
-            dataset_type='C', dim=200),
-    Dataset(data_file='R1_2_10_mod.TXT',
-            dataset_type='R', dim=200),
-    Dataset(data_file='RC1_2_3_mod.TXT',
-            dataset_type='RC', dim=200),
+    # Dataset(data_file='C1_2_4_mod.TXT',
+    #         dataset_type='C', dim=200),
+    # Dataset(data_file='R1_2_10_mod.TXT',
+    #         dataset_type='R', dim=200),
+    # Dataset(data_file='RC1_2_3_mod.TXT',
+    #         dataset_type='RC', dim=200),
 
     # Dataset(data_file='C1_4_4_mod.TXT',
     #         dataset_type='C', dim=400),
@@ -28,9 +28,10 @@ dataset_arr = np.array([
 ])
 
 vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='real_part1',
-                                      k3_arr=np.array([2.0, 10.0, 100.0]),
+                                      k3_arr=np.array([2.0, ]),
+                                      # k3_arr=np.array([2.0, 10.0, 100.0]),
                                       dataset_arr=dataset_arr,
                                       is_text=True,
-                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=100, ng_arr=[30, 15, 15, 15, 20],
-                                                                                     dm_ng=5, dm_size=8)
+                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=10, ng_arr=[5, 1, ],
+                                                                                     dm_ng=2, dm_size=4)
                                       )

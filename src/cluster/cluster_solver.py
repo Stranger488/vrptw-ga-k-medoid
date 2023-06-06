@@ -50,6 +50,8 @@ class ClusterSolver:
 
     # параллелизм здесь внутри будет для режима data_mining
     def solve_cluster_core_data_mining(self):
+        function_values = []
+
         # Заданное число итераций для dm режима
         global_best_res = None
         global_best_fitness = inf
@@ -67,8 +69,11 @@ class ClusterSolver:
                 print("DM. dm: {}, patterns_search_i: {}.".format(i, patterns_search_i))
 
                 # Получаем список с кластерами для каждого запуска
-                res, cur_best_res, cur_best_fitness, cur_best_chrom = self._make_multistart_genetic(i,
-                                                                                                    global_best_chrom)
+                res, cur_best_res, cur_best_fitness, cur_best_chrom, cur_best_hist = self._make_multistart_genetic(i,
+                                                                                                                   global_best_chrom)
+
+                function_values.extend(cur_best_hist)
+
                 # Помещаем все кластеры из разных потоков в один глобальный список
                 flatten_res = res.reshape(self._dm_size * self._k, res[0][0].shape[0])
 
@@ -115,7 +120,7 @@ class ClusterSolver:
                 global_best_fitness = cur_best_fitness
                 global_best_chrom = cur_best_chrom
 
-        return global_best_res
+        return global_best_res, function_values
 
     def _make_multistart_genetic(self, dm_iter_ind, elite_chromosome):
         # Мультистарт
@@ -134,13 +139,15 @@ class ClusterSolver:
             args.append((population, current_best_chromosome, np_rand, self._ng_arr[dm_iter_ind]))
 
         res = []
+        cur_best_hist = []
         with Pool(self._dm_size) as p:
             result = p.starmap(self._solve, args)
 
             best_res = None
             best_chromosome = None
             cur_best_fitness = inf
-            for chrom in result:
+            histories = []
+            for chrom, history in result:
                 clusters, _ = make_cluster_from_medoids(self._distances, self._dm_cur_priority_list, chrom.genes)
                 res.append(clusters)
 
@@ -152,7 +159,12 @@ class ClusterSolver:
                     best_res = clusters
                     best_chromosome = chrom
 
-        return np.array(res), best_res, cur_best_fitness, best_chromosome
+                histories.append(history)
+
+            histories = np.array(histories)
+            cur_best_hist = [min([el.fitness for el in histories[:, i].tolist()]) for i in range(histories[0].size)]
+
+        return np.array(res), best_res, cur_best_fitness, best_chromosome, cur_best_hist
 
     def solve(self):
         current_best_chromosome, population = self._init(Population(self._P, self._k, self._distances),
@@ -162,7 +174,10 @@ class ClusterSolver:
         return clusters
 
     def _solve(self, population, cur_best_chromosome, np_rand, ng):
+        history = []
+
         self._print_current_iteration_info(0, cur_best_chromosome, population)
+        history.append(cur_best_chromosome)
         for i in range(1, ng):
             population = population.selection(np_rand)
             population.crossover(self._Pc, self._Pmb, np_rand)
@@ -172,8 +187,9 @@ class ClusterSolver:
             cur_best_chromosome = self._get_new_best_chromosome(cur_best_chromosome, population)
 
             self._print_current_iteration_info(i, cur_best_chromosome, population)
+            history.append(cur_best_chromosome)
 
-        return cur_best_chromosome
+        return cur_best_chromosome, history
 
     def _init(self, population, chromosome, numpy_rand):
         population.generate_random_population(numpy_rand)

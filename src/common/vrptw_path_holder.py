@@ -11,3 +11,5 @@ class VRPTWPathHolder:
         self.EVALUATION_OUTPUT = self.BASE_CUR_SOLUTION_DIR + '/evaluation/'
         self.PLOT_STATS_OUTPUT = self.BASE_CUR_SOLUTION_DIR + '/plot_stats/'
         self.PLOT_SOLUTIONS_OUTPUT = self.BASE_CUR_SOLUTION_DIR + '/plot_solutions/'
+
+        self.CLUSTER_FUNC_OUTPUT = self.BASE_CUR_SOLUTION_DIR + '/function/'

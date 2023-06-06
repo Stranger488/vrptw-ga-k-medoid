@@ -89,14 +89,21 @@ class VRPTWSolver:
                                        k=vehicle_number)
 
         print("Start: common_id = {}".format(cluster_launch_entry.common_id))
+
+        create_directory(self._vrptw_path_holder.CLUSTER_FUNC_OUTPUT + cluster_launch_entry.common_id)
+
         # Result will be an array of clusters, where row is a cluster, value in column - point index
-        result = lambda_to_solve(cluster_solver, self._vrptw_path_holder.CLUSTER_OUTPUT
-                                 + cluster_launch_entry.common_id + '/time_cluster.csv')
+        result, function_values = lambda_to_solve(cluster_solver, self._vrptw_path_holder.CLUSTER_OUTPUT
+                                                  + cluster_launch_entry.common_id + '/time_cluster.csv')
         # Collect and parse cluster solution
         if result is not None:
             res_dataset, res_tws = self._collect_cluster_result(dataset_reduced, tws_reduced, result, points_dataset,
                                                                 cluster_launch_entry.common_id + '/', tws_all,
                                                                 service_time_all, spatiotemporal)
+
+            pd.DataFrame(function_values).to_csv(self._vrptw_path_holder.CLUSTER_FUNC_OUTPUT
+                                                 + cluster_launch_entry.common_id + '/function.csv', header=False)
+
             return ClusterResultEntry(result, res_dataset, res_tws, spatiotemporal, dataset_reduced)
 
         return None
