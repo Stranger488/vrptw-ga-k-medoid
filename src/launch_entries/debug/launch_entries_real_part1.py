@@ -33,5 +33,8 @@ vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='real_part1',
                                       dataset_arr=dataset_arr,
                                       is_text=True,
                                       custom_cluster_launch_entry=ClusterLaunchEntry(P=10, ng_arr=[5, 1, ],
-                                                                                     dm_ng=2, dm_size=4)
+                                                                                     dm_ng=2, dm_size=4),
+                                      plot_stats_type_arr=np.array([
+                                          'function_stats'
+                                      ])
                                       )

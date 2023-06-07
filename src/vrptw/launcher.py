@@ -144,7 +144,26 @@ class Launcher:
                 'data_column_name': 'std_wait_time',
                 'xlabel': '',
                 'ylabel': 'Среднеквадратичное отклонение по времени ожидания (сравнение с наилучшими решенияим)'
-            }
+            },
+            'function_stats': {
+                'plot_lambda': self._plotter.plot_stats_function,
+                'data_column_name': 'function',
+                'xlabel': 'Номер итерации',
+                'ylabel': 'Лучшее значение целевой функции'
+            },
+
+            'wait_time_per_vehicle_all_stats': {
+                'plot_lambda': self._plotter.plot_stats_all,
+                'data_column_name': 'wait_time_per_vehicle',
+                'xlabel': 'Число клиентов',
+                'ylabel': 'Время ожидания на одно ТС (сравнение с bks и предыдущим алгоритмом)'
+            },
+            'late_time_per_customer_all_stats': {
+                'plot_lambda': self._plotter.plot_stats_all,
+                'data_column_name': 'late_time_per_customer',
+                'xlabel': 'Число клиентов',
+                'ylabel': 'Время опоздания на одного клиента (сравнение с bks и предыдущим алгоритмом)'
+            },
         }
 
     def launch(self):

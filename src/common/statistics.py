@@ -39,6 +39,12 @@ class Statistics:
 
         std_wait_time_arr = []
 
+        function_arr = []
+
+        evaluation_old_arr = np.empty(shape=(self._tsptw_launch_entry_arr.size, 4))
+        wait_time_old_arr = []
+        late_time_old_arr = []
+
         # tsptw_launch_entry и cluster_launch_entry соответствуют друг другу
         for i, tsptw_launch_entry in enumerate(self._tsptw_launch_entry_arr):
             # TODO: только ради vehicle_number, может поместить куда-то количество тс?
@@ -52,12 +58,16 @@ class Statistics:
             self._fill_additional_time_stats(tsptw_launch_entry, vehicle_number, max_wait_time_arr, max_late_time_arr,
                                              wait_time_part_arr, late_time_part_arr, total_time_arr, std_wait_time_arr,
                                              avg_wait_time_arr, avg_late_time_arr)
+            self._fill_function_stats(tsptw_launch_entry, function_arr)
 
             common_id_arr.append(tsptw_launch_entry.common_id)
             dim_arr.append(tsptw_launch_entry.dataset.dim)
             k3_arr.append(tsptw_launch_entry.cluster_k3)
             dataset_type_arr.append(tsptw_launch_entry.dataset.dataset_type)
             dataset_name_arr.append(tsptw_launch_entry.dataset.name)
+
+            self._fill_evaluation_data_old(tsptw_launch_entry, vehicle_number, i,
+                                           evaluation_old_arr, wait_time_old_arr, late_time_old_arr)
 
         return pd.DataFrame({
             'common_id': common_id_arr,
@@ -81,7 +91,14 @@ class Statistics:
             'wait_time_part': wait_time_part_arr,
             'late_time_part': late_time_part_arr,
             'total_time': total_time_arr,
-            'std_wait_time': std_wait_time_arr
+            'std_wait_time': std_wait_time_arr,
+            'function': function_arr,
+
+            'distance_old': evaluation_old_arr[:, 0],
+            'wait_time_old': evaluation_old_arr[:, 1],
+            'late_time_old': evaluation_old_arr[:, 2],
+            'wait_time_old_per_vehicle': wait_time_old_arr,
+            'late_time_old_per_customer': late_time_old_arr,
         })
 
     def _fill_time_stats(self, launch_entry, time_cluster_arr, time_tsptw_arr, time_common_arr):
@@ -106,6 +123,17 @@ class Statistics:
 
         wait_time_arr.append(evaluation_arr[i][1] / vehicle_number)
         late_time_arr.append(evaluation_arr[i][2] / launch_entry.dataset.dim)
+
+    def _fill_evaluation_data_old(self, launch_entry, vehicle_number, i, evaluation_old_arr, wait_time_old_arr,
+                                  late_time_old_arr):
+        path = self._vrptw_path_holder.BASE_DIR + '/output/evaluation/' \
+               + launch_entry.dataset.name.replace('mod', 'output') + '_' + str(int(launch_entry.cluster_k3))
+
+        evaluation_data = pd.read_fwf(path + '/evaluation.csv', header=None)
+        evaluation_old_arr[i] = evaluation_data.transpose().values[0]
+
+        wait_time_old_arr.append(evaluation_old_arr[i][1] / vehicle_number)
+        late_time_old_arr.append(evaluation_old_arr[i][2] / launch_entry.dataset.dim)
 
     def _fill_additional_time_stats(self, launch_entry, vehicle_number,
                                     max_wait_time_arr, max_late_time_arr, wait_time_part_arr,
@@ -211,6 +239,8 @@ class Statistics:
             'avg_wait_time': avg_wait_time_arr,
             'avg_late_time': avg_late_time_arr,
             'std_wait_time': std_wait_time_arr,
+            'wait_time_per_vehicle': add_wait_arr,
+            'late_time_per_customer': add_late_arr
         })
 
     ### parse bks and save stats
@@ -288,3 +318,11 @@ class Statistics:
             'total_time': total_time_all,
             'distance': dist_all
         })
+
+    def _fill_function_stats(self, launch_entry, function_arr):
+        function_data = pd.read_csv(
+            self._vrptw_path_holder.CLUSTER_FUNC_OUTPUT + launch_entry.common_id + '/function.csv',
+            header=None, index_col=0
+        )
+
+        function_arr.append(function_data.values[:, 0].tolist())

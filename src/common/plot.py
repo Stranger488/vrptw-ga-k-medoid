@@ -195,8 +195,9 @@ class Plot:
         axes.set_xlabel(xlabel)
         axes.set_ylabel(ylabel)
 
-    def _plot_on_axes(self, axes, x, y, c='green', label='label', xlabel='xlabel', ylabel='ylabel', title='title'):
-        axes.plot(x, y, '.-', color=c, linewidth=self._linewidth_standart, label=label)
+    def _plot_on_axes(self, axes, x, y, c='green', label='label', xlabel='xlabel', ylabel='ylabel', title='title',
+                      linestyle='-.', linewidth=0.5):
+        axes.plot(x, y, '.-', color=c, linewidth=linewidth, label=label)
 
         axes.grid()
 
@@ -226,21 +227,70 @@ class Plot:
         fig.savefig(fname='test.png', dpi=self._dpi_standart)
         plt.show()
 
-    def plot_function(self, iter_arr, function_arr):
-        fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
+    def plot_stats_function(self, stats_df, bks_stats_df, data_column_name, xlabel='x', ylabel='y', output_dir=''):
+        grouped = stats_df.groupby('dataset_type')
+        for i, (name, group) in enumerate(grouped):
+            dim_grouped = group.groupby('dim')
 
-        self._plot_on_axes(axes, iter_arr, function_arr, xlabel='Номер итерации',
-                           ylabel='Значение целевой функции', c=cmap(j),
-                           label='График сходимости целевой функции, k3 = {}'.format(k3),
-                           title='Набор данных {}'.format(name))
+            fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
+            cmap = plt.cm.get_cmap('plasma', group.shape[0] + 1)
+            plt.rc('font', size=5)  # controls default text sizes
+            plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
+            plt.rc('ytick', labelsize=4)
 
-        axes.grid(True)
+            for j, (dim, gr) in enumerate(dim_grouped):
+                g = gr.loc[group['k3'] == 100]
 
-        final_output_dir = output_dir + name
-        create_directory(final_output_dir)
-        filename = ylabel.replace(',', '').replace(' ', '_')
-        fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
-        plt.close(fig)
+                list_values = g[data_column_name].values.tolist()[0]
+                inds = [ind for ind in range(len(list_values))]
+                self._plot_on_axes(axes, inds, list_values, xlabel=xlabel,
+                                   ylabel=ylabel, c=cmap(j),
+                                   label='График сходимости целевой функции, размерность {}'.format(dim),
+                                   title='Набор данных {}'.format(name),
+                                   linestyle='-',
+                                   linewidth=1)
+            axes.grid(True)
+
+            final_output_dir = output_dir + name
+            create_directory(final_output_dir)
+            filename = ylabel.replace(',', '').replace(' ', '_')
+            fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
+            plt.close(fig)
+
+    def plot_stats_all(self, stats_df, bks_stats_df, data_column_name, xlabel='x', ylabel='y', output_dir=''):
+        grouped = stats_df.groupby('dataset_type')
+        for i, (name, group) in enumerate(grouped):
+            g = group.loc[group['k3'] == 100]
+            fig, axes = plt.subplots(nrows=1, ncols=1, figsize=self._figsize_standart, dpi=self._dpi_standart)
+            cmap = plt.cm.get_cmap('plasma', group.shape[0] + 1)
+            plt.rc('font', size=5)  # controls default text sizes
+            plt.rc('xtick', labelsize=4)  # fontsize of the tick labels
+            plt.rc('ytick', labelsize=4)
+
+            self._plot_on_axes(axes, g['dim'], g[data_column_name], xlabel=xlabel,
+                               ylabel=ylabel, c='green',
+                               label='Результаты работы разработанного ранее алгоритма',
+                               title='Набор данных {}'.format(name))
+
+            new_column_name = data_column_name.replace('_time_', '_time_old_')
+            self._plot_on_axes(axes, g['dim'], g[new_column_name], xlabel=xlabel,
+                               ylabel=ylabel, c='red',
+                               label='Результаты работы модифицированного алгоритма',
+                               title='Набор данных {}'.format(name))
+
+            self._plot_on_axes(axes, g['dim'],
+                               bks_stats_df[bks_stats_df['name'].isin(g['name'].values)].sort_values(
+                                   'wait_time')[data_column_name],
+                               xlabel=xlabel,
+                               ylabel=ylabel, c='blue',
+                               label='Наилучшее известное решение',
+                               title='Набор данных {}'.format(name))
+            axes.grid(True)
+
+            final_output_dir = output_dir + name
+            create_directory(final_output_dir)
+            filename = ylabel.replace(',', '').replace('(', '').replace(')', '').replace(' ', '_')
+            fig.savefig(final_output_dir + '/' + filename, dpi=self._dpi_standart)
 
     @staticmethod
     def show():
