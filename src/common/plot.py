@@ -197,7 +197,7 @@ class Plot:
 
     def _plot_on_axes(self, axes, x, y, c='green', label='label', xlabel='xlabel', ylabel='ylabel', title='title',
                       linestyle='-.', linewidth=0.5):
-        axes.plot(x, y, '.-', color=c, linewidth=linewidth, label=label)
+        axes.plot(x, y, linestyle, color=c, linewidth=linewidth, label=label)
 
         axes.grid()
 
@@ -251,6 +251,11 @@ class Plot:
                                    linewidth=1)
             axes.grid(True)
 
+            for x in [30, 50, 65, 80]:
+                plt.axvline(x=x - 1)
+            plt.axvline(x=100 - 1, label='Конец итерации dm')
+            plt.legend()
+
             final_output_dir = output_dir + name
             create_directory(final_output_dir)
             filename = ylabel.replace(',', '').replace(' ', '_')
@@ -268,23 +273,23 @@ class Plot:
             plt.rc('ytick', labelsize=4)
 
             self._plot_on_axes(axes, g['dim'], g[data_column_name], xlabel=xlabel,
-                               ylabel=ylabel, c='green',
+                               ylabel=ylabel, c='grey',
                                label='Результаты работы разработанного ранее алгоритма',
-                               title='Набор данных {}'.format(name))
+                               title='Набор данных {}'.format(name), linestyle='*-')
 
             new_column_name = data_column_name.replace('_time_', '_time_old_')
             self._plot_on_axes(axes, g['dim'], g[new_column_name], xlabel=xlabel,
-                               ylabel=ylabel, c='red',
+                               ylabel=ylabel, c='lightgrey',
                                label='Результаты работы модифицированного алгоритма',
-                               title='Набор данных {}'.format(name))
+                               title='Набор данных {}'.format(name), linestyle='.-')
 
             self._plot_on_axes(axes, g['dim'],
                                bks_stats_df[bks_stats_df['name'].isin(g['name'].values)].sort_values(
                                    'wait_time')[data_column_name],
                                xlabel=xlabel,
-                               ylabel=ylabel, c='blue',
+                               ylabel=ylabel, c='black',
                                label='Наилучшее известное решение',
-                               title='Набор данных {}'.format(name))
+                               title='Набор данных {}'.format(name), linestyle='s-')
             axes.grid(True)
 
             final_output_dir = output_dir + name

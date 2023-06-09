@@ -32,7 +32,7 @@ vrptw_launch_entry = VRPTWLaunchEntry(vrptw_entry_id='testing_part1',
                                       k3_arr=np.array([100.0, ]),
                                       dataset_arr=dataset_arr,
                                       is_text=True,
-                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=50, ng_arr=[50, 20, 15, 15, 20],
+                                      custom_cluster_launch_entry=ClusterLaunchEntry(P=50, ng_arr=[30, 20, 15, 15, 20],
                                                                                      dm_ng=5,
                                                                                      dm_size=4
                                                                                      )
